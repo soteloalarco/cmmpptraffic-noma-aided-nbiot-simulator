@@ -1,0 +1,16 @@
+{
+	"simulacion" : {
+
+		"tiempoInicial" : 0,
+
+    	"TsNPRACH" : 0.04,  // 40 ms, periodicidad del canal NPRACH para dispositivos de tipo normal
+		"TsNOMA" :	1,  // 1 seg, periodo en el que se realiza el algotitmo NOMA siempre debe pasar que TsNOMA>TsNPRACH, algunas medidas para decidir un buen TsNPRACH es el tiempo suficiente para que los dispositivos completen su RA y menor al tiempo del uso del canal NPUSCH del dispositivo que lo use menos
+		"archivoEventos": "ArchivoEventos0.cvs" // nombre del archivo producido por el generador de eventos
+
+		// duracion de cada simulación en segundos
+		"duracion" : 30,
+		// tamaño de cola para msg1. set to 0 for infinity
+		"queue" : 0,
+
+	}
+}
