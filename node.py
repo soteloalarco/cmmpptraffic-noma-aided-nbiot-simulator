@@ -45,7 +45,7 @@ class Node(Module):
     RX = 2
     PROC = 3
 
-    def __init__(self, config, channel, x, y):
+    def __init__(self,id,tipo, config, channel, x, y):
         """
         Constructor.
         :param config: the set of configs loaded by the simulator
@@ -53,7 +53,7 @@ class Node(Module):
         :param x: x position
         :param y: y position
         """
-        Module.__init__(self)
+        Module.__init__(self,id,tipo)
         # load configuration parameters
         #self.datarate = config.get_param(Node.DATARATE)
         #self.queue_size = config.get_param(Node.QUEUE)

@@ -12,15 +12,17 @@ class Module:
     # instantiated
     __modules_count = 0
 
-    def __init__(self):
+    def __init__(self,id,tipo):
         """
         Constructor. Gets simulation instance for scheduling events and
         automatically assigns an ID to the module
         """
         self.sim = sim.Sim.Instance()
-        # auto assign module id
-        self.module_id = Module.__modules_count
+        # auto assign module id, ya no
+        self.module_id = id
         Module.__modules_count = Module.__modules_count + 1
+        # se asigna tipo
+        self.module_tipo= tipo
         # get data logger from simulator
         self.logger = self.sim.get_logger()
 
@@ -52,3 +54,9 @@ class Module:
         Returns module type
         """
         return self.__class__.__name__
+
+    def get_tipo(self):
+        """
+        Returns module type
+        """
+        return self.module_tipo

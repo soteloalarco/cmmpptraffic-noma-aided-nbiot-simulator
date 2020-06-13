@@ -1,6 +1,8 @@
 {
 	"simulation" : {
 
+		"dispositivos" : "ArchivoDispositivos0.csv",
+
 		// duration of each simulation in seconds
 		"duration" : 5,
 

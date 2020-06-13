@@ -12,3 +12,5 @@ __pycache__/
 aloha-normal.csv
 
 ArchivoEventos.csv
+
+*.csv

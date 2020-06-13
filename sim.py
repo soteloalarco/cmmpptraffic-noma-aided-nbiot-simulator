@@ -24,6 +24,7 @@ from config import Config
 from channel import Channel
 from node import Node
 from log import Log
+import pandas as pd
 
 # VT100 command for erasing content of the current prompt line
 ERASE_LINE = '\x1b[2K'
@@ -42,6 +43,8 @@ class Sim:
     PAR_DURATION = "duration"
     # position of the nodes
     PAR_NODES = "nodes"
+    # .cvs con información de los dispositivos
+    PAR_UE = "dispositivos"
 
     def __init__(self):
         """
@@ -108,12 +111,26 @@ class Sim:
         #random.seed(self.seed)
         # instantiate the channel
         self.channel = Channel(self.config)
-        # instantiate all the nodes
+        # nombre del archivo que contiene los dispositivos
+        self.dispositivos = self.config.get_param(self.PAR_UE)
+        # Recuperación de archivo
+        #[1, Control de iluminacion, 7.776887288396965, 26.52437539236592]
+        dispositivos_rec = pd.read_csv(self.dispositivos, index_col=0)
+        self.dispositivosLista= dispositivos_rec.values.tolist()
+        # instantiate all the nodes, apartir del arhcivo dispositivos_rec
         positions = self.config.get_param(self.PAR_NODES)
-        for p in positions:
-            x = p[0]
-            y = p[1]
-            node = Node(self.config, self.channel, x, y)
+        #creamos la estacion base como nodo 0
+        node_eNB = Node(0, 'eNB', self.config, self.channel, 0, 0)
+        # let the channel know about this node
+        self.channel.register_node(node_eNB)
+        self.nodes.append(node_eNB)
+        #creamos los dispositivos
+        for d in self.dispositivosLista:
+            id= d[0]
+            tipo= d[1]
+            x = d[2]
+            y = d[3]
+            node = Node(id,tipo,self.config, self.channel, x, y)
             # let the channel know about this node
             self.channel.register_node(node)
             node.initialize()

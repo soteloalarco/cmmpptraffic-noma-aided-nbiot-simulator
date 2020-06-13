@@ -41,7 +41,7 @@ class Channel(Module):
         Config class
         """
         # call superclass constructor
-        Module.__init__(self)
+        Module.__init__(self,-1,'canal')
         # get transmission range from configuration parameters
         #self.range = config.get_param(self.PAR_RANGE)
         # list of all communication nodes in the simulation
