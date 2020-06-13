@@ -59,7 +59,7 @@ class Node(Module):
         #self.queue_size = config.get_param(Node.QUEUE)
         #self.interarrival = Distribution(config.get_param(Node.INTERARRIVAL))
         #self.size = Distribution(config.get_param(Node.SIZE))
-        #self.proc_time = Distribution(config.get_param(Node.PROC_TIME))
+        #self.proc_time = 0.01
         #self.maxsize = config.get_param(Node.MAXSIZE)
         # queue of packets to be sent
         self.queue = []
@@ -93,7 +93,8 @@ class Node(Module):
         Handles events notified to the node
         :param event: the event
         """
-        if event.get_type() == Events.PACKET_ARRIVAL:
+        #TODO programar el handle de eventos
+        if event.get_type() == Events.PACKET_ARRIVAL: # Evento soportado
             self.handle_arrival()
         elif event.get_type() == Events.START_RX:
             self.handle_start_rx(event)
@@ -126,8 +127,10 @@ class Node(Module):
         """
         Handles a packet arrival
         """
+        #TODO leer el tamaño del paquete
+
         # draw packet size from the distribution
-        packet_size = self.size.get_value()
+        packet_size = 500 #self.size.get_value()
         # log the arrival
         self.logger.log_arrival(self, packet_size)
         if self.state == Node.IDLE:
@@ -237,7 +240,8 @@ class Node(Module):
         """
         Switches to the processing state and schedules the end_proc event
         """
-        proc_time = self.proc_time.get_value()
+        #TODO hardcoded tiempo de procesamiento
+        proc_time = 0.01
         proc = Event(self.sim.get_time() + proc_time, Events.END_PROC, self,
                      self)
         self.sim.schedule_event(proc)
@@ -295,10 +299,12 @@ class Node(Module):
         :param packet_size: size of the packet to send in bytes
         """
         assert(self.current_pkt is None)
-        duration = packet_size * 8 / self.datarate
+        #TODO hardcoded, podemos calcular el tiempo en el que se transmitirá el mensaje con la tasa lograda
+        duration = packet_size * 8 / 8000000
         # transmit packet
         packet = Packet(packet_size, duration)
-        self.channel.start_transmission(self, packet)
+        #TODO Aquí avisar a la estación base
+        #self.channel.start_transmission(self, packet)
         # schedule end of transmission
         end_tx = Event(self.sim.get_time() + duration, Events.END_TX, self,
                        self, packet)

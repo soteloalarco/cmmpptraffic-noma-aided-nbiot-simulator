@@ -16,7 +16,7 @@
 import sim
 from packet import Packet
 
-
+#TODO corregir problema con los logs
 class Log:
     """
     Defines data logging utilities
@@ -36,7 +36,7 @@ class Log:
     LOG_NODE_STATE = LOG_QUEUE_SIZE + 1
 
     def __init__(self, output_file, log_packets=True, log_queue_drops=True,
-                 log_arrivals=True, log_queue_lengths=False, log_states=False):
+                 log_arrivals=True, log_queue_lengths=True, log_states=True):
         """
         Constructor.
         :param output_file: output file name. will be overwritten if already

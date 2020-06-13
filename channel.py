@@ -94,16 +94,18 @@ class Channel(Module):
         :param source_node: node that starts the transmission
         :param packet: packet being transmitted
         """
-        for neighbor in self.neighbors[source_node.get_id()]:
-            # compute propagation delay: distance / speed of light
-            propagation_delay = self.distance(source_node, neighbor) /\
-                                Channel.SOL
-            # generate and schedule START_RX event at receiver
-            # be sure to make a copy of the packet and not pass the same
-            # reference to multiple nodes, as they will process the packet in
-            # different ways. one node might be able to receive it, one node
-            # might not
-            event = Event(self.sim.get_time() + propagation_delay,
-                          Events.START_RX, neighbor, source_node,
-                          copy.deepcopy(packet))
-            self.sim.schedule_event(event)
+        #TODO nosotros no avisamos a vecinos por eso está comentado, pero aqui tal vez deba ir la base
+
+        # for neighbor in self.neighbors[source_node.get_id()]:
+        #     # compute propagation delay: distance / speed of light
+        #     propagation_delay = self.distance(source_node, neighbor) /\
+        #                         Channel.SOL
+        #     # generate and schedule START_RX event at receiver
+        #     # be sure to make a copy of the packet and not pass the same
+        #     # reference to multiple nodes, as they will process the packet in
+        #     # different ways. one node might be able to receive it, one node
+        #     # might not
+        #     event = Event(self.sim.get_time() + propagation_delay,
+        #                   Events.START_RX, neighbor, source_node,
+        #                   copy.deepcopy(packet))
+        #     self.sim.schedule_event(event)
