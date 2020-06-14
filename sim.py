@@ -41,10 +41,14 @@ class Sim:
     PAR_SECTION = "Simulation"
     # simulation duration parameter
     PAR_DURATION = "duration"
+    # simulation duration parameter
+    PAR_TSNPRACH = "TsNPRACH"
     # position of the nodes
     PAR_NODES = "nodes"
     # .cvs con información de los dispositivos
     PAR_UE = "dispositivos"
+    # .cvs con información de los eventos
+    PAR_EVENTOS = "eventos"
 
     def __init__(self):
         """
@@ -57,6 +61,13 @@ class Sim:
         self.queue = []
         # list of nodes
         self.nodes = []
+        # list of eventos
+        self.eventos = []
+        self.eventosaux=[]
+        # lista de dispositivos a ser evaluados en el siguiente algoritmo noma
+        self.universoNOMA =[]
+        # lista de dispositivos a ser evaluados en el siguiente periodo NPRACH
+        self.universoNOMA = []
         # initialize() should be called before running the simulation
         self.initialized = False
         # empty config file
@@ -106,11 +117,21 @@ class Sim:
         self.logger = Log(self.config.get_output_file())
         # get simulation duration
         self.duration = self.config.get_param(self.PAR_DURATION)
+        # get periodo NPRACH
+        self.TsNPRACH = self.config.get_param(self.PAR_TSNPRACH)
         # get seeds. each seed generates a simulation repetition
         #self.seed = self.config.get_param(self.PAR_SEED)
         #random.seed(self.seed)
         # instantiate the channel
         self.channel = Channel(self.config)
+
+        #nombre del archivo que contiene los eventos
+        self.eventosArchivo = self.config.get_param(self.PAR_EVENTOS)
+        #recuperación del archivo
+        # [0,0.02,7,Monitoreo de agua y electricidad,0,20.65,1] => [idalarma,tiempo,iddispositivo,tipodispositivo,tipoevento,tampaquete,modelotrafico]
+        eventos_rec = pd.read_csv(self.eventosArchivo, index_col=0)
+        self.eventos = eventos_rec.values.tolist()
+
         # nombre del archivo que contiene los dispositivos
         self.dispositivos = self.config.get_param(self.PAR_UE)
         # Recuperación de archivo

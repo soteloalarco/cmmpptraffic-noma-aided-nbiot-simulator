@@ -49,6 +49,7 @@ class Event:
 
     def __lt__(self, other):
         # if the event is the same, it is not lower than itself
+        #TODO aqui me ecuntro con que self y other son distintos, son de hehco el segundo y el tercer evento y el primer evento ya desaparecio de quee
         if other.event_id == self.event_id:
             return False
         if self.event_time < other.event_time:

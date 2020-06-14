@@ -19,6 +19,7 @@ from module import Module
 from event import Event
 from events import Events
 from packet import Packet
+import numpy as np
 
 
 class Node(Module):
@@ -115,13 +116,32 @@ class Node(Module):
         """
         Schedules a new arrival event
         """
-        # extract random value for next arrival
+        enlista=False
+        #extraemos el siguiente evento correspodiente a este nodo
+        #[0,0.02,7,Monitoreo de agua y electricidad,0,20.65,1] => [idalarma,tiempo,iddispositivo,tipodispositivo,tipoevento,tampaquete,modelotrafico]
+        for evento in self.sim.eventos:
+            if evento[2]==self.module_id: # cuando se encuentre el siguiente evento en la lista corressspondiente a este modulo
+                arrival = evento[1]
+
+                # generate an event setting this node as destination
+                event = Event(arrival, Events.PACKET_ARRIVAL,
+                              self, self)
+                self.sim.eventosaux.append([event.event_id, event.event_time, event.source.get_id()])
+                self.sim.schedule_event(event)
+                enlista=True
+                # eliminamos el evento de la lista
+                self.sim.eventos.remove(evento)
+                break
+
         #TODO Hard coded el tiempo en el que pasará el siguiente arribo
-        arrival = 0.2
-        # generate an event setting this node as destination
-        event = Event(self.sim.get_time() + arrival, Events.PACKET_ARRIVAL,
-                      self, self)
-        self.sim.schedule_event(event)
+
+        # #generate an event setting this node as destination
+        if not enlista:
+            arrival=np.random.uniform(0,15,1)[0]
+            event = Event(self.sim.get_time() + arrival, Events.PACKET_ARRIVAL,
+                           self, self)
+            self.sim.eventosaux.append([event.event_id,event.event_time,event.source.get_id()])
+            self.sim.schedule_event(event)
 
     def handle_arrival(self):
         """
@@ -244,6 +264,7 @@ class Node(Module):
         proc_time = 0.01
         proc = Event(self.sim.get_time() + proc_time, Events.END_PROC, self,
                      self)
+        self.sim.eventosaux.append([proc.event_id, proc.event_time, proc.source.get_id()])
         self.sim.schedule_event(proc)
         self.state = Node.PROC
         self.logger.log_state(self, Node.PROC)
@@ -298,6 +319,7 @@ class Node(Module):
         Generates, sends, and schedules end of transmission of a new packet
         :param packet_size: size of the packet to send in bytes
         """
+        #TODO Aqui debe estar el error
         assert(self.current_pkt is None)
         #TODO hardcoded, podemos calcular el tiempo en el que se transmitirá el mensaje con la tasa lograda
         duration = packet_size * 8 / 8000000
@@ -308,6 +330,7 @@ class Node(Module):
         # schedule end of transmission
         end_tx = Event(self.sim.get_time() + duration, Events.END_TX, self,
                        self, packet)
+        self.sim.eventosaux.append([end_tx.event_id, end_tx.event_time, end_tx.source.get_id()])
         self.sim.schedule_event(end_tx)
         self.current_pkt = packet
 
