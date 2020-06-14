@@ -28,15 +28,19 @@ class Log:
     LOG_CORRUPTED = Packet.PKT_CORRUPTED
     # packet has just been generated
     LOG_GENERATED = LOG_CORRUPTED + 1
+    LOG_GENERATED_DES = 'paquete generado'
     # packet has been dropped because there is no space in the queue
     LOG_QUEUE_DROPPED = LOG_GENERATED + 1
+    LOG_QUEUE_DROPPED_DES = "paquete depreciado"
     # use to log queue size in time
     LOG_QUEUE_SIZE = LOG_QUEUE_DROPPED + 1
+    LOG_QUEUE_SIZE_DES = 'tamano queue'
     # use to log node state in time
     LOG_NODE_STATE = LOG_QUEUE_SIZE + 1
+    LOG_NODE_STATE_DES = 'nuevo estatus'
 
     def __init__(self, output_file, log_packets=True, log_queue_drops=True,
-                 log_arrivals=True, log_queue_lengths=True, log_states=False):
+                 log_arrivals=True, log_queue_lengths=True, log_states=True):
         """
         Constructor.
         :param output_file: output file name. will be overwritten if already
@@ -50,7 +54,7 @@ class Log:
         """
         self.sim = sim.Sim.Instance()
         self.log_file = open(output_file, "w")
-        self.log_file.write("time,src,tiposrc,dst,tipodst,event,size\n")
+        self.log_file.write("tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n")
         self.log_packets = log_packets
         self.log_queue_drops = log_queue_drops
         self.log_arrivals = log_arrivals
@@ -65,10 +69,11 @@ class Log:
         :param packet: the packet to log
         """
         if self.log_packets:
-            self.log_file.write("%f,%d,%s,%d,%s,%d,%d\n" %
+            # ["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
+            self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
                                 (self.sim.get_time(), source.get_id(),source.get_tipo(),
-                                 destination.get_id(),destination.get_tipo(), packet.get_state(),
-                                 packet.get_size()))
+                                 destination.get_id(),destination.get_tipo(), packet.get_state(),Packet.estados[packet.get_state()],
+                                 packet.get_size(),'bytes'))
 
     def log_queue_drop(self, source, packet_size):
         """
@@ -77,10 +82,11 @@ class Log:
         :param packet_size: size of the packet being dropped
         """
         if self.log_queue_drops:
-            self.log_file.write("%f,%d,%s,%d,%s,%d,%d\n" %
+            # ["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
+            self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
                                 (self.sim.get_time(), source.get_id(),source.get_tipo(),
-                                 source.get_id(),source.get_tipo, Log.LOG_QUEUE_DROPPED,
-                                 packet_size))
+                                 source.get_id(),source.get_tipo, Log.LOG_QUEUE_DROPPED,Log.LOG_QUEUE_DROPPED_DES,
+                                 packet_size,'bytes'))
 
     def log_arrival(self, source, packet_size):
         """
@@ -89,10 +95,11 @@ class Log:
         :param packet_size: size of the packet being dropped
         """
         if self.log_arrivals:
-            self.log_file.write("%f,%d,%s,%d,%s,%d,%d\n" %
+            #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
+            self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
                                 (self.sim.get_time(), source.get_id(),source.get_tipo(),
-                                 source.get_id(),source.get_tipo(), Log.LOG_GENERATED,
-                                 packet_size))
+                                 source.get_id(),source.get_tipo(), Log.LOG_GENERATED,Log.LOG_GENERATED_DES,
+                                 packet_size,'bytes'))
 
     def log_queue_length(self, node, length):
         """
@@ -101,9 +108,10 @@ class Log:
         :param length: length of the queue
         """
         if self.log_queue_lengths:
-            self.log_file.write("%f,%d,%s,%d,%s,%d,%d\n" %
+            #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
+            self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
                                 (self.sim.get_time(), node.get_id(),node.get_tipo(),
-                                 node.get_id(),node.get_tipo(), Log.LOG_QUEUE_SIZE, length))
+                                 node.get_id(),node.get_tipo(), Log.LOG_QUEUE_SIZE,Log.LOG_QUEUE_SIZE_DES, length,'paquetes'))
 
     def log_state(self, node, state):
         """
@@ -112,6 +120,7 @@ class Log:
         :param state: state of the node
         """
         if self.log_states:
-            self.log_file.write("%f,%d,%s,%d,%s,%d,%d\n" %
+            #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
+            self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
                                 (self.sim.get_time(), node.get_id(),node.get_tipo(),
-                                 node.get_id(),node.get_tipo(), Log.LOG_NODE_STATE, state))
+                                 node.get_id(),node.get_tipo(), Log.LOG_NODE_STATE,Log.LOG_NODE_STATE_DES, state,node.estados[state]))

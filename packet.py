@@ -29,6 +29,7 @@ class Packet:
     PKT_RECEIVED = 1
     # packet has been corrupted due to, for example, a collision
     PKT_CORRUPTED = 2
+    estados=['recibiendo','recibido','corrupto']
 
     def __init__(self, size, duration):
         """

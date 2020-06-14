@@ -45,6 +45,7 @@ class Node(Module):
     TX = 1
     RX = 2
     PROC = 3
+    estados=["IDLE","TX","RX","PROC"]
 
     def __init__(self,id,tipo, config, channel, x, y):
         """
@@ -89,6 +90,12 @@ class Node(Module):
         """
         self.schedule_next_arrival()
 
+    def initialize_eNB(self):
+        """
+        Initialization. Starts node operation by scheduling the first packet
+        """
+        self.schedule_next_periodoNPRACH()
+
     def handle_event(self, event):
         """
         Handles events notified to the node
@@ -111,6 +118,9 @@ class Node(Module):
             print("Node %d has received a notification for event type %d which"
                   " can't be handled", (self.get_id(), event.get_type()))
             sys.exit(1)
+
+    def schedule_next_periodoNPRACH(self):
+        return 0
 
     def schedule_next_arrival(self):
         """
