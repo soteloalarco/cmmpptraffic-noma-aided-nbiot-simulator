@@ -42,7 +42,11 @@ class Sim:
     # simulation duration parameter
     PAR_DURATION = "duration"
     # simulation duration parameter
+    PAR_TIEMPOMINIMO = "tiempo-minimo"
+    # simulation duration parameter
     PAR_TSNPRACH = "TsNPRACH"
+    # simulation duration parameter
+    PAR_TSNOMA = "TsNOMA"
     # position of the nodes
     PAR_NODES = "nodes"
     # .cvs con información de los dispositivos
@@ -118,9 +122,14 @@ class Sim:
 
         # get simulation duration
         self.duration = self.config.get_param(self.PAR_DURATION)
+        # get simulation duration
+        self.tiempoMinimo = self.config.get_param(self.PAR_TIEMPOMINIMO)
         # get periodo NPRACH
         self.TsNPRACH = self.config.get_param(self.PAR_TSNPRACH)
         self.sig_periodo_NPRACH=0
+        # get periodo NPRACH
+        self.TsNOMA = self.config.get_param(self.PAR_TSNOMA)
+        self.sig_periodo_NOMA = 0
         # get seeds. each seed generates a simulation repetition
         #self.seed = self.config.get_param(self.PAR_SEED)
         #random.seed(self.seed)

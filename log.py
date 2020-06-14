@@ -43,6 +43,11 @@ class Log:
     LOG_NPRACH_DES = 'NPRACH inicio'
     LOG_NPRACH_FIN = LOG_NPRACH + 1
     LOG_NPRACH_FIN_DES = 'NPRACH fin'
+    #
+    LOG_NOMA = LOG_NPRACH_FIN + 1
+    LOG_NOMA_DES = 'NOMA inicio'
+    LOG_NOMA_FIN = LOG_NOMA + 1
+    LOG_NOMA_FIN_DES = 'NOMA fin'
 
     def __init__(self, output_file, log_packets=True, log_queue_drops=True,
                  log_arrivals=True, log_queue_lengths=True, log_states=True):
@@ -146,4 +151,20 @@ class Log:
             self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
                                 (self.sim.get_time(), node.get_id(),node.get_tipo(),
                                  node.get_id(),node.get_tipo(), Log.LOG_NPRACH_FIN,Log.LOG_NPRACH_FIN_DES, throughput,'throughput'))
+
+    def log_periodoNOMA(self,node,throughput):
+
+        if self.log_states:
+            #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
+            self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
+                                (self.sim.get_time(), node.get_id(),node.get_tipo(),
+                                 node.get_id(),node.get_tipo(), Log.LOG_NOMA,Log.LOG_NOMA_DES, throughput,'dispositivos'))
+
+    def log_periodoNOMA_fin(self, node, throughput):
+
+        if self.log_states:
+            #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
+            self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
+                                (self.sim.get_time(), node.get_id(),node.get_tipo(),
+                                 node.get_id(),node.get_tipo(), Log.LOG_NOMA_FIN,Log.LOG_NOMA_FIN_DES, throughput,'throughput'))
 

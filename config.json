@@ -7,8 +7,13 @@
 
 		"TsNPRACH" : 1,
 
+		"TsNOMA" : 2,
+
 		// duration of each simulation in seconds
 		"duration" : 5,
+
+		// unidad más pequeña de tiempo
+		"tiempo-minimo" : 0.001,
 
 		// position of nodes, list of x,y pairs
 		"nodes" : [

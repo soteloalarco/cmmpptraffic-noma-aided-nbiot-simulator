@@ -96,6 +96,7 @@ class Node(Module):
         Initialization. Starts node operation by scheduling the first packet
         """
         self.schedule_next_periodoNPRACH()
+        self.schedule_next_periodoNOMA()
 
     def handle_event(self, event):
         """
@@ -117,6 +118,8 @@ class Node(Module):
             self.handle_rx_timeout(event)
         elif event.get_type() == Events.PERIODO_NPRACH:
             self.handle_periodo_nprach()
+        elif event.get_type() == Events.PERIODO_NOMA:
+            self.handle_periodo_noma()
         else:
             print("Node %d has received a notification for event type %d which"
                   " can't be handled", (self.get_id(), event.get_type()))
@@ -124,9 +127,22 @@ class Node(Module):
 
     def schedule_next_periodoNPRACH(self):
         Ts = self.sim.TsNPRACH
-        self.sim.sig_periodo_NPRACH= self.sim.sig_periodo_NPRACH + Ts
-        event = Event(self.sim.sig_periodo_NPRACH, Events.PERIODO_NPRACH,self, self)
+        # Para asegurarnos que se resuelva antes que NOMA
+        if self.sim.sig_periodo_NPRACH + Ts == self.sim.sig_periodo_NOMA:
+            self.sim.sig_periodo_NPRACH = self.sim.sig_periodo_NPRACH + Ts
+            sig_periodo_NPRACHaux= self.sim.sig_periodo_NPRACH - self.sim.tiempoMinimo
+        else:
+            self.sim.sig_periodo_NPRACH= self.sim.sig_periodo_NPRACH + Ts
+            sig_periodo_NPRACHaux=self.sim.sig_periodo_NPRACH
+        event = Event(sig_periodo_NPRACHaux, Events.PERIODO_NPRACH,self, self)
         self.sim.eventosaux.append([event.event_id,event.event_time,event.source.get_id()])
+        self.sim.schedule_event(event)
+
+    def schedule_next_periodoNOMA(self):
+        Ts = self.sim.TsNOMA
+        self.sim.sig_periodo_NOMA = self.sim.sig_periodo_NOMA + Ts
+        event = Event(self.sim.sig_periodo_NOMA, Events.PERIODO_NOMA, self, self)
+        self.sim.eventosaux.append([event.event_id, event.event_time, event.source.get_id()])
         self.sim.schedule_event(event)
 
     def schedule_next_arrival(self):
@@ -163,10 +179,21 @@ class Node(Module):
     def handle_periodo_nprach(self):
         self.logger.log_periodoNPRACH(self,len(self.sim.universoNPRACH))
         #TODO lógica para NPRACH
-        self.sim.universoNPRACH=[]
+        self.sim.universoNPRACH = [1]
+        #TODO el trhoughput se agrega al universo NOMA
+        self.sim.universoNOMA.append(1)
         throughputNPRACH=len(self.sim.universoNPRACH)
         self.logger.log_periodoNPRACH_fin(self, throughputNPRACH)
         self.schedule_next_periodoNPRACH()
+        self.sim.universoNPRACH = []
+
+    def handle_periodo_noma(self):
+        self.logger.log_periodoNOMA(self, len(self.sim.universoNOMA))
+        # TODO lógica para NOMA
+        self.sim.universoNOMA = []
+        throughputNOMA = len(self.sim.universoNOMA)
+        self.logger.log_periodoNOMA_fin(self, throughputNOMA)
+        self.schedule_next_periodoNOMA()
 
     def handle_arrival(self):
         """

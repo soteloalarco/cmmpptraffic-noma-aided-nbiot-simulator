@@ -36,3 +36,5 @@ class Events:
     RX_TIMEOUT = 6
     # perido NPRACH
     PERIODO_NPRACH = 7
+    # perido NOMA
+    PERIODO_NOMA = 8
