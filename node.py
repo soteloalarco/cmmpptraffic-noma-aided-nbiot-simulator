@@ -45,7 +45,8 @@ class Node(Module):
     TX = 1
     RX = 2
     PROC = 3
-    estados=["IDLE","TX","RX","PROC"]
+    NPRACH = 4
+    estados=["IDLE","TX","RX","PROC","NPRACH"]
 
     def __init__(self,id,tipo, config, channel, x, y):
         """
@@ -114,13 +115,19 @@ class Node(Module):
             self.handle_end_proc(event)
         elif event.get_type() == Events.RX_TIMEOUT:
             self.handle_rx_timeout(event)
+        elif event.get_type() == Events.PERIODO_NPRACH:
+            self.handle_periodo_nprach()
         else:
             print("Node %d has received a notification for event type %d which"
                   " can't be handled", (self.get_id(), event.get_type()))
             sys.exit(1)
 
     def schedule_next_periodoNPRACH(self):
-        return 0
+        Ts = self.sim.TsNPRACH
+        self.sim.sig_periodo_NPRACH= self.sim.sig_periodo_NPRACH + Ts
+        event = Event(self.sim.sig_periodo_NPRACH, Events.PERIODO_NPRACH,self, self)
+        self.sim.eventosaux.append([event.event_id,event.event_time,event.source.get_id()])
+        self.sim.schedule_event(event)
 
     def schedule_next_arrival(self):
         """
@@ -153,6 +160,14 @@ class Node(Module):
         #     self.sim.eventosaux.append([event.event_id,event.event_time,event.source.get_id()])
         #     self.sim.schedule_event(event)
 
+    def handle_periodo_nprach(self):
+        self.logger.log_periodoNPRACH(self,len(self.sim.universoNPRACH))
+        #TODO lógica para NPRACH
+        self.sim.universoNPRACH=[]
+        throughputNPRACH=len(self.sim.universoNPRACH)
+        self.logger.log_periodoNPRACH_fin(self, throughputNPRACH)
+        self.schedule_next_periodoNPRACH()
+
     def handle_arrival(self):
         """
         Handles a packet arrival
@@ -164,12 +179,17 @@ class Node(Module):
         # log the arrival
         self.logger.log_arrival(self, packet_size)
         if self.state == Node.IDLE:
+
             # if we are in a idle state, then there must be no packets in the
             # queue
             assert(len(self.queue) == 0)
             # if current state is IDLE and there are no packets in the queue, we
             # can start transmitting
             self.transmit_packet(packet_size)
+
+            #se agrega el paquete a la lista del universo
+            self.sim.universoNPRACH.append(self)
+
             self.state = Node.TX
             self.logger.log_state(self, Node.TX)
         else:

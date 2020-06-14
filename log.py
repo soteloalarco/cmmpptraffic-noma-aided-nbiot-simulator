@@ -38,6 +38,11 @@ class Log:
     # use to log node state in time
     LOG_NODE_STATE = LOG_QUEUE_SIZE + 1
     LOG_NODE_STATE_DES = 'nuevo estatus'
+    #
+    LOG_NPRACH= LOG_NODE_STATE + 1
+    LOG_NPRACH_DES = 'NPRACH inicio'
+    LOG_NPRACH_FIN = LOG_NPRACH + 1
+    LOG_NPRACH_FIN_DES = 'NPRACH fin'
 
     def __init__(self, output_file, log_packets=True, log_queue_drops=True,
                  log_arrivals=True, log_queue_lengths=True, log_states=True):
@@ -124,3 +129,21 @@ class Log:
             self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
                                 (self.sim.get_time(), node.get_id(),node.get_tipo(),
                                  node.get_id(),node.get_tipo(), Log.LOG_NODE_STATE,Log.LOG_NODE_STATE_DES, state,node.estados[state]))
+
+    def log_periodoNPRACH(self,node,throughput):
+
+        if self.log_states:
+            #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
+            self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
+                                (self.sim.get_time(), node.get_id(),node.get_tipo(),
+                                 node.get_id(),node.get_tipo(), Log.LOG_NPRACH,Log.LOG_NPRACH_DES, throughput,'preambulos'))
+
+
+    def log_periodoNPRACH_fin(self,node,throughput):
+
+        if self.log_states:
+            #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
+            self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
+                                (self.sim.get_time(), node.get_id(),node.get_tipo(),
+                                 node.get_id(),node.get_tipo(), Log.LOG_NPRACH_FIN,Log.LOG_NPRACH_FIN_DES, throughput,'throughput'))
+

@@ -67,7 +67,7 @@ class Sim:
         # lista de dispositivos a ser evaluados en el siguiente algoritmo noma
         self.universoNOMA =[]
         # lista de dispositivos a ser evaluados en el siguiente periodo NPRACH
-        self.universoNOMA = []
+        self.universoNPRACH = []
         # initialize() should be called before running the simulation
         self.initialized = False
         # empty config file
@@ -120,6 +120,7 @@ class Sim:
         self.duration = self.config.get_param(self.PAR_DURATION)
         # get periodo NPRACH
         self.TsNPRACH = self.config.get_param(self.PAR_TSNPRACH)
+        self.sig_periodo_NPRACH=0
         # get seeds. each seed generates a simulation repetition
         #self.seed = self.config.get_param(self.PAR_SEED)
         #random.seed(self.seed)
@@ -145,6 +146,7 @@ class Sim:
         node_eNB = Node(0, 'eNB', self.config, self.channel, 0, 0)
         # let the channel know about this node
         self.channel.register_node(node_eNB)
+        node_eNB.initialize_eNB()
         self.nodes.append(node_eNB)
         #creamos los dispositivos
         for d in self.dispositivosLista:
