@@ -1,16 +1,25 @@
 {
-	"simulacion" : {
+	"simulation" : {
 
-		"tiempoInicial" : 0,
+		"dispositivos" : "ArchivoDispositivos0.csv",
 
-    	"TsNPRACH" : 0.04,  // 40 ms, periodicidad del canal NPRACH para dispositivos de tipo normal
-		"TsNOMA" :	1,  // 1 seg, periodo en el que se realiza el algotitmo NOMA siempre debe pasar que TsNOMA>TsNPRACH, algunas medidas para decidir un buen TsNPRACH es el tiempo suficiente para que los dispositivos completen su RA y menor al tiempo del uso del canal NPUSCH del dispositivo que lo use menos
-		"archivoEventos": "ArchivoEventos0.cvs" // nombre del archivo producido por el generador de eventos
+		"eventos" : "ArchivoEventos0.csv",
 
-		// duracion de cada simulación en segundos
-		"duracion" : 30,
-		// tamaño de cola para msg1. set to 0 for infinity
-		"queue" : 0,
+		"TsNPRACH" : 1,
 
+		"TsNOMA" : 2,
+
+		// duration of each simulation in seconds
+		"duration" : 5,
+
+		// unidad más pequeña de tiempo
+		"tiempo-minimo" : 0.001,
+
+		// position of nodes, list of x,y pairs
+		"nodes" : [
+    [[16.282,11.984], [3.513,1.589], [22.148,8.109], [8.207,9.294], [5.362,19.339], [19.02,4.388], [7.473,19.38], [16.913,22.015], [23.739,6.956], [21.951,17.042]]],
+
+		// log file name using configuration parameters
+		"output" : "noma-aided-nbiot-logs.csv"
 	}
 }
