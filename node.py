@@ -116,7 +116,7 @@ class Node(Module):
         """
         Schedules a new arrival event
         """
-        enlista=False
+        #enlista=False
         #extraemos el siguiente evento correspodiente a este nodo
         #[0,0.02,7,Monitoreo de agua y electricidad,0,20.65,1] => [idalarma,tiempo,iddispositivo,tipodispositivo,tipoevento,tampaquete,modelotrafico]
         for evento in self.sim.eventos:
@@ -128,7 +128,7 @@ class Node(Module):
                               self, self)
                 self.sim.eventosaux.append([event.event_id, event.event_time, event.source.get_id()])
                 self.sim.schedule_event(event)
-                enlista=True
+                #enlista=True
                 # eliminamos el evento de la lista
                 self.sim.eventos.remove(evento)
                 break
@@ -136,12 +136,12 @@ class Node(Module):
         #TODO Hard coded el tiempo en el que pasará el siguiente arribo
 
         # #generate an event setting this node as destination
-        if not enlista:
-            arrival=np.random.uniform(0,15,1)[0]
-            event = Event(self.sim.get_time() + arrival, Events.PACKET_ARRIVAL,
-                           self, self)
-            self.sim.eventosaux.append([event.event_id,event.event_time,event.source.get_id()])
-            self.sim.schedule_event(event)
+        # if not enlista:
+        #     arrival=1.6
+        #     event = Event(self.sim.get_time() + arrival, Events.PACKET_ARRIVAL,
+        #                    self, self)
+        #     self.sim.eventosaux.append([event.event_id,event.event_time,event.source.get_id()])
+        #     self.sim.schedule_event(event)
 
     def handle_arrival(self):
         """

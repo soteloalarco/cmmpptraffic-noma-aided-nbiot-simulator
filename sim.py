@@ -115,6 +115,7 @@ class Sim:
         self.config.set_run_number(run_number)
         # instantiate data logger
         self.logger = Log(self.config.get_output_file())
+
         # get simulation duration
         self.duration = self.config.get_param(self.PAR_DURATION)
         # get periodo NPRACH
@@ -211,6 +212,7 @@ class Sim:
             sys.exit(1)
 
     def run(self):
+
         """
         Runs the simulation.
         """
@@ -245,6 +247,7 @@ class Sim:
         print("Total simulation time: %d hours, %d minutes, %d seconds" %
               (total_time // 3600, total_time % 3600 // 60,
                total_time % 3600 % 60))
+        self.logger.log_file.close()
 
     def print_percentage(self, first):
         # go back to the beginning of the line
