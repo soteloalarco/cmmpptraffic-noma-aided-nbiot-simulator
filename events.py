@@ -38,3 +38,5 @@ class Events:
     PERIODO_NPRACH = 7
     # perido NOMA
     PERIODO_NOMA = 8
+    # start reception event msg1
+    START_TX_MSG1 = 9

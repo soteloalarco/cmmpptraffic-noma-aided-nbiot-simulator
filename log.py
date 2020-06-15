@@ -135,6 +135,19 @@ class Log:
                                 (self.sim.get_time(), node.get_id(),node.get_tipo(),
                                  node.get_id(),node.get_tipo(), Log.LOG_NODE_STATE,Log.LOG_NODE_STATE_DES, state,node.estados[state]))
 
+    def log_state_event(self, node,event, state):
+        """
+        Logs the state of a particular node
+        :param node: node
+        :param state: state of the node
+        """
+        if self.log_states:
+            #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
+            self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
+                                (self.sim.get_time(), event.source.get_id(),event.source.get_id(),
+                                 node.get_id(),node.get_tipo(), Log.LOG_NODE_STATE,Log.LOG_NODE_STATE_DES, state,node.estados[state]))
+
+
     def log_periodoNPRACH(self,node,throughput):
 
         if self.log_states:

@@ -46,7 +46,8 @@ class Node(Module):
     RX = 2
     PROC = 3
     NPRACH = 4
-    estados=["IDLE","TX","RX","PROC","NPRACH"]
+    TX_MSG1 = 5
+    estados=["IDLE","TX","RX","PROC-RA","NPRACH","TX-MSG1"]
 
     def __init__(self,id,tipo, config, channel, x, y):
         """
@@ -95,8 +96,9 @@ class Node(Module):
         """
         Initialization. Starts node operation by scheduling the first packet
         """
-        self.schedule_next_periodoNPRACH()
         self.schedule_next_periodoNOMA()
+        self.schedule_next_periodoNPRACH()
+
 
     def handle_event(self, event):
         """
@@ -106,6 +108,8 @@ class Node(Module):
         #TODO programar el handle de eventos
         if event.get_type() == Events.PACKET_ARRIVAL: # Evento soportado
             self.handle_arrival()
+        elif event.get_type() == Events.START_TX_MSG1:
+            self.handle_start_tx(event)
         elif event.get_type() == Events.START_RX:
             self.handle_start_rx(event)
         elif event.get_type() == Events.END_RX:
@@ -130,10 +134,10 @@ class Node(Module):
         # Para asegurarnos que se resuelva antes que NOMA
         if self.sim.sig_periodo_NPRACH + Ts == self.sim.sig_periodo_NOMA:
             self.sim.sig_periodo_NPRACH = self.sim.sig_periodo_NPRACH + Ts
-            sig_periodo_NPRACHaux= self.sim.sig_periodo_NPRACH - self.sim.tiempoMinimo
+            sig_periodo_NPRACHaux= self.sim.sig_periodo_NPRACH + self.sim.duration_NPRACH #5.6 ms     #packet_size * 8 / 8000000
         else:
             self.sim.sig_periodo_NPRACH= self.sim.sig_periodo_NPRACH + Ts
-            sig_periodo_NPRACHaux=self.sim.sig_periodo_NPRACH
+            sig_periodo_NPRACHaux= self.sim.sig_periodo_NPRACH + self.sim.duration_NPRACH #5.6 ms     #packet_size * 8 / 8000000
         event = Event(sig_periodo_NPRACHaux, Events.PERIODO_NPRACH,self, self)
         self.sim.eventosaux.append([event.event_id,event.event_time,event.source.get_id()])
         self.sim.schedule_event(event)
@@ -141,7 +145,7 @@ class Node(Module):
     def schedule_next_periodoNOMA(self):
         Ts = self.sim.TsNOMA
         self.sim.sig_periodo_NOMA = self.sim.sig_periodo_NOMA + Ts
-        event = Event(self.sim.sig_periodo_NOMA, Events.PERIODO_NOMA, self, self)
+        event = Event(self.sim.sig_periodo_NOMA + self.sim.duration_NPRACH + self.sim.tiempoMinimo, Events.PERIODO_NOMA, self, self)
         self.sim.eventosaux.append([event.event_id, event.event_time, event.source.get_id()])
         self.sim.schedule_event(event)
 
@@ -149,6 +153,7 @@ class Node(Module):
         """
         Schedules a new arrival event
         """
+        #TODO guardar tamaño de paquete
         #enlista=False
         #extraemos el siguiente evento correspodiente a este nodo
         #[0,0.02,7,Monitoreo de agua y electricidad,0,20.65,1] => [idalarma,tiempo,iddispositivo,tipodispositivo,tipoevento,tampaquete,modelotrafico]
@@ -195,16 +200,8 @@ class Node(Module):
         self.logger.log_periodoNOMA_fin(self, throughputNOMA)
         self.schedule_next_periodoNOMA()
 
-    def handle_arrival(self):
-        """
-        Handles a packet arrival
-        """
-        #TODO leer el tamaño del paquete
-
-        # draw packet size from the distribution
-        packet_size = 500 #self.size.get_value()
-        # log the arrival
-        self.logger.log_arrival(self, packet_size)
+    def handle_start_tx(self,event):
+        packet_size = 500  # self.size.get_value()
         if self.state == Node.IDLE:
 
             # if we are in a idle state, then there must be no packets in the
@@ -212,13 +209,14 @@ class Node(Module):
             assert(len(self.queue) == 0)
             # if current state is IDLE and there are no packets in the queue, we
             # can start transmitting
+            # event.obj.pa
             self.transmit_packet(packet_size)
 
             #se agrega el paquete a la lista del universo
             self.sim.universoNPRACH.append(self)
 
             self.state = Node.TX
-            self.logger.log_state(self, Node.TX)
+            self.logger.log_state(self, Node.TX_MSG1)
         else:
             # if we are either transmitting or receiving, packet must be queued
             if self.queue_size == 0 or len(self.queue) < self.queue_size:
@@ -230,6 +228,25 @@ class Node(Module):
                 self.logger.log_queue_drop(self, packet_size)
         # schedule next arrival
         self.schedule_next_arrival()
+
+
+    def handle_arrival(self):
+        """
+        Handles a packet transmission
+        """
+        #TODO leer el tamaño del paquete
+
+        packet_size = 500  # self.size.get_value()
+
+        # log the arrival
+        self.logger.log_arrival(self, packet_size)
+        # Programamos la tx para el siguiente periodo NPRACH
+        start_tx = Event(self.sim.sig_periodo_NPRACH, Events.START_TX_MSG1, self,
+                       self)
+        self.sim.eventosaux.append([start_tx.event_id, start_tx.event_time, start_tx.source.get_id()])
+        self.sim.schedule_event(start_tx)
+
+
 
     def handle_start_rx(self, event):
         """
@@ -376,16 +393,15 @@ class Node(Module):
         Generates, sends, and schedules end of transmission of a new packet
         :param packet_size: size of the packet to send in bytes
         """
-        #TODO Aqui debe estar el error
-        assert(self.current_pkt is None)
+
         #TODO hardcoded, podemos calcular el tiempo en el que se transmitirá el mensaje con la tasa lograda
-        duration = packet_size * 8 / 8000000
+
+        packet = Packet(packet_size, self.sim.duration_NPRACH)
         # transmit packet
-        packet = Packet(packet_size, duration)
-        #TODO Aquí avisar a la estación base
         #self.channel.start_transmission(self, packet)
         # schedule end of transmission
-        end_tx = Event(self.sim.get_time() + duration, Events.END_TX, self,
+        # aquí programamos el envio en el siguiente periodo NPRACH
+        end_tx = Event(self.sim.get_time() + self.sim.duration_NPRACH, Events.END_TX, self,
                        self, packet)
         self.sim.eventosaux.append([end_tx.event_id, end_tx.event_time, end_tx.source.get_id()])
         self.sim.schedule_event(end_tx)
