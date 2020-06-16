@@ -47,7 +47,8 @@ class Node(Module):
     PROC = 3
     NPRACH = 4
     TX_MSG1 = 5
-    estados=["IDLE","TX","RX","PROC-RA","NPRACH","TX-MSG1"]
+    PROC_RA = 6
+    estados=["IDLE","TX-PKG","RX","PROC","NPRACH","TX-MSG1","PROC-RA"]
 
     def __init__(self,id,tipo, config, channel, x, y):
         """
@@ -109,7 +110,9 @@ class Node(Module):
         if event.get_type() == Events.PACKET_ARRIVAL: # Evento soportado
             self.handle_arrival()
         elif event.get_type() == Events.START_TX_MSG1:
-            self.handle_start_tx(event)
+            self.handle_start_tx_msg1(event)
+        elif event.get_type() == Events.END_TX_MSG1:
+            self.handle_end_tx_msg1(event)
         elif event.get_type() == Events.START_RX:
             self.handle_start_rx(event)
         elif event.get_type() == Events.END_RX:
@@ -118,6 +121,8 @@ class Node(Module):
             self.handle_end_tx(event)
         elif event.get_type() == Events.END_PROC:
             self.handle_end_proc(event)
+        elif event.get_type() == Events.END_PROC_MSG1:
+            self.handle_end_proc_msg1(event)
         elif event.get_type() == Events.RX_TIMEOUT:
             self.handle_rx_timeout(event)
         elif event.get_type() == Events.PERIODO_NPRACH:
@@ -200,7 +205,9 @@ class Node(Module):
         self.logger.log_periodoNOMA_fin(self, throughputNOMA)
         self.schedule_next_periodoNOMA()
 
-    def handle_start_tx(self,event):
+    #def handle_start_tx(self):
+
+    def handle_start_tx_msg1(self, event):
         packet_size = 500  # self.size.get_value()
         if self.state == Node.IDLE:
 
@@ -210,12 +217,12 @@ class Node(Module):
             # if current state is IDLE and there are no packets in the queue, we
             # can start transmitting
             # event.obj.pa
-            self.transmit_packet(packet_size)
+            self.transmit_msg1(packet_size)
 
             #se agrega el paquete a la lista del universo
             self.sim.universoNPRACH.append(self)
 
-            self.state = Node.TX
+            self.state = Node.TX_MSG1
             self.logger.log_state(self, Node.TX_MSG1)
         else:
             # if we are either transmitting or receiving, packet must be queued
@@ -234,7 +241,7 @@ class Node(Module):
         """
         Handles a packet transmission
         """
-        #TODO leer el tamaño del paquete
+        #TODO leer el tamaño del paquete y agregarlo al evento
 
         packet_size = 500  # self.size.get_value()
 
@@ -335,13 +342,21 @@ class Node(Module):
         Switches to the processing state and schedules the end_proc event
         """
         #TODO hardcoded tiempo de procesamiento
-        proc_time = 0.01
+        proc_time = 0
         proc = Event(self.sim.get_time() + proc_time, Events.END_PROC, self,
                      self)
         self.sim.eventosaux.append([proc.event_id, proc.event_time, proc.source.get_id()])
         self.sim.schedule_event(proc)
         self.state = Node.PROC
-        self.logger.log_state(self, Node.PROC)
+        #self.logger.log_state(self, Node.PROC)
+
+    def switch_to_proc_msg1(self):
+        proc = Event(self.sim.sig_periodo_NPRACH +self.sim.duration_NPRACH+ self.sim.time_slot, Events.END_PROC_MSG1, self,
+                     self)
+        self.sim.eventosaux.append([proc.event_id, proc.event_time, proc.source.get_id()])
+        self.sim.schedule_event(proc)
+        self.state = Node.PROC_RA
+        self.logger.log_state(self, Node.PROC_RA)
 
     def handle_rx_timeout(self, event):
         """
@@ -358,6 +373,13 @@ class Node(Module):
         self.switch_to_proc()
         self.timeout_event = None
 
+    def handle_end_tx_msg1(self, event):
+        assert (self.state == Node.TX_MSG1)
+        assert (self.current_pkt is not None)
+        assert (self.current_pkt.get_id() == event.get_obj().get_id())
+        self.current_pkt = None
+        self.switch_to_proc_msg1()
+
     def handle_end_tx(self, event):
         """
         Handles the end of a transmission done by this node
@@ -369,6 +391,22 @@ class Node(Module):
         self.current_pkt = None
         # the only thing to do here is to move to the PROC state
         self.switch_to_proc()
+
+    def handle_end_proc_msg1(self, event):
+        #TODO programar bien la transmision del paquete porq ahorita nadamas tenemos 1 paquete y no el preambulo
+        assert (self.state == Node.PROC_RA)
+        # if len(self.queue) == 1:
+            # resuming operations but nothing to transmit. back to IDLE
+        self.transmit_packet(packet_size=500)
+        self.state = Node.TX
+        self.logger.log_state(self, Node.TX)
+        # else:
+        #     # there is a packet ready, trasmit it
+        #     packet_size = self.queue.pop(0)
+        #     self.transmit_packet(packet_size)
+        #     self.state = Node.TX
+        #     self.logger.log_state(self, Node.TX)
+        #     self.logger.log_queue_length(self, len(self.queue))
 
     def handle_end_proc(self, event):
         """
@@ -388,6 +426,25 @@ class Node(Module):
             self.logger.log_state(self, Node.TX)
             self.logger.log_queue_length(self, len(self.queue))
 
+    def transmit_msg1(self, packet_size):
+        """
+        Generates, sends, and schedules end of transmission of a new packet
+        :param packet_size: size of the packet to send in bytes
+        """
+
+        #TODO hardcoded, podemos calcular el tiempo en el que se transmitirá el mensaje con la tasa lograda ?
+
+        packet = Packet(packet_size, self.sim.duration_NPRACH)
+        # transmit packet
+        #self.channel.start_transmission(self, packet)
+        # schedule end of transmission
+        # aquí programamos el envio en el siguiente periodo NPRACH
+        end_tx_msg1 = Event(self.sim.get_time() + self.sim.duration_NPRACH, Events.END_TX_MSG1, self,
+                       self, packet)
+        self.sim.eventosaux.append([end_tx_msg1.event_id, end_tx_msg1.event_time, end_tx_msg1.source.get_id()])
+        self.sim.schedule_event(end_tx_msg1)
+        self.current_pkt = packet
+
     def transmit_packet(self, packet_size):
         """
         Generates, sends, and schedules end of transmission of a new packet
@@ -401,7 +458,7 @@ class Node(Module):
         #self.channel.start_transmission(self, packet)
         # schedule end of transmission
         # aquí programamos el envio en el siguiente periodo NPRACH
-        end_tx = Event(self.sim.get_time() + self.sim.duration_NPRACH, Events.END_TX, self,
+        end_tx = Event(self.sim.sig_periodo_NOMA  -self.sim.tiempoMinimo, Events.END_TX, self,
                        self, packet)
         self.sim.eventosaux.append([end_tx.event_id, end_tx.event_time, end_tx.source.get_id()])
         self.sim.schedule_event(end_tx)

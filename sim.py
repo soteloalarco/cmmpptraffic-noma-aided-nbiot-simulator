@@ -124,6 +124,7 @@ class Sim:
         self.duration = self.config.get_param(self.PAR_DURATION)
         # get simulation duration
         self.tiempoMinimo = self.config.get_param(self.PAR_TIEMPOMINIMO)
+        self.time_slot=0.0005
         # get periodo NPRACH
         self.TsNPRACH = self.config.get_param(self.PAR_TSNPRACH)
         self.sig_periodo_NPRACH=0

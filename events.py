@@ -32,6 +32,9 @@ class Events:
     # end of processing after reception or transmission. can start operations
     # again
     END_PROC = 5
+    # end of processing after reception or transmission. can start operations
+    # again
+    END_PROC_MSG1 = 5
     # timeout for RX state avoiding getting stuck into RX indefinitely
     RX_TIMEOUT = 6
     # perido NPRACH
@@ -40,3 +43,6 @@ class Events:
     PERIODO_NOMA = 8
     # start reception event msg1
     START_TX_MSG1 = 9
+    # end reception event msg1
+    END_TX_MSG1 = 10
+    END_PROC_MSG1 = 11
