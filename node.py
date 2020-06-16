@@ -139,10 +139,10 @@ class Node(Module):
         # Para asegurarnos que se resuelva antes que NOMA
         if self.sim.sig_periodo_NPRACH + Ts == self.sim.sig_periodo_NOMA:
             self.sim.sig_periodo_NPRACH = self.sim.sig_periodo_NPRACH + Ts
-            sig_periodo_NPRACHaux= self.sim.sig_periodo_NPRACH + self.sim.duration_NPRACH #5.6 ms     #packet_size * 8 / 8000000
+            sig_periodo_NPRACHaux= self.sim.sig_periodo_NPRACH + self.sim.duracion_preambulo #5.6 ms     #packet_size * 8 / 8000000
         else:
             self.sim.sig_periodo_NPRACH= self.sim.sig_periodo_NPRACH + Ts
-            sig_periodo_NPRACHaux= self.sim.sig_periodo_NPRACH + self.sim.duration_NPRACH #5.6 ms     #packet_size * 8 / 8000000
+            sig_periodo_NPRACHaux= self.sim.sig_periodo_NPRACH + self.sim.duracion_preambulo #5.6 ms     #packet_size * 8 / 8000000
         event = Event(sig_periodo_NPRACHaux, Events.PERIODO_NPRACH,self, self)
         self.sim.eventosaux.append([event.event_id,event.event_time,event.source.get_id()])
         self.sim.schedule_event(event)
@@ -150,7 +150,7 @@ class Node(Module):
     def schedule_next_periodoNOMA(self):
         Ts = self.sim.TsNOMA
         self.sim.sig_periodo_NOMA = self.sim.sig_periodo_NOMA + Ts
-        event = Event(self.sim.sig_periodo_NOMA + self.sim.duration_NPRACH + self.sim.tiempoMinimo, Events.PERIODO_NOMA, self, self)
+        event = Event(self.sim.sig_periodo_NOMA + self.sim.duracion_preambulo + self.sim.tiempoMinimo, Events.PERIODO_NOMA, self, self)
         self.sim.eventosaux.append([event.event_id, event.event_time, event.source.get_id()])
         self.sim.schedule_event(event)
 
@@ -188,10 +188,11 @@ class Node(Module):
 
     def handle_periodo_nprach(self):
         self.logger.log_periodoNPRACH(self,len(self.sim.universoNPRACH))
-        #TODO lógica para NPRACH
-        self.sim.universoNPRACH = [1]
+        #TODO lógica para NPRACH, tengo que agregar un pop del evento, entonces en lugar de guardar paquete debo guardar evento
+        aleatorio=int(np.random.uniform(0,len(self.sim.universoNPRACH),1))
+        throughput=[1]*aleatorio
+        self.sim.universoNPRACH = throughput
         #TODO el trhoughput se agrega al universo NOMA
-        self.sim.universoNOMA.append(1)
         throughputNPRACH=len(self.sim.universoNPRACH)
         self.logger.log_periodoNPRACH_fin(self, throughputNPRACH)
         self.schedule_next_periodoNPRACH()
@@ -200,10 +201,13 @@ class Node(Module):
     def handle_periodo_noma(self):
         self.logger.log_periodoNOMA(self, len(self.sim.universoNOMA))
         # TODO lógica para NOMA
-        self.sim.universoNOMA = []
+        aleatorio = int(np.random.uniform(0, len(self.sim.universoNOMA), 1))
+        throughput = [1] * aleatorio
+        self.sim.universoNOMA = throughput
         throughputNOMA = len(self.sim.universoNOMA)
         self.logger.log_periodoNOMA_fin(self, throughputNOMA)
         self.schedule_next_periodoNOMA()
+        self.sim.universoNOMA = []
 
     #def handle_start_tx(self):
 
@@ -351,7 +355,7 @@ class Node(Module):
         #self.logger.log_state(self, Node.PROC)
 
     def switch_to_proc_msg1(self):
-        proc = Event(self.sim.sig_periodo_NPRACH +self.sim.duration_NPRACH+ self.sim.time_slot, Events.END_PROC_MSG1, self,
+        proc = Event(self.sim.sig_periodo_NPRACH + self.sim.duracion_preambulo + self.sim.time_slot, Events.END_PROC_MSG1, self,
                      self)
         self.sim.eventosaux.append([proc.event_id, proc.event_time, proc.source.get_id()])
         self.sim.schedule_event(proc)
@@ -434,13 +438,13 @@ class Node(Module):
 
         #TODO hardcoded, podemos calcular el tiempo en el que se transmitirá el mensaje con la tasa lograda ?
 
-        packet = Packet(packet_size, self.sim.duration_NPRACH)
+        packet = Packet(packet_size, self.sim.duracion_preambulo)
         # transmit packet
         #self.channel.start_transmission(self, packet)
         # schedule end of transmission
         # aquí programamos el envio en el siguiente periodo NPRACH
-        end_tx_msg1 = Event(self.sim.get_time() + self.sim.duration_NPRACH, Events.END_TX_MSG1, self,
-                       self, packet)
+        end_tx_msg1 = Event(self.sim.get_time() + self.sim.duracion_preambulo, Events.END_TX_MSG1, self,
+                            self, packet)
         self.sim.eventosaux.append([end_tx_msg1.event_id, end_tx_msg1.event_time, end_tx_msg1.source.get_id()])
         self.sim.schedule_event(end_tx_msg1)
         self.current_pkt = packet
@@ -453,7 +457,9 @@ class Node(Module):
 
         #TODO hardcoded, podemos calcular el tiempo en el que se transmitirá el mensaje con la tasa lograda
 
-        packet = Packet(packet_size, self.sim.duration_NPRACH)
+        packet = Packet(packet_size, self.sim.duracion_preambulo)
+        # se agrega el paquete a la lista del universo NPRACH
+        self.sim.universoNOMA.append(self)
         # transmit packet
         #self.channel.start_transmission(self, packet)
         # schedule end of transmission
