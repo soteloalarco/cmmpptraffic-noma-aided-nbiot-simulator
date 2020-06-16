@@ -1,3 +1,7 @@
+# la versión original de este software libre ha sido modificada a su
+# forma actual por Rolando Sotelo y Fernando Salazar, pero hereda su
+# licencia de uso público
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or

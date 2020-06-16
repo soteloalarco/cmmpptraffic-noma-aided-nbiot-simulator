@@ -1,3 +1,7 @@
+# la versión original de este software libre ha sido modificada a su
+# forma actual por Rolando Sotelo y Fernando Salazar, pero hereda su
+# licencia de uso público
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -18,19 +22,22 @@ from events import Events
 
 class Event:
     """
+    Define la estructura básica de un evento
     Defines the basic structure of an event
     """
+    # contador utilizado para asignar id's únicos a cada evento
     # counter used for assigning unique IDs to events
     event_counter = 0
 
     def __init__(self, event_time, event_type, destination, source, obj=None):
         """
+        Crea un evento.
         Creates an event.
-        :param event_time: time at which the event should be scheduled
-        :param event_type: type of event
-        :param destination: destination module that should be notified
-        :param source: module generating the event
-        :param obj: optional object to be attached to the event
+        :param event_time: momento en el que el evento debe calendarizarse| time at which the event should be scheduled
+        :param event_type: tipo de evento | type of event
+        :param destination: módulo destino que debe ser notificado| destination module that should be notified
+        :param source: módulo que genera el evento |  module generating the event
+        :param obj: objeto opcional a ser asignado al evento | optional object to be attached to the event
         """
         self.event_id = Event.event_counter
         Event.event_counter += 1
@@ -48,50 +55,57 @@ class Event:
         return False
 
     def __lt__(self, other):
+        # si el evento es el mismo, no es menor a si mismo
         # if the event is the same, it is not lower than itself
-        #TODO aqui me ecuntro con que self y other son distintos, son de hehco el segundo y el tercer evento y el primer evento ya desaparecio de quee
         if other.event_id == self.event_id:
             return False
         if self.event_time < other.event_time:
             return True
         if self.event_time > other.event_time:
             return False
+        # si el tiempo es exactamente el mismo, aquel con el id menor es el menor de los dos
         # if the time is exactly the same, the one with the lower id is the
         # lowest of the two
         return self.event_id < other.event_id
 
     def get_time(self):
         """
-        Returns event time
+        Retorna el tiempo del evento.
+        Returns event time.
         """
         return self.event_time
 
     def get_type(self):
         """
-        Returns event type
+        Retorna el tipo del evento.
+        Returns event type.
         """
         return self.event_type
 
     def get_destination(self):
         """
-        Returns event destination
+        Retorna el destino del evento.
+        Returns event destination.
         """
         return self.destination
 
     def get_source(self):
         """
-        Returns event generator
+        Retorna la fuente del evento.
+        Returns event generator.
         """
         return self.source
 
     def get_obj(self):
         """
-        Returns the object attached to the event
+        Retorna el objeto agregado al evento.
+        Returns the object attached to the event.
         """
         return self.obj
 
     def dump_event(self):
         """
+        Imprime el evento en un formato para lectores
         Prints the event in a human readable format
         """
         print("Event time: %f" % self.event_time)

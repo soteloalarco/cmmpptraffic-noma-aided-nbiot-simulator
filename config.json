@@ -1,22 +1,26 @@
 {
 	"simulacion" : {
 
+		// archivo .csv que contiene los dispositivos generados previamente
 		"dispositivos" : "ArchivoDispositivos0.csv",
 
+		// archivo .csv que contiene los eventos generados previemente para cada dispositivo
 		"eventos" : "ArchivoEventos0.csv",
 
+		// periodo de random access NPRACH
 		"TsNPRACH" : 0.5,
 
+		// periodo en el que se realiza el proceso NOMA en el canal NPUSCH
 		"TsNOMA" : 2,
 
-		// duration of each simulation in seconds
+		// duración de la simulación en segundos
 		"duracion" : 10,
 
-		// unidad más pequeña de tiempo
+		// unidad más pequeña de tiempo percibida por el sistema
 		"tiempo-minimo" : 0.00001,
 
 
-		// log file name using configuration parameters
+		// nombre del archivo que guardará los logs a la salida
 		"output" : "noma-aided-nbiot-logs.csv"
 	}
 }

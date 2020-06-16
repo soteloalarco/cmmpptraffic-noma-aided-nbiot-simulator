@@ -1,3 +1,7 @@
+# la versión original de este software libre ha sido modificada a su
+# forma actual por Rolando Sotelo y Fernando Salazar, pero hereda su
+# licencia de uso público
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -16,13 +20,18 @@
 
 class Packet:
     """
+    Clase definiendo un paquete que se asocia a la transisión de un evento
     Class defining a packet to be associated with a transmission event
     """
 
+    # usado para crear un único ID para cada paquete
     # used to create a unique ID for the packet
     __packets_count = 0
 
+    # posibles estados para cada paquete
     # possible packet states
+
+
     # packet currently under reception
     PKT_RECEIVING = 0
     # packet has been correctly received
@@ -33,9 +42,10 @@ class Packet:
 
     def __init__(self, size, duration):
         """
-        Creates a packet automatically assigning a unique ID to it
-        :param size: size of the packet in bytes
-        :param duration: packet duration in seconds
+        Crea un paquete asignando automáticamente un ID único.
+        Creates a packet automatically assigning a unique ID to it.
+        :param size: tamaño del paquete en bytes | size of the packet in bytes
+        :param duration: duración del paquete en segundos | packet duration in seconds
         """
         self.size = size
         self.duration = duration
@@ -45,42 +55,48 @@ class Packet:
 
     def get_id(self):
         """
-        Returns packet id
-        :returns: id of the packet
+        Retorna el id del paquete.
+        Returns packet id.
+        :returns: id del paquete | id of the packet
         """
         return self.id
 
     def get_state(self):
         """
-        Returns state of a packet
-        :returns: state of the packet
+        Retorna estado de un paquete.
+        Returns state of a packet.
+        :returns: estado del paquete | state of the packet
         """
         return self.state
 
     def set_state(self, state):
         """
+        Establece estado del paquete.
         Sets packet state.
-        :param state: either PKT_RECEIVING, PKT_RECEIVED, or PKT_CORRUPTED
+        :param state: puede ser PKT_RECEIVING, PKT_RECEIVED, o PKT_CORRUPTED | either PKT_RECEIVING, PKT_RECEIVED, or PKT_CORRUPTED
         """
         self.state = state
 
     def get_size(self):
         """
-        Returns packet size
-        :returns: packet size in bytes
+        Retorna el tamaño del paquete.
+        Returns packet size.
+        :returns: tamaño del paquete en bytes | packet size in bytes
         """
         return self.size
 
     def get_duration(self):
         """
-        Returns packet duration
-        :returns: packet duration in seconds
+        Retorna duración del paquete.
+        Returns packet duration.
+        :returns: duración del paquete en segundos | packet duration in seconds
         """
         return self.duration
 
     def dump_packet(self):
         """
-        Prints the packet in a human readable format
+        Imprime el paquete en un formato entendible para los lectores.
+        Prints the packet in a human readable format.
         """
         if self.state == Packet.PKT_RECEIVING:
             t = "UNDER RECEPTION"
