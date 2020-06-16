@@ -124,9 +124,11 @@ class Sim:
         self.duration = self.config.get_param(self.PAR_DURATION)
         # get simulation duration
         self.tiempoMinimo = self.config.get_param(self.PAR_TIEMPOMINIMO)
+        self.time_slot=0.0005
         # get periodo NPRACH
         self.TsNPRACH = self.config.get_param(self.PAR_TSNPRACH)
         self.sig_periodo_NPRACH=0
+        self.duration_NPRACH = 0.0056  # 5.6 ms     #packet_size * 8 / 8000000
         # get periodo NPRACH
         self.TsNOMA = self.config.get_param(self.PAR_TSNOMA)
         self.sig_periodo_NOMA = 0
@@ -152,11 +154,11 @@ class Sim:
         # instantiate all the nodes, apartir del arhcivo dispositivos_rec
         positions = self.config.get_param(self.PAR_NODES)
         #creamos la estacion base como nodo 0
-        node_eNB = Node(0, 'eNB', self.config, self.channel, 0, 0)
+        self.node_eNB = Node(0, 'eNB', self.config, self.channel, 0, 0)
         # let the channel know about this node
-        self.channel.register_node(node_eNB)
-        node_eNB.initialize_eNB()
-        self.nodes.append(node_eNB)
+        self.channel.register_node(self.node_eNB)
+        self.node_eNB.initialize_eNB()
+        self.nodes.append(self.node_eNB)
         #creamos los dispositivos
         for d in self.dispositivosLista:
             id= d[0]
