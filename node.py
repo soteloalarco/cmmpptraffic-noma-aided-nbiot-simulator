@@ -458,7 +458,7 @@ class Node(Module):
         #self.channel.start_transmission(self, packet)
         # schedule end of transmission
         # aquí programamos el envio en el siguiente periodo NPRACH
-        end_tx = Event(self.sim.sig_periodo_NOMA  -self.sim.tiempoMinimo, Events.END_TX, self,
+        end_tx = Event(self.sim.sig_periodo_NOMA  - self.sim.tiempoMinimo, Events.END_TX, self,
                        self, packet)
         self.sim.eventosaux.append([end_tx.event_id, end_tx.event_time, end_tx.source.get_id()])
         self.sim.schedule_event(end_tx)

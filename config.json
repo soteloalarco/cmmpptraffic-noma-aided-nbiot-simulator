@@ -5,7 +5,7 @@
 
 		"eventos" : "ArchivoEventos0.csv",
 
-		"TsNPRACH" : 1,
+		"TsNPRACH" : 0.5,
 
 		"TsNOMA" : 2,
 
