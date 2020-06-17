@@ -23,12 +23,14 @@ import sys
 import heapq
 import time
 import math
+import random
 from singleton import Singleton
 from config import Config
 from channel import Channel
 from node import Node
 from log import Log
 import pandas as pd
+import numpy as np
 
 # comando VT100 para borrar contenido de la terminal actual
 # VT100 command for erasing content of the current prompt line
@@ -356,3 +358,28 @@ class Sim:
         :returns: representación textual del parámetro| textual representation of parameters for run_number
         """
         return self.config.get_params(run_number)
+
+    def algoritmo_RA(self):
+        """
+        Algoritmo para computar el resultado del RA.
+        Returns the result of the Random Access.
+        """
+        # TODO lógica para NPRACH, tengo que agregar un pop del evento, entonces en lugar de guardar paquete debo guardar evento
+        preambulos=len(self.universoNPRACH)
+        throughput = int(np.random.uniform(0, preambulos, 1))
+
+        # calculamos aleatoriamente qué dispositivos del universo no completaron su RA
+        # we compute the preambles that didn't pass the RA
+        random.shuffle(self.universoNPRACH)
+        universoNPRACHaux= self.universoNPRACH[:(preambulos-throughput)]
+
+        for evento in universoNPRACHaux:
+            self.cancel_event(evento)
+            evento.get_source().current_pkt=None
+            evento.get_source().state=Node.IDLE
+            # schedule next arrival
+            evento.get_source().schedule_next_arrival()
+
+        assert (len(universoNPRACHaux)+throughput==preambulos)
+        self.universoNPRACH = []
+        return throughput
