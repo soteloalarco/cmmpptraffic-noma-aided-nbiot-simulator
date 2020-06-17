@@ -14,7 +14,7 @@
 		"TsNOMA" : 2,
 
 		// duración de la simulación en segundos
-		"duracion" : 10,
+		"duracion" : 40,
 
 		// unidad más pequeña de tiempo percibida por el sistema
 		"tiempo-minimo" : 0.00001,

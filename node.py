@@ -150,7 +150,11 @@ class Node(Module):
 
                 # se crea un paquete con la información de la lista eventos | we create a packet with the information in the list event
                 paquete=Packet(evento[5],1)
-                event = Event(arrival, Events.PACKET_ARRIVAL,
+                if arrival<self.sim.get_time():
+                    event = Event(self.sim.get_time(), Events.PACKET_ARRIVAL,
+                                  self, self, paquete)
+                else:
+                    event = Event(arrival, Events.PACKET_ARRIVAL,
                               self, self,paquete)
                 self.sim.eventosaux.append([event.event_id, event.event_time, event.source.get_id()])
                 # se calendariza el evento
@@ -248,9 +252,7 @@ class Node(Module):
                 # si ya no hay espacio, depreciamos y agregamos un log
                 # if there is no space left, we drop the packet and log
                 self.logger.log_queue_drop(self, paquete.get_size())
-        # se calendariza el siguiente arribo
-        # schedule next arrival
-        self.schedule_next_arrival()
+
 
     def handle_end_proc_msg1(self, event):
         """
@@ -297,6 +299,9 @@ class Node(Module):
             self.state = Node.TX
             self.logger.log_state(self, Node.TX)
             self.logger.log_queue_length(self, len(self.queue))
+        # se calendariza el siguiente arribo
+        # schedule next arrival
+        self.schedule_next_arrival()
 
     def handle_periodo_nprach(self):
         """
