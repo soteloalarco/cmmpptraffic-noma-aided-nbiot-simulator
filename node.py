@@ -102,7 +102,7 @@ class Node(Module):
         """
 
         if event.get_type() == Events.PACKET_ARRIVAL:
-            self.handle_arrival()
+            self.handle_arrival(event)
         elif event.get_type() == Events.START_TX_MSG1:
             self.handle_start_tx_msg1(event)
         elif event.get_type() == Events.END_TX_MSG1:
@@ -146,8 +146,12 @@ class Node(Module):
                 arrival = evento[1]
                 # se genera un evento y se establece a este nodo como el destino
                 # generate an event setting this node as destination
+                #TODO registrar si se trata de URRLLC o mMTC
+
+                # se crea un paquete con la información de la lista eventos | we create a packet with the information in the list event
+                paquete=Packet(evento[5],1)
                 event = Event(arrival, Events.PACKET_ARRIVAL,
-                              self, self)
+                              self, self,paquete)
                 self.sim.eventosaux.append([event.event_id, event.event_time, event.source.get_id()])
                 # se calendariza el evento
                 # the event is scheduled
@@ -188,18 +192,21 @@ class Node(Module):
 
 ############ métodos handle
 
-    def handle_arrival(self):
+    def handle_arrival(self,event):
         """
         Se encarga de iniciar la transmisión de un paquete
         Handles a packet transmission
         """
         #TODO leer el tamaño del paquete y agregarlo al evento
 
-        packet_size = 500  # self.size.get_value()
+        # se asigna al dispositivo el paquete como paquete actual
+        # we asigne the packet from the event as the current pkg
+        paquete_actual = event.get_obj()
+        self.current_pkt = paquete_actual
 
         # log de arribo
         # log the arrival
-        self.logger.log_arrival(self, packet_size)
+        self.logger.log_arrival(self, paquete_actual.get_size())
         # Programamos la tx del msg1 para el siguiente periodo NPRACH
         # the tx of the msg1 is scheduled for the next NPRACH period
         start_tx = Event(self.sim.sig_periodo_NPRACH, Events.START_TX_MSG1, self,
@@ -212,15 +219,17 @@ class Node(Module):
         Se encarga de iniciar la transmisión del msg1
         Handles the transmission of msg1
         """
-        packet_size = 500  # self.size.get_value()
+        paquete = event.get_source().current_pkt
         if self.state == Node.IDLE:
+            assert (paquete != None)
+
 
             # si estamos en un estado idle, entonces nuestra cola debe estar vacia
             # if we are in a idle state, then there must be no packets in the queue
             assert (len(self.queue) == 0)
             # si nuestro estado actual es 0 y la cola está vacia, se puede transmitir
             # if current state is IDLE and there are no packets in the queue, we can start transmitting
-            self.transmit_msg1(packet_size)
+            self.transmit_msg1(paquete)
 
             # se agrega el preambulo a la lista del universo NPRACH y se cambia el estado del UE
             # the preamble is added to the list universoNPRACH
@@ -233,13 +242,13 @@ class Node(Module):
             if self.queue_size == 0 or len(self.queue) < self.queue_size:
                 # si el tamaño de la cola es infinito o aún hay espacio
                 # if queue size is infinite or there is still space
-                self.queue.append(packet_size)
+                self.queue.append(paquete.get_size())
                 self.logger.log_queue_length(self, len(self.queue))
             else:
                 # TODO utilizamos esto tal vez para los paquetes que no pasen NOMA ni NPRACH
                 # si ya no hay espacio, depreciamos y agregamos un log
                 # if there is no space left, we drop the packet and log
-                self.logger.log_queue_drop(self, packet_size)
+                self.logger.log_queue_drop(self, paquete.get_size())
         # se calendariza el siguiente arribo
         # schedule next arrival
         self.schedule_next_arrival()
@@ -328,19 +337,18 @@ class Node(Module):
         assert (self.state == Node.TX_MSG1)
         assert (self.current_pkt is not None)
         assert (self.current_pkt.get_id() == event.get_obj().get_id())
-        self.current_pkt = None
         self.switch_to_proc_msg1()
 
 
 ##########
 
-    def transmit_msg1(self, packet_size):
+    def transmit_msg1(self, paquete):
         """
         Genera, envia y calendariza el final de la transmisión del msg1
         Generates, sends, and schedules end of transmission of msg1
         :param packet_size: size of the packet to send in bytes
         """
-        packet = Packet(packet_size, self.sim.duracion_preambulo)
+
         # TODO podemos transmitir el paquete por el canal NPRACH
 
         # transmit packet
@@ -348,10 +356,10 @@ class Node(Module):
         # calendarizamos el final de tx del msg1 al final de la duración del preambulo
         # schedule end of transmission
         end_tx_msg1 = Event(self.sim.get_time() + self.sim.duracion_preambulo, Events.END_TX_MSG1, self,
-                            self, packet)
+                            self, paquete)
         self.sim.eventosaux.append([end_tx_msg1.event_id, end_tx_msg1.event_time, end_tx_msg1.source.get_id()])
         self.sim.schedule_event(end_tx_msg1)
-        self.current_pkt = packet
+        self.current_pkt = paquete
 
     def transmit_packet(self, packet_size):
         """
