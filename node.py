@@ -231,9 +231,8 @@ class Node(Module):
             # if current state is IDLE and there are no packets in the queue, we can start transmitting
             self.transmit_msg1(paquete)
 
-            # se agrega el preambulo a la lista del universo NPRACH y se cambia el estado del UE
-            # the preamble is added to the list universoNPRACH
-            self.sim.universoNPRACH.append(self)
+            # se cambia el estado del UE
+            # the state of the UE is changed
             self.state = Node.TX_MSG1
             self.logger.log_state(self, Node.TX_MSG1)
         else:
@@ -305,14 +304,10 @@ class Node(Module):
         Schedules the next NPRACH process
         """
         self.logger.log_periodoNPRACH(self,len(self.sim.universoNPRACH))
-        #TODO lógica para NPRACH, tengo que agregar un pop del evento, entonces en lugar de guardar paquete debo guardar evento
-        aleatorio=int(np.random.uniform(0,len(self.sim.universoNPRACH),1))
-        throughput=[1]*aleatorio
-        self.sim.universoNPRACH = throughput
-        throughputNPRACH=len(self.sim.universoNPRACH)
+        throughputNPRACH=self.sim.algoritmo_RA()
         self.logger.log_periodoNPRACH_fin(self, throughputNPRACH)
         self.schedule_next_periodoNPRACH()
-        self.sim.universoNPRACH = []
+
 
     def handle_periodo_noma(self):
         """
@@ -359,6 +354,9 @@ class Node(Module):
                             self, paquete)
         self.sim.eventosaux.append([end_tx_msg1.event_id, end_tx_msg1.event_time, end_tx_msg1.source.get_id()])
         self.sim.schedule_event(end_tx_msg1)
+        # se agrega el preambulo a la lista del universo NPRACH y se cambia el estado del UE
+        # the preamble is added to the list universoNPRACH
+        self.sim.universoNPRACH.append(end_tx_msg1)
         self.current_pkt = paquete
 
     def transmit_packet(self, packet_size):
