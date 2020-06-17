@@ -1,3 +1,7 @@
+# la versión original de este software libre ha sido modificada a su
+# forma actual por Rolando Sotelo y Fernando Salazar, pero hereda su
+# licencia de uso público
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -16,34 +20,43 @@
 import sim
 from packet import Packet
 
-#TODO corregir problema con los logs
+
 class Log:
     """
+    Define las utilidades para crear logs de datos
     Defines data logging utilities
     """
 
+    # paquete que ha sido recibido recientemente
     # packet has been correctly received
     LOG_RECEIVED = Packet.PKT_RECEIVED
+    # paquete que ha sido corrupto debido a, por ejemplo, una colisión
     # packet has been corrupted due to, for example, a collision
     LOG_CORRUPTED = Packet.PKT_CORRUPTED
+    # paquete ha sido generado
     # packet has just been generated
     LOG_GENERATED = LOG_CORRUPTED + 1
     LOG_GENERATED_DES = 'paquete generado'
+    # el paquete se ha depreciado debido a que no hay espacio en la cola
     # packet has been dropped because there is no space in the queue
     LOG_QUEUE_DROPPED = LOG_GENERATED + 1
     LOG_QUEUE_DROPPED_DES = "paquete depreciado"
+    # utilizado para hacer log con el tamaño de la cola
     # use to log queue size in time
     LOG_QUEUE_SIZE = LOG_QUEUE_DROPPED + 1
     LOG_QUEUE_SIZE_DES = 'tamano queue'
+    # utilizado para crear log de estado de nodo
     # use to log node state in time
     LOG_NODE_STATE = LOG_QUEUE_SIZE + 1
     LOG_NODE_STATE_DES = 'nuevo estatus'
-    #
+    # utilizado para crear log de estado del periodo NPRACH
+    # use to log NPRACH status
     LOG_NPRACH= LOG_NODE_STATE + 1
     LOG_NPRACH_DES = 'NPRACH inicio'
     LOG_NPRACH_FIN = LOG_NPRACH + 1
     LOG_NPRACH_FIN_DES = 'NPRACH fin'
-    #
+    # utilizado para crear log de estado del periodo NOMA
+    # use to log NOMA status
     LOG_NOMA = LOG_NPRACH_FIN + 1
     LOG_NOMA_DES = 'NOMA inicio'
     LOG_NOMA_FIN = LOG_NOMA + 1
@@ -53,18 +66,19 @@ class Log:
                  log_arrivals=True, log_queue_lengths=True, log_states=True):
         """
         Constructor.
-        :param output_file: output file name. will be overwritten if already
+        Constructor.
+        :param output_file: archivo de salida | output file name. will be overwritten if already
         existing
-        :param log_packets: enable/disable logging of packets
+        :param log_packets: logging de paquetes | enable/disable logging of packets
         (RECEIVED/CORRUPTED)
-        :param log_queue_drops: enable/disable logging of packet drops
-        :param log_arrivals: enable/disable logging of packet arrivals
-        :param log_queue_lengths: enable/disable logging of queue lengths
-        :param log_states: enable/disable logging of the state of nodes
+        :param log_queue_drops: logginf de paquetes depreciados | enable/disable logging of packet drops
+        :param log_arrivals: logging de llegada de paquetes | enable/disable logging of packet arrivals
+        :param log_queue_lengths: logging del tamaño de la cola | enable/disable logging of queue lengths
+        :param log_states: logging del estado de los nodos | enable/disable logging of the state of nodes
         """
         self.sim = sim.Sim.Instance()
         self.log_file = open(output_file, "w")
-        self.log_file.write("tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n")
+        self.log_file.write("tiempo,fuente,tipo,destino,tipo,evento,descripcion,tam/estado,detalles\n")
         self.log_packets = log_packets
         self.log_queue_drops = log_queue_drops
         self.log_arrivals = log_arrivals
@@ -73,10 +87,11 @@ class Log:
 
     def log_packet(self, source, destination, packet):
         """
+        Logea el resultado de la recepción de un paquete.
         Logs the result of a packet reception.
-        :param source: source node
-        :param destination: destination node id
-        :param packet: the packet to log
+        :param source: fuente | source node
+        :param destination: destino | destination node id
+        :param packet: el paquete a loggear | the packet to log
         """
         if self.log_packets:
             # ["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
@@ -87,9 +102,10 @@ class Log:
 
     def log_queue_drop(self, source, packet_size):
         """
-        Logs a queue drop
-        :param source: source node
-        :param packet_size: size of the packet being dropped
+        Logea la depreciación de un paquete.
+        Logs a queue drop.
+        :param source: fuente | source node
+        :param packet_size: tamaño del paquete | size of the packet being dropped
         """
         if self.log_queue_drops:
             # ["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
@@ -100,9 +116,10 @@ class Log:
 
     def log_arrival(self, source, packet_size):
         """
-        Logs an arrival
-        :param source: source node
-        :param packet_size: size of the packet being dropped
+        Logea un arribo.
+        Logs an arrival.
+        :param source: fuente | source node
+        :param packet_size: tamaño del paquete | size of the packet being dropped
         """
         if self.log_arrivals:
             #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
@@ -113,9 +130,10 @@ class Log:
 
     def log_queue_length(self, node, length):
         """
-        Logs the length of the queue for a particular node
-        :param node: node
-        :param length: length of the queue
+        Logea el tamaño de la cola para un nodo en particular.
+        Logs the length of the queue for a particular node.
+        :param node: nodo | node
+        :param length: tamaño de la cola | length of the queue
         """
         if self.log_queue_lengths:
             #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
@@ -125,9 +143,10 @@ class Log:
 
     def log_state(self, node, state):
         """
-        Logs the state of a particular node
-        :param node: node
-        :param state: state of the node
+        Logea el estado de un nodo en particular.
+        Logs the state of a particular node.
+        :param node: nodo | node
+        :param state: estado del nodo | state of the node
         """
         if self.log_states:
             #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
@@ -137,9 +156,11 @@ class Log:
 
     def log_state_event(self, node,event, state):
         """
-        Logs the state of a particular node
-        :param node: node
-        :param state: state of the node
+        Logea el estado de un evento y nodo en particular
+        Logs the state of a particular node y evento
+        :param node: nodo | node
+        :param event: evento que activo el log | event that started the log
+        :param state: estado de un nodo | state of the node
         """
         if self.log_states:
             #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
@@ -148,33 +169,55 @@ class Log:
                                  node.get_id(),node.get_tipo(), Log.LOG_NODE_STATE,Log.LOG_NODE_STATE_DES, state,node.estados[state]))
 
 
-    def log_periodoNPRACH(self,node,throughput):
+    def log_periodoNPRACH(self,node,preambulos):
+        """
+        Logea el inicio del proceso NPRACH.
+        Logs beginning of NPRACH process.
+        :param node: nodo | node
+        :param preambulos: preambulos al inicio del proceso | preambles at the start of the process
+        """
 
         if self.log_states:
             #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
             self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
                                 (self.sim.get_time(), node.get_id(),node.get_tipo(),
-                                 node.get_id(),node.get_tipo(), Log.LOG_NPRACH,Log.LOG_NPRACH_DES, throughput,'preambulos'))
+                                 node.get_id(),node.get_tipo(), Log.LOG_NPRACH,Log.LOG_NPRACH_DES, preambulos,'preambulos'))
 
 
     def log_periodoNPRACH_fin(self,node,throughput):
-
+        """
+        Logea el final del proceso NPRACH.
+        Logs the ending of NPRACH process.
+        :param node: nodo | node
+        :param throughput: preambulos al final del proceso | preambles at the end of the process
+        """
         if self.log_states:
             #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
             self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
                                 (self.sim.get_time(), node.get_id(),node.get_tipo(),
                                  node.get_id(),node.get_tipo(), Log.LOG_NPRACH_FIN,Log.LOG_NPRACH_FIN_DES, throughput,'throughput'))
 
-    def log_periodoNOMA(self,node,throughput):
+    def log_periodoNOMA(self,node,dispositivos):
+        """
+        Logea el inicio del proceso NOMA.
+        Logs beginning of NOMA process.
+        :param node: nodo | node
+        :param dispositivos: dispositivos al inicio del proceso | UE's at the start of the process
+        """
 
         if self.log_states:
             #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
             self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
                                 (self.sim.get_time(), node.get_id(),node.get_tipo(),
-                                 node.get_id(),node.get_tipo(), Log.LOG_NOMA,Log.LOG_NOMA_DES, throughput,'dispositivos'))
+                                 node.get_id(),node.get_tipo(), Log.LOG_NOMA,Log.LOG_NOMA_DES, dispositivos,'dispositivos'))
 
     def log_periodoNOMA_fin(self, node, throughput):
-
+        """
+        Logea el final del proceso NOMA.
+        Logs the ending of NOMA process.
+        :param node: nodo | node
+        :param throughput: dispositivos al final del proceso | UE's at the end of the process
+        """
         if self.log_states:
             #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
             self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %

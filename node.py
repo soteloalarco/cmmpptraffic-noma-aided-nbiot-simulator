@@ -1,3 +1,7 @@
+# la versión original de este software libre ha sido modificada a su
+# forma actual por Rolando Sotelo y Fernando Salazar, pero hereda su
+# licencia de uso público
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +19,6 @@
 
 import sys
 from module import Module
-#from distribution import Distribution
 from event import Event
 from events import Events
 from packet import Packet
@@ -24,22 +27,10 @@ import numpy as np
 
 class Node(Module):
     """
-    This class implements a node capable of communicating with other devices
+    Esta clase implementa a un nodo capaz de comunicarse con otros dispositivos.
+    This class implements a node capable of communicating with other devices.
     """
-
-    # transmission speed parameter (bits per second)
-    #DATARATE = "datarate"
-    # queue size
-    #QUEUE = "queue"
-    # inter-arrival distribution (seconds)
-    #INTERARRIVAL = "interarrival"
-    # packet size distribution (bytes)
-    #SIZE = "size"
-    # processing time distribution (seconds)
-    #PROC_TIME = "processing"
-    # max packet size (bytes)
-    #MAXSIZE = "maxsize"
-
+    # lista de los posibles estados de un nodo
     # list of possible states for this node
     IDLE = 0
     TX = 1
@@ -53,49 +44,51 @@ class Node(Module):
     def __init__(self,id,tipo, config, channel, x, y):
         """
         Constructor.
-        :param config: the set of configs loaded by the simulator
-        :param channel: the channel to which frames are sent
+        Constructor.
+        :param config: el conjunto de configuraciones cargadas | the set of configs loaded by the simulator
+        :param channel: el canal al que las tramas son enviadas| the channel to which frames are sent
         :param x: x position
         :param y: y position
         """
         Module.__init__(self,id,tipo)
         # load configuration parameters
-        #self.datarate = config.get_param(Node.DATARATE)
-        #self.queue_size = config.get_param(Node.QUEUE)
-        #self.interarrival = Distribution(config.get_param(Node.INTERARRIVAL))
-        #self.size = Distribution(config.get_param(Node.SIZE))
-        #self.proc_time = 0.01
-        #self.maxsize = config.get_param(Node.MAXSIZE)
+        # TODO aqui se agregan las configuraciones referentes a los nodos desde el archivo config de haberlos
+
+        # cola de paquetes a sser enviados
         # queue of packets to be sent
         self.queue = []
+        # estado actual del nodo
         # current state
         self.state = Node.IDLE
+        # se crea un log que indica la creación del dispositivo
+        # a log indicating the creation of a device is added
         self.logger.log_state(self, Node.IDLE)
+        # se guarda la posición del dispositivo
         # save position
         self.x = x
         self.y = y
+        # se guarda el canal
         # save channel
         self.channel = channel
+        # el paquete altual qeu esta siendo enviado o recibido
         # current packet being either sent or received
         self.current_pkt = None
+        # cuenta el número de frames siendo recibidas
         # count the number of frames currently under reception
         self.receiving_count = 0
-        # timeout event used to avoid being stuck in the RX state
-        #self.timeout_event = None
-        # timeout time for the rx timeout event. set as the time needed to
-        # transmit a packet of the maximum size plus a small amount of 10
-        # microseconds
-        #self.timeout_time = self.maxsize * 8.0 / self.datarate + 10e-6
+
 
     def initialize(self):
         """
-        Initialization. Starts node operation by scheduling the first packet
+        Inicialización. Inicia la operación de un nodo UE calendarizando el primer paquete.
+        Initialization. Starts node operation by scheduling the first packet.
         """
         self.schedule_next_arrival()
 
     def initialize_eNB(self):
         """
-        Initialization. Starts node operation by scheduling the first packet
+        Inicialización de eNB. Inicia la operación de las eNB calendarizando los periodos NOMA y NPRACH.
+        Initialization. Starts eNB operation by scheduling the first NOMA and NPRACH operations.
         """
         self.schedule_next_periodoNOMA()
         self.schedule_next_periodoNPRACH()
@@ -103,157 +96,308 @@ class Node(Module):
 
     def handle_event(self, event):
         """
-        Handles events notified to the node
-        :param event: the event
+        Se hace cargo del evento notificado al nodo receptor.
+        Handles events notified to the node.
+        :param event: el evento | the event
         """
-        #TODO programar el handle de eventos
-        if event.get_type() == Events.PACKET_ARRIVAL: # Evento soportado
+
+        if event.get_type() == Events.PACKET_ARRIVAL:
             self.handle_arrival()
         elif event.get_type() == Events.START_TX_MSG1:
             self.handle_start_tx_msg1(event)
         elif event.get_type() == Events.END_TX_MSG1:
             self.handle_end_tx_msg1(event)
-        elif event.get_type() == Events.START_RX:
-            self.handle_start_rx(event)
-        elif event.get_type() == Events.END_RX:
-            self.handle_end_rx(event)
+        elif event.get_type() == Events.END_PROC_MSG1:
+            self.handle_end_proc_msg1(event)
         elif event.get_type() == Events.END_TX:
             self.handle_end_tx(event)
         elif event.get_type() == Events.END_PROC:
             self.handle_end_proc(event)
-        elif event.get_type() == Events.END_PROC_MSG1:
-            self.handle_end_proc_msg1(event)
-        elif event.get_type() == Events.RX_TIMEOUT:
-            self.handle_rx_timeout(event)
         elif event.get_type() == Events.PERIODO_NPRACH:
             self.handle_periodo_nprach()
         elif event.get_type() == Events.PERIODO_NOMA:
             self.handle_periodo_noma()
+        elif event.get_type() == Events.START_RX:
+            self.handle_start_rx(event)
+        elif event.get_type() == Events.END_RX:
+            self.handle_end_rx(event)
+        elif event.get_type() == Events.RX_TIMEOUT:
+            self.handle_rx_timeout(event)
         else:
             print("Node %d has received a notification for event type %d which"
                   " can't be handled", (self.get_id(), event.get_type()))
             sys.exit(1)
 
+    def schedule_next_arrival(self):
+        """
+        Calendariza el siguiente arribo de un paquete a partir de la lista de eventos
+        Schedules a new arrival event
+        """
+        #TODO guardar tamaño de paquete
+
+        # extraemos el siguiente evento correspodiente a este nodo
+        # the next event corresponding to self in sim.eventos is added
+        # Formato de sim.eventos | Format of sim.eventos
+        #[0,0.02,7,Monitoreo de agua y electricidad,0,20.65,1] => [idalarma,tiempo,iddispositivo,tipodispositivo,tipoevento,tampaquete,modelotrafico]
+        for evento in self.sim.eventos:
+            # cuando se encuentre el siguiente evento en la lista correspondiente a este modulo
+            # when the next event in the list corresponding to this module is found
+            if evento[2]==self.module_id:
+                arrival = evento[1]
+                # se genera un evento y se establece a este nodo como el destino
+                # generate an event setting this node as destination
+                event = Event(arrival, Events.PACKET_ARRIVAL,
+                              self, self)
+                self.sim.eventosaux.append([event.event_id, event.event_time, event.source.get_id()])
+                # se calendariza el evento
+                # the event is scheduled
+                self.sim.schedule_event(event)
+                # eliminamos el evento de la lista
+                # the event is now deleted from the list sim.eventos
+                self.sim.eventos.remove(evento)
+                break
+
     def schedule_next_periodoNPRACH(self):
+        """
+        Calendariza el siguiente proceso NPRACH
+        Schedules the next NPRACH process
+        """
         Ts = self.sim.TsNPRACH
-        # Para asegurarnos que se resuelva antes que NOMA
-        if self.sim.sig_periodo_NPRACH + Ts == self.sim.sig_periodo_NOMA:
-            self.sim.sig_periodo_NPRACH = self.sim.sig_periodo_NPRACH + Ts
-            sig_periodo_NPRACHaux= self.sim.sig_periodo_NPRACH + self.sim.duration_NPRACH #5.6 ms     #packet_size * 8 / 8000000
-        else:
-            self.sim.sig_periodo_NPRACH= self.sim.sig_periodo_NPRACH + Ts
-            sig_periodo_NPRACHaux= self.sim.sig_periodo_NPRACH + self.sim.duration_NPRACH #5.6 ms     #packet_size * 8 / 8000000
+        self.sim.sig_periodo_NPRACH= self.sim.sig_periodo_NPRACH + Ts
+        # el cómputo del proceso se realizará al terminar la transmisión de los preámbulos
+        # the RA compute will happen after the duration of the preamble
+        sig_periodo_NPRACHaux= self.sim.sig_periodo_NPRACH + self.sim.duracion_preambulo
+
         event = Event(sig_periodo_NPRACHaux, Events.PERIODO_NPRACH,self, self)
         self.sim.eventosaux.append([event.event_id,event.event_time,event.source.get_id()])
         self.sim.schedule_event(event)
 
     def schedule_next_periodoNOMA(self):
+        """
+        Calendariza el siguiente proceso NOMA
+        Schedules the next NOMA process
+        """
         Ts = self.sim.TsNOMA
         self.sim.sig_periodo_NOMA = self.sim.sig_periodo_NOMA + Ts
-        event = Event(self.sim.sig_periodo_NOMA + self.sim.duration_NPRACH + self.sim.tiempoMinimo, Events.PERIODO_NOMA, self, self)
+        # TODO tal vez ya no sea necesario hacerlo así porque noma evalua el periodo anterior de NPRACH
+        # se agrega sim.tiempoMinimo en caso de qeu NPRACH y NOMA pasen al mismo tiempo, para asegurarnos que noma pase después
+        # self.sim.tiempoMinimo is added to assure that NPRACH is computed before in case they happend at the same time
+        event = Event(self.sim.sig_periodo_NOMA + self.sim.duracion_preambulo, Events.PERIODO_NOMA, self, self)
         self.sim.eventosaux.append([event.event_id, event.event_time, event.source.get_id()])
         self.sim.schedule_event(event)
 
-    def schedule_next_arrival(self):
-        """
-        Schedules a new arrival event
-        """
-        #TODO guardar tamaño de paquete
-        #enlista=False
-        #extraemos el siguiente evento correspodiente a este nodo
-        #[0,0.02,7,Monitoreo de agua y electricidad,0,20.65,1] => [idalarma,tiempo,iddispositivo,tipodispositivo,tipoevento,tampaquete,modelotrafico]
-        for evento in self.sim.eventos:
-            if evento[2]==self.module_id: # cuando se encuentre el siguiente evento en la lista corressspondiente a este modulo
-                arrival = evento[1]
-
-                # generate an event setting this node as destination
-                event = Event(arrival, Events.PACKET_ARRIVAL,
-                              self, self)
-                self.sim.eventosaux.append([event.event_id, event.event_time, event.source.get_id()])
-                self.sim.schedule_event(event)
-                #enlista=True
-                # eliminamos el evento de la lista
-                self.sim.eventos.remove(evento)
-                break
-
-        #TODO Hard coded el tiempo en el que pasará el siguiente arribo
-
-        # #generate an event setting this node as destination
-        # if not enlista:
-        #     arrival=1.6
-        #     event = Event(self.sim.get_time() + arrival, Events.PACKET_ARRIVAL,
-        #                    self, self)
-        #     self.sim.eventosaux.append([event.event_id,event.event_time,event.source.get_id()])
-        #     self.sim.schedule_event(event)
-
-    def handle_periodo_nprach(self):
-        self.logger.log_periodoNPRACH(self,len(self.sim.universoNPRACH))
-        #TODO lógica para NPRACH
-        self.sim.universoNPRACH = [1]
-        #TODO el trhoughput se agrega al universo NOMA
-        self.sim.universoNOMA.append(1)
-        throughputNPRACH=len(self.sim.universoNPRACH)
-        self.logger.log_periodoNPRACH_fin(self, throughputNPRACH)
-        self.schedule_next_periodoNPRACH()
-        self.sim.universoNPRACH = []
-
-    def handle_periodo_noma(self):
-        self.logger.log_periodoNOMA(self, len(self.sim.universoNOMA))
-        # TODO lógica para NOMA
-        self.sim.universoNOMA = []
-        throughputNOMA = len(self.sim.universoNOMA)
-        self.logger.log_periodoNOMA_fin(self, throughputNOMA)
-        self.schedule_next_periodoNOMA()
-
-    #def handle_start_tx(self):
-
-    def handle_start_tx_msg1(self, event):
-        packet_size = 500  # self.size.get_value()
-        if self.state == Node.IDLE:
-
-            # if we are in a idle state, then there must be no packets in the
-            # queue
-            assert(len(self.queue) == 0)
-            # if current state is IDLE and there are no packets in the queue, we
-            # can start transmitting
-            # event.obj.pa
-            self.transmit_msg1(packet_size)
-
-            #se agrega el paquete a la lista del universo
-            self.sim.universoNPRACH.append(self)
-
-            self.state = Node.TX_MSG1
-            self.logger.log_state(self, Node.TX_MSG1)
-        else:
-            # if we are either transmitting or receiving, packet must be queued
-            if self.queue_size == 0 or len(self.queue) < self.queue_size:
-                # if queue size is infinite or there is still space
-                self.queue.append(packet_size)
-                self.logger.log_queue_length(self, len(self.queue))
-            else:
-                # if there is no space left, we drop the packet and log
-                self.logger.log_queue_drop(self, packet_size)
-        # schedule next arrival
-        self.schedule_next_arrival()
-
+############ métodos handle
 
     def handle_arrival(self):
         """
+        Se encarga de iniciar la transmisión de un paquete
         Handles a packet transmission
         """
         #TODO leer el tamaño del paquete y agregarlo al evento
 
         packet_size = 500  # self.size.get_value()
 
+        # log de arribo
         # log the arrival
         self.logger.log_arrival(self, packet_size)
-        # Programamos la tx para el siguiente periodo NPRACH
+        # Programamos la tx del msg1 para el siguiente periodo NPRACH
+        # the tx of the msg1 is scheduled for the next NPRACH period
         start_tx = Event(self.sim.sig_periodo_NPRACH, Events.START_TX_MSG1, self,
                        self)
         self.sim.eventosaux.append([start_tx.event_id, start_tx.event_time, start_tx.source.get_id()])
         self.sim.schedule_event(start_tx)
 
+    def handle_start_tx_msg1(self, event):
+        """
+        Se encarga de iniciar la transmisión del msg1
+        Handles the transmission of msg1
+        """
+        packet_size = 500  # self.size.get_value()
+        if self.state == Node.IDLE:
 
+            # si estamos en un estado idle, entonces nuestra cola debe estar vacia
+            # if we are in a idle state, then there must be no packets in the queue
+            assert (len(self.queue) == 0)
+            # si nuestro estado actual es 0 y la cola está vacia, se puede transmitir
+            # if current state is IDLE and there are no packets in the queue, we can start transmitting
+            self.transmit_msg1(packet_size)
+
+            # se agrega el preambulo a la lista del universo NPRACH y se cambia el estado del UE
+            # the preamble is added to the list universoNPRACH
+            self.sim.universoNPRACH.append(self)
+            self.state = Node.TX_MSG1
+            self.logger.log_state(self, Node.TX_MSG1)
+        else:
+            # si se está ya sea transmitiendo o recibiendo, el paquete debe ser puesto en cola
+            # if we are either transmitting or receiving, packet must be queued
+            if self.queue_size == 0 or len(self.queue) < self.queue_size:
+                # si el tamaño de la cola es infinito o aún hay espacio
+                # if queue size is infinite or there is still space
+                self.queue.append(packet_size)
+                self.logger.log_queue_length(self, len(self.queue))
+            else:
+                # TODO utilizamos esto tal vez para los paquetes que no pasen NOMA ni NPRACH
+                # si ya no hay espacio, depreciamos y agregamos un log
+                # if there is no space left, we drop the packet and log
+                self.logger.log_queue_drop(self, packet_size)
+        # se calendariza el siguiente arribo
+        # schedule next arrival
+        self.schedule_next_arrival()
+
+    def handle_end_proc_msg1(self, event):
+        """
+        Se inicia la tx del paquete una vez concluido el proceso de RA
+        Handles the transmission of pkg once the RA has finished
+        """
+        #TODO programar bien la transmision del paquete porq ahorita nadamas tenemos 1 paquete y no el preambulo
+        assert (self.state == Node.PROC_RA)
+        self.transmit_packet(packet_size=500)
+        self.state = Node.TX
+        self.logger.log_state(self, Node.TX)
+
+    def handle_end_tx(self, event):
+        """
+        Se encarga del fin de la transmisión hecha por este nodo
+        Handles the end of a transmission done by this node
+        :param event: the END_TX event
+        """
+        assert(self.state == Node.TX)
+        assert(self.current_pkt is not None)
+        assert(self.current_pkt.get_id() == event.get_obj().get_id())
+        self.current_pkt = None
+        # se pasa a estado de procesamiento antes de volver a esta idle
+        # the only thing to do here is to move to the PROC state
+        self.switch_to_proc()
+
+    def handle_end_proc(self, event):
+        """
+        Se encarga del final del periodo de processo y se reanuda la operación.
+        Handles the end of the processing period, resuming operations.
+        :param event: the END_PROC event
+        """
+        assert(self.state == Node.PROC)
+        if len(self.queue) == 0:
+            # si se reanuda la operación pero no hay nada que transmitir se cambia a estado IDLE
+            # resuming operations but nothing to transmit. back to IDLE
+            self.state = Node.IDLE
+            self.logger.log_state(self, Node.IDLE)
+        else:
+            # si hay un paquete listo, se transmite
+            # there is a packet ready, trasmit it
+            packet_size = self.queue.pop(0)
+            self.transmit_packet(packet_size)
+            self.state = Node.TX
+            self.logger.log_state(self, Node.TX)
+            self.logger.log_queue_length(self, len(self.queue))
+
+    def handle_periodo_nprach(self):
+        """
+        Calendariza el siguiente proceso NPRACH
+        Schedules the next NPRACH process
+        """
+        self.logger.log_periodoNPRACH(self,len(self.sim.universoNPRACH))
+        #TODO lógica para NPRACH, tengo que agregar un pop del evento, entonces en lugar de guardar paquete debo guardar evento
+        aleatorio=int(np.random.uniform(0,len(self.sim.universoNPRACH),1))
+        throughput=[1]*aleatorio
+        self.sim.universoNPRACH = throughput
+        throughputNPRACH=len(self.sim.universoNPRACH)
+        self.logger.log_periodoNPRACH_fin(self, throughputNPRACH)
+        self.schedule_next_periodoNPRACH()
+        self.sim.universoNPRACH = []
+
+    def handle_periodo_noma(self):
+        """
+        Calendariza el siguiente proceso NOMA
+        Schedules the next NOMA process
+        """
+        self.logger.log_periodoNOMA(self, len(self.sim.universoNOMA))
+        # TODO lógica para NOMA
+        aleatorio = int(np.random.uniform(0, len(self.sim.universoNOMA), 1))
+        throughput = [1] * aleatorio
+        self.sim.universoNOMA = throughput
+        throughputNOMA = len(self.sim.universoNOMA)
+        self.logger.log_periodoNOMA_fin(self, throughputNOMA)
+        self.schedule_next_periodoNOMA()
+        self.sim.universoNOMA = []
+
+    def handle_end_tx_msg1(self, event):
+        """
+        Se encarga del fin de transmisión del msg1
+        handle the end of tx_msg1
+        """
+        assert (self.state == Node.TX_MSG1)
+        assert (self.current_pkt is not None)
+        assert (self.current_pkt.get_id() == event.get_obj().get_id())
+        self.current_pkt = None
+        self.switch_to_proc_msg1()
+
+
+##########
+
+    def transmit_msg1(self, packet_size):
+        """
+        Genera, envia y calendariza el final de la transmisión del msg1
+        Generates, sends, and schedules end of transmission of msg1
+        :param packet_size: size of the packet to send in bytes
+        """
+        packet = Packet(packet_size, self.sim.duracion_preambulo)
+        # TODO podemos transmitir el paquete por el canal NPRACH
+
+        # transmit packet
+        #self.channel.start_transmission(self, packet)
+        # calendarizamos el final de tx del msg1 al final de la duración del preambulo
+        # schedule end of transmission
+        end_tx_msg1 = Event(self.sim.get_time() + self.sim.duracion_preambulo, Events.END_TX_MSG1, self,
+                            self, packet)
+        self.sim.eventosaux.append([end_tx_msg1.event_id, end_tx_msg1.event_time, end_tx_msg1.source.get_id()])
+        self.sim.schedule_event(end_tx_msg1)
+        self.current_pkt = packet
+
+    def transmit_packet(self, packet_size):
+        """
+        Genera, envia y calendariza el final de la transmisión del paquete
+        Generates, sends, and schedules end of transmission of a new packet
+        :param packet_size: size of the packet to send in bytes
+        """
+
+        packet = Packet(packet_size, self.sim.duracion_preambulo)
+        # TODO podemos transmitir el paquete por el canal NPUSCH
+
+        # transmit packet
+        #self.channel.start_transmission(self, packet)
+        # una vez se comienza la transmisión del paquete se toma en cuenta para el proceso NOMA
+        self.sim.universoNOMA.append(self)
+        # calendarizamos el final de la transmisión hasta antes de que inicie el siguiente periodo NOMA
+        # schedule end of transmission
+        end_tx = Event(self.sim.sig_periodo_NOMA  - self.sim.tiempoMinimo, Events.END_TX, self,
+                       self, packet)
+        self.sim.eventosaux.append([end_tx.event_id, end_tx.event_time, end_tx.source.get_id()])
+        self.sim.schedule_event(end_tx)
+        self.current_pkt = packet
+
+    def switch_to_proc(self):
+        """
+        Cambio a estado procesando y calendariza el fin del proceso
+        Switches to the processing state and schedules the end_proc event
+        """
+        proc_time = 0
+        proc = Event(self.sim.get_time() + proc_time, Events.END_PROC, self,
+                     self)
+        self.sim.eventosaux.append([proc.event_id, proc.event_time, proc.source.get_id()])
+        self.sim.schedule_event(proc)
+        self.state = Node.PROC
+
+    def switch_to_proc_msg1(self):
+        """
+        Cambio a estado procesando_msg1 y calendariza el fin del proceso
+        Switches to the processing_msg1 state and schedules the end_proc event
+        """
+        proc = Event(self.sim.sig_periodo_NPRACH + self.sim.duracion_preambulo + self.sim.time_slot, Events.END_PROC_MSG1, self,
+                     self)
+        self.sim.eventosaux.append([proc.event_id, proc.event_time, proc.source.get_id()])
+        self.sim.schedule_event(proc)
+        self.state = Node.PROC_RA
+        self.logger.log_state(self, Node.PROC_RA)
 
     def handle_start_rx(self, event):
         """
@@ -337,26 +481,6 @@ class Node(Module):
         # log packet
         self.logger.log_packet(event.get_source(), self, packet)
 
-    def switch_to_proc(self):
-        """
-        Switches to the processing state and schedules the end_proc event
-        """
-        #TODO hardcoded tiempo de procesamiento
-        proc_time = 0
-        proc = Event(self.sim.get_time() + proc_time, Events.END_PROC, self,
-                     self)
-        self.sim.eventosaux.append([proc.event_id, proc.event_time, proc.source.get_id()])
-        self.sim.schedule_event(proc)
-        self.state = Node.PROC
-        #self.logger.log_state(self, Node.PROC)
-
-    def switch_to_proc_msg1(self):
-        proc = Event(self.sim.sig_periodo_NPRACH +self.sim.duration_NPRACH+ self.sim.time_slot, Events.END_PROC_MSG1, self,
-                     self)
-        self.sim.eventosaux.append([proc.event_id, proc.event_time, proc.source.get_id()])
-        self.sim.schedule_event(proc)
-        self.state = Node.PROC_RA
-        self.logger.log_state(self, Node.PROC_RA)
 
     def handle_rx_timeout(self, event):
         """
@@ -373,96 +497,6 @@ class Node(Module):
         self.switch_to_proc()
         self.timeout_event = None
 
-    def handle_end_tx_msg1(self, event):
-        assert (self.state == Node.TX_MSG1)
-        assert (self.current_pkt is not None)
-        assert (self.current_pkt.get_id() == event.get_obj().get_id())
-        self.current_pkt = None
-        self.switch_to_proc_msg1()
-
-    def handle_end_tx(self, event):
-        """
-        Handles the end of a transmission done by this node
-        :param event: the END_TX event
-        """
-        assert(self.state == Node.TX)
-        assert(self.current_pkt is not None)
-        assert(self.current_pkt.get_id() == event.get_obj().get_id())
-        self.current_pkt = None
-        # the only thing to do here is to move to the PROC state
-        self.switch_to_proc()
-
-    def handle_end_proc_msg1(self, event):
-        #TODO programar bien la transmision del paquete porq ahorita nadamas tenemos 1 paquete y no el preambulo
-        assert (self.state == Node.PROC_RA)
-        # if len(self.queue) == 1:
-            # resuming operations but nothing to transmit. back to IDLE
-        self.transmit_packet(packet_size=500)
-        self.state = Node.TX
-        self.logger.log_state(self, Node.TX)
-        # else:
-        #     # there is a packet ready, trasmit it
-        #     packet_size = self.queue.pop(0)
-        #     self.transmit_packet(packet_size)
-        #     self.state = Node.TX
-        #     self.logger.log_state(self, Node.TX)
-        #     self.logger.log_queue_length(self, len(self.queue))
-
-    def handle_end_proc(self, event):
-        """
-        Handles the end of the processing period, resuming operations
-        :param event: the END_PROC event
-        """
-        assert(self.state == Node.PROC)
-        if len(self.queue) == 0:
-            # resuming operations but nothing to transmit. back to IDLE
-            self.state = Node.IDLE
-            self.logger.log_state(self, Node.IDLE)
-        else:
-            # there is a packet ready, trasmit it
-            packet_size = self.queue.pop(0)
-            self.transmit_packet(packet_size)
-            self.state = Node.TX
-            self.logger.log_state(self, Node.TX)
-            self.logger.log_queue_length(self, len(self.queue))
-
-    def transmit_msg1(self, packet_size):
-        """
-        Generates, sends, and schedules end of transmission of a new packet
-        :param packet_size: size of the packet to send in bytes
-        """
-
-        #TODO hardcoded, podemos calcular el tiempo en el que se transmitirá el mensaje con la tasa lograda ?
-
-        packet = Packet(packet_size, self.sim.duration_NPRACH)
-        # transmit packet
-        #self.channel.start_transmission(self, packet)
-        # schedule end of transmission
-        # aquí programamos el envio en el siguiente periodo NPRACH
-        end_tx_msg1 = Event(self.sim.get_time() + self.sim.duration_NPRACH, Events.END_TX_MSG1, self,
-                       self, packet)
-        self.sim.eventosaux.append([end_tx_msg1.event_id, end_tx_msg1.event_time, end_tx_msg1.source.get_id()])
-        self.sim.schedule_event(end_tx_msg1)
-        self.current_pkt = packet
-
-    def transmit_packet(self, packet_size):
-        """
-        Generates, sends, and schedules end of transmission of a new packet
-        :param packet_size: size of the packet to send in bytes
-        """
-
-        #TODO hardcoded, podemos calcular el tiempo en el que se transmitirá el mensaje con la tasa lograda
-
-        packet = Packet(packet_size, self.sim.duration_NPRACH)
-        # transmit packet
-        #self.channel.start_transmission(self, packet)
-        # schedule end of transmission
-        # aquí programamos el envio en el siguiente periodo NPRACH
-        end_tx = Event(self.sim.sig_periodo_NOMA  - self.sim.tiempoMinimo, Events.END_TX, self,
-                       self, packet)
-        self.sim.eventosaux.append([end_tx.event_id, end_tx.event_time, end_tx.source.get_id()])
-        self.sim.schedule_event(end_tx)
-        self.current_pkt = packet
 
     def get_posx(self):
         """

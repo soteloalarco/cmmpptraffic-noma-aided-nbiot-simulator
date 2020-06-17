@@ -1,3 +1,7 @@
+# la versión original de este software libre ha sido modificada a su
+# forma actual por Rolando Sotelo y Fernando Salazar, pero hereda su
+# licencia de uso público
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -22,23 +26,29 @@ import sys
 
 class Config:
     """
+    Lee la configuración de la simulación del archivo de configuración. El archivo de configuración
+    se encuentra en formato JSON con la adición de comentarios (non-standard JSON). |
     Reads simulation config from configuration file. The configuration file is
     in JSON format with the addition of text comments (non-standard JSON).
-    Comments are automatically removed before processing the JSON content
+    Comments are automatically removed before processing the JSON content.
     """
 
+    # parámetro del archivo de salida
     # output file name parameter
     OUTPUT = "output"
 
     def __init__(self, config_file, section):
         """
         Constructor.
-        :param config_file: file name of the config file
-        :param section: the section of the configuration file to load
+        Constructor.
+        :param config_file: nombre del archivo de configuración | file name of the config file
+        :param section: qué sección del archivo cargar | the section of the configuration file to load
         """
+        # guardar la configuración básica
         # save basic configuration
         self.config_file = config_file
         self.section = section
+        # cargar la configuración desde json
         # load configuration from json
         json_content = self.remove_comments(config_file)
         try:
@@ -107,32 +117,38 @@ class Config:
 
     def get_runs_count(self):
         """
-        Returns the number of runs in the simulation
-        :returns: count of runs
+        Retorna el número de corridas en la simulación.
+        Returns the number of runs in the simulation.
+        :returns:  cuenta de corridas | count of runs
         """
         return self.runs_count
 
     def set_run_number(self, run_number):
         """
-        Sets the simulation we want to run
-        :param run_number: the simulation run
+        Establece la simulación que deseamos correr.
+        Sets the simulation we want to run.
+        :param run_number: la corrida de la simulación | the simulation run
         """
         self.run_number = run_number
         self.compute_output_file_name()
 
     def remove_comments(self, json_file):
         """
-        Removes the comments from a json file (non standard)
-        :param json_file: json file name
-        :returns: the content of the file without comments
+        Elimina los comentarios del archivo de json.
+        Removes the comments from a json file (non standard).
+        :param json_file: nombre del archivo json | json file name
+        :returns: el contenido del archivo sin comentarios| the content of the file without comments
         """
+        # expresión para eliminar comentarios de un archivo json
         # regular expression to remove comments from json file
         cr = re.compile('(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
                         re.DOTALL | re.MULTILINE)
         content = ''.join(open(json_file).readlines())
+        # se buscan comentarios
         # looking for comments
         match = cr.search(content)
         while match:
+            # comentarios de una línea
             # single line comment
             content = content[:match.start()] + content[match.end():]
             match = cr.search(content)
@@ -140,10 +156,12 @@ class Config:
 
     def get_param(self, param):
         """
+        Retorna el valor de un parámetro del archivo de configuración.
         Returns the value of a parameter from the configuration file. Throws an
         error if the parameter is not found
-        :param param: the parameter's name
+        :param param:  el nombre del parámetro | the parameter's name
         """
+        # primero se verifica que el parámetro existe
         # first check that param exists
         if param in self.cfg[self.section]:
             # if the parameter is in par_map, then it is a vector of values. In
@@ -162,6 +180,7 @@ class Config:
 
     def compute_output_file_name(self):
         """
+        Calcula el nombre del archivo de salida. |
         Computes output file name. The user can specify an output file name with
         variables that point to parameters in the configuration file. For
         example, by specifying output = "file_{seed}.csv" and having the seed
@@ -265,10 +284,12 @@ class Config:
 
     def get_params(self, run_number):
         """
+        Retorna una representación textual de los parámetros de simulación para un número de
+        corrida dado.
         Returns a textual representation of simulation parameters for a given
-        run number
-        :param run_number: the run number
-        :returns: textual representation of parameters for run_number
+        run number.
+        :param run_number: número de corrida | the run number
+        :returns:   representación textual de los parámetros de corrida| textual representation of parameters for run_number
         """
         params = ""
         config = self.cfg[self.section]

@@ -1,5 +1,9 @@
 class Singleton:
     """
+    Una clase que ayuda a implementar singletons, debe utilizarse como
+    un decarador a la clase que quiere implementarse como singleton. Para
+    obtener la instancia del singleton, utiliza el método 'Instance'.
+
     A non-thread-safe helper class to ease implementing singletons.
     This should be used as a decorator -- not a metaclass -- to the
     class that should be a singleton.
@@ -20,6 +24,10 @@ class Singleton:
 
     def Instance(self):
         """
+        Retorna la instancia singleton. En su primera llamda, crea una nueva
+        instancia de la clase decorada y llama a su metodo '__init__'. En las
+        llamadas subsecuentes, la antes creada instancia es retornada.
+
         Returns the singleton instance. Upon its first call, it creates a
         new instance of the decorated class and calls its `__init__` method.
         On all subsequent calls, the already created instance is returned.

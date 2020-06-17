@@ -1,3 +1,7 @@
+# la versión original de este software libre ha sido modificada a su
+# forma actual por Rolando Sotelo y Fernando Salazar, pero hereda su
+# licencia de uso público
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -19,22 +23,24 @@ from module import Module
 from event import Event
 from events import Events
 
+# TODO tal vez sea necesario generar los 48 canales
 
 class Channel(Module):
     """
+    Esta clase se encarga de simular el canal.
     This class takes care of simulating the channel, signaling the beginning of
     reception to nodes within the communication range. For the sake of
     simplicity, the end of reception is automatically scheduled by the receiving
     node.
     """
 
-    # communication range parameter in config file
-    #PAR_RANGE = "range"
+    # velocidad de la luz
     # speed of light in m/s, used to compute propagation delay
     SOL = 299792458.0
 
     def __init__(self, config):
         """
+        Constructor.
         Constructor.
         :param config: the set of configs loaded by the simulator to obtain, for
         example, the communication range. The parameter is an instance of the
@@ -42,15 +48,15 @@ class Channel(Module):
         """
         # call superclass constructor
         Module.__init__(self,-1,'canal')
-        # get transmission range from configuration parameters
-        #self.range = config.get_param(self.PAR_RANGE)
+
+        # lista de los  nodos comunicandose
         # list of all communication nodes in the simulation
         self.nodes = []
-        # map of neighbors that maps each node id to the list of its neighbors
-        #self.neighbors = {}
+
 
     def register_node(self, node):
         """
+        Registrar un nodo participando en la simulación.
         Registers a node participating to the simulation. This way the channel
         knows who is participating and can notify them when transmissions start
         or end
@@ -62,6 +68,7 @@ class Channel(Module):
 
     def distance(self, a, b):
         """
+        Calcula la distancia en euclidiana en dos dimensiones entre los nodos a y b
         Computes the two-dimensional Euclidean distance between nodes a and b
         :param a: first node
         :param b: second node
@@ -69,23 +76,6 @@ class Channel(Module):
         return math.sqrt(math.pow(a.get_posx() - b.get_posx(), 2) +
                          math.pow(a.get_posy() - b.get_posy(), 2))
 
-    # def recompute_neighbors(self, new_node):
-    #     """
-    #     Updates the map of neighbors, i.e., for each node it computes the list
-    #     of nodes within communication range and stores such list
-    #     :param new_node: the node just added to the simulation
-    #     """
-    #     # neighbors for the newest node
-    #     new_node_neighbors = []
-    #     for n in self.nodes:
-    #         # if the node n is within communication range of the newest node
-    #         if n.get_id() != new_node.get_id() and \
-    #            self.distance(n, new_node) < self.range:
-    #             # add n to the neighbors of the new node and vice versa
-    #             new_node_neighbors.append(n)
-    #             self.neighbors[n.get_id()].append(new_node)
-    #     # save neighbors for the new node in the map
-    #     self.neighbors[new_node.get_id()] = new_node_neighbors
 
     def start_transmission(self, source_node, packet=None):
         """
@@ -94,7 +84,7 @@ class Channel(Module):
         :param source_node: node that starts the transmission
         :param packet: packet being transmitted
         """
-        #TODO nosotros no avisamos a vecinos por eso está comentado, pero aqui tal vez deba ir la base
+        #nosotros no avisamos a vecinos por eso está comentado, pero aqui tal vez deba ir la base
 
         # for neighbor in self.neighbors[source_node.get_id()]:
         #     # compute propagation delay: distance / speed of light

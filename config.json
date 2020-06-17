@@ -1,25 +1,26 @@
 {
-	"simulation" : {
+	"simulacion" : {
 
+		// archivo .csv que contiene los dispositivos generados previamente
 		"dispositivos" : "ArchivoDispositivos0.csv",
 
+		// archivo .csv que contiene los eventos generados previemente para cada dispositivo
 		"eventos" : "ArchivoEventos0.csv",
 
+		// periodo de random access NPRACH
 		"TsNPRACH" : 0.5,
 
+		// periodo en el que se realiza el proceso NOMA en el canal NPUSCH
 		"TsNOMA" : 2,
 
-		// duration of each simulation in seconds
-		"duration" : 10,
+		// duración de la simulación en segundos
+		"duracion" : 10,
 
-		// unidad más pequeña de tiempo
+		// unidad más pequeña de tiempo percibida por el sistema
 		"tiempo-minimo" : 0.00001,
 
-		// position of nodes, list of x,y pairs
-		"nodes" : [
-    [[16.282,11.984], [3.513,1.589], [22.148,8.109], [8.207,9.294], [5.362,19.339], [19.02,4.388], [7.473,19.38], [16.913,22.015], [23.739,6.956], [21.951,17.042]]],
 
-		// log file name using configuration parameters
+		// nombre del archivo que guardará los logs a la salida
 		"output" : "noma-aided-nbiot-logs.csv"
 	}
 }
