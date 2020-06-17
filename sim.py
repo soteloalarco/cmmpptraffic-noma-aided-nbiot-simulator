@@ -377,6 +377,8 @@ class Sim:
             self.cancel_event(evento)
             evento.get_source().current_pkt=None
             evento.get_source().state=Node.IDLE
+            # schedule next arrival
+            evento.get_source().schedule_next_arrival()
 
         assert (len(universoNPRACHaux)+throughput==preambulos)
         self.universoNPRACH = []
