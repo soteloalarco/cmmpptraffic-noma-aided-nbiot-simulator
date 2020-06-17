@@ -65,6 +65,9 @@ class Sim:
     # .cvs con información de los eventos generados con el algoritmo CMMPP
     # .csv file with CMMPP events
     PAR_EVENTOS = "eventos"
+    # .cvs con información de los max throughput en NORA
+    # .csv file with max NORA throughput
+    PAR_THROUGHPUT = "RAmaxthroughput"
 
     def __init__(self):
         """
@@ -84,6 +87,9 @@ class Sim:
         # lista de eventos que importaremos del archivo .csv
         # list of eventos imported from .csv
         self.eventos = []
+        # lista de throughput máximo de preámbulos en NORA importado desde .csv
+        # list of max throughput of preambles in NORA imported from .csv
+        self.RAmaxthroughput = []
         # esta lista registra todos los eventos y no solo los que se agregan al log
         # this list registers all events and not only the ones in the logs
         self.eventosaux=[]
@@ -175,6 +181,15 @@ class Sim:
         # .csv file is saved into eventos list
         eventos_rec = pd.read_csv(self.eventosArchivo, index_col=0)
         self.eventos = eventos_rec.values.tolist()
+        # nombre del archivo que contiene los max throughput
+        # name of the files with the max throughput
+        self.RAthroughputArchivo = self.config.get_param(self.PAR_THROUGHPUT)
+        # Formato | Format
+        # [30,15] => [preambles,maxthrouhput]
+        # se lee el archivo .csv y se guardan en la lista de RAmaxthroughput
+        # .csv file is saved into RAmaxthroughput list
+        throughput_rec = pd.read_csv(self.RAthroughputArchivo, index_col=0)
+        self.RAmaxthroughput = throughput_rec.values.tolist()
         # nombre del archivo que contiene los dispositivos
         # name of the file conteining the UE's
         self.dispositivos = self.config.get_param(self.PAR_UE)
@@ -366,7 +381,11 @@ class Sim:
         """
         # TODO lógica para NPRACH, tengo que agregar un pop del evento, entonces en lugar de guardar paquete debo guardar evento
         preambulos=len(self.universoNPRACH)
-        throughput = int(np.random.uniform(0, preambulos, 1))
+        #throughput = int(np.random.uniform(0, preambulos, 1))
+        if preambulos==0:
+            throughput=0
+        else:
+            throughput = self.RAmaxthroughput[preambulos-1][1]
 
         # calculamos aleatoriamente qué dispositivos del universo no completaron su RA
         # we compute the preambles that didn't pass the RA
