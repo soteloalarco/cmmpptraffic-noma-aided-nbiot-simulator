@@ -171,7 +171,7 @@ class Node(Module):
         # Programamos la tx del preambulo
         # the tx of the preamble
 
-        self.transmit_preamble(packet_size=500)
+        self.transmit_preamble()
 
 
     def handle_end_tx(self, event):
@@ -217,12 +217,12 @@ class Node(Module):
         #TODO Lógica NOMA y ajustar su tasa o no transmitir si no alcanzó cluster
         self.state = Node.NOMA
         self.logger.log_state(self, Node.NOMA)
-        src.transmit_packet(packet_size=500)
+        src.transmit_packet()
         self.state = Node.IDLE
 
 ##########
 
-    def transmit_packet(self, packet_size):
+    def transmit_packet(self):
         """
         Genera, envia y calendariza el final de la transmisión del paquete
         Generates, sends, and schedules end of transmission of a new packet
@@ -231,7 +231,7 @@ class Node(Module):
         self.state = Node.TX
         self.logger.log_state(self, Node.TX)
 
-        packet = Packet(packet_size)
+        packet = self.current_pkt
         # TODO podemos transmitir el paquete por el canal
 
         # transmit packet
@@ -244,18 +244,18 @@ class Node(Module):
                        self, packet)
         self.sim.eventosaux.append([end_tx.event_id, end_tx.event_time, end_tx.source.get_id()])
         self.sim.schedule_event(end_tx)
-        self.current_pkt = packet
 
 
 
-    def transmit_preamble(self,packet_size):
+
+    def transmit_preamble(self):
         """
         Genera, envia y calendariza el final de la transmisión del paquete
         Generates, sends, and schedules end of transmission of a new packet
         :param packet_size: size of the packet to send in bytes
         """
         #TODO cambiar por el paquete real
-        packet = Packet(packet_size)
+        packet = self.current_pkt
         # TODO podemos transmitir el paquete por el canal
 
         # transmitimos el preambulo
