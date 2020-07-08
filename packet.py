@@ -40,7 +40,7 @@ class Packet:
     PKT_CORRUPTED = 2
     estados=['recibiendo','recibido','corrupto']
 
-    def __init__(self, size, duration):
+    def __init__(self, size):
         """
         Crea un paquete asignando automáticamente un ID único.
         Creates a packet automatically assigning a unique ID to it.
@@ -48,7 +48,7 @@ class Packet:
         :param duration: duración del paquete en segundos | packet duration in seconds
         """
         self.size = size
-        self.duration = duration
+        self.avance = 0
         self.state = Packet.PKT_RECEIVING
         self.id = Packet.__packets_count
         Packet.__packets_count = Packet.__packets_count + 1
@@ -85,13 +85,13 @@ class Packet:
         """
         return self.size
 
-    def get_duration(self):
+    def get_avance(self):
         """
         Retorna duración del paquete.
         Returns packet duration.
         :returns: duración del paquete en segundos | packet duration in seconds
         """
-        return self.duration
+        return self.avance
 
     def dump_packet(self):
         """

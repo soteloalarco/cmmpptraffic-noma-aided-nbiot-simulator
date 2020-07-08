@@ -85,9 +85,6 @@ class Sim:
         # lista de dispositivos a ser evaluados en el siguiente algoritmo NOMA
         # list of UE's to be evaluated in the next NOMA computing
         self.universoNOMA =[]
-        # lista de dispositivos a ser evaluados en el siguiente periodo NPRACH
-        # list of UE's to be evaluated in the next NPRACH computing
-        self.universoNPRACH = []
         # initialize() debe ser llamada antes de correr la simulación
         # initialize() should be called before running the simulation
         self.initialized = False
@@ -142,9 +139,6 @@ class Sim:
         # duración de un time-slot
         # duration of a time slot
         self.time_slot=0.002 # 2 ms
-        # duración del preámbulo (MSG1) en el canal NPRACH
-        # duration of the MSG1 in the RA
-        self.duracion_preambulo = 0.0056  # 5.6 ms
         # se instancia el canal
         # instantiate the channel
         # TODO hacer dos canales? uno NPRACH y uno NPUSCH

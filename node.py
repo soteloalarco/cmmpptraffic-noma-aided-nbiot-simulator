@@ -150,7 +150,7 @@ class Node(Module):
                 #TODO registrar si se trata de URRLLC o mMTC
 
                 # se crea un paquete con la información de la lista eventos | we create a packet with the information in the list event
-                paquete=Packet(evento[5],1)
+                paquete=Packet(evento[5])
                 if arrival<self.sim.get_time():
                     event = Event(self.sim.get_time(), Events.PACKET_ARRIVAL,
                                   self, self, paquete)
@@ -376,7 +376,7 @@ class Node(Module):
         :param packet_size: size of the packet to send in bytes
         """
 
-        packet = Packet(packet_size, self.sim.duracion_preambulo)
+        packet = Packet(packet_size)
         # TODO podemos transmitir el paquete por el canal NPUSCH
 
         # transmit packet
