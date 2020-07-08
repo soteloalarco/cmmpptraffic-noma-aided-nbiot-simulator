@@ -141,7 +141,6 @@ class Sim:
         self.time_slot=0.002 # 2 ms
         # se instancia el canal
         # instantiate the channel
-        # TODO hacer dos canales? uno NPRACH y uno NPUSCH
         self.channel = Channel(self.config)
         # nombre del archivo que contiene los eventos
         # name of the files with the events
@@ -341,7 +340,6 @@ class Sim:
     #     Algoritmo para computar el resultado del RA.
     #     Returns the result of the Random Access.
     #     """
-    #     # TODO lógica para NPRACH, tengo que agregar un pop del evento, entonces en lugar de guardar paquete debo guardar evento
     #     preambulos=len(self.universoNPRACH)
     #     #throughput = int(np.random.uniform(0, preambulos, 1))
     #     if preambulos==0:
