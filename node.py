@@ -75,6 +75,7 @@ class Node(Module):
         self.receiving_count = 0
         self.tasa_tx=0 # bits/s
         self.paquete_restante=0
+        self.ultimo_proc_noma = 0
         self.evento_end_tx = None
 
 
@@ -218,9 +219,9 @@ class Node(Module):
     def handle_end_proc_noma(self, event, src):
         #assert (self.state == Node.PREAMBULO)
         #TODO Lógica NOMA y ajustar su tasa o no transmitir si no alcanzó cluster
-        self.state = Node.NOMA
+
+        self.sim.channel.algoritmo_NOMA()
         self.logger.log_state(self, Node.NOMA)
-        src.transmit_packet()
         self.state = Node.IDLE
 
 ##########
@@ -261,16 +262,19 @@ class Node(Module):
         packet = self.current_pkt
         # TODO podemos transmitir el paquete por el canal
 
-        # transmitimos el preambulo
-        self.channel.start_transmission(self, packet)
+
         # calendarizamos el final de la transmisión hasta antes de que inicie el siguiente periodo NOMA
         # schedule end of transmission
-        proc_noma = Event(self.sim.get_time() + self.sim.tiempoMinimo, Events.END_PROC_NOMA, self.sim.node_eNB,
-                       self, packet)
-        self.sim.eventosaux.append([proc_noma.event_id, proc_noma.event_time, proc_noma.source.get_id()])
-        self.sim.schedule_event(proc_noma)
-        self.current_pkt = packet
+        if(self.sim.node_eNB.get_state() == Node.IDLE): # sólo se agenda proceso noma una vez si mas paquetes se transmiten al mismo tiempo
+            self.sim.node_eNB.state = Node.NOMA
+            proc_noma = Event(self.sim.get_time() + self.sim.tiempoMinimo, Events.END_PROC_NOMA, self.sim.node_eNB,
+                           self, packet)
+            self.sim.eventosaux.append([proc_noma.event_id, proc_noma.event_time, proc_noma.source.get_id()])
+            self.sim.schedule_event(proc_noma)
 
+        # transmitimos el preambulo
+        self.channel.start_transmission(self, packet)
+        self.current_pkt = packet
         self.state = Node.PREAMBULO
         self.logger.log_estado(proc_noma, Node.PREAMBULO)
 
@@ -537,3 +541,10 @@ class Node(Module):
         :returns: y position in meters
         """
         return self.y
+
+    def get_state(self):
+        """
+        Returns y position
+        :returns: y position in meters
+        """
+        return self.state

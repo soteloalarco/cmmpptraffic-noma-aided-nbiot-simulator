@@ -102,3 +102,23 @@ class Channel(Module):
         #                   Events.START_RX, neighbor, source_node,
         #                   copy.deepcopy(packet))
         #     self.sim.schedule_event(event)
+
+    def algoritmo_NOMA(self):
+
+        #TODO algoritmo noma que resultará en algunos dispositivos que no pudieron ser atendidos y tasas para los demas
+        for nodo in self.nodes:
+            if(nodo.evento_end_tx is None):
+                nodo.tasa_tx=20
+                nodo.ultimo_proc_noma=self.sim.get_time()
+                nodo.paquete_restante = nodo.current_pkt.get_size()
+                tiempo_end_tx= self.sim.get_time() + (nodo.current_pkt.get_size() )/ nodo.tasa_tx
+                nodo.evento_end_tx = Event(tiempo_end_tx, Events.END_TX, self,
+                               self, nodo.current_pkt)
+            else:
+                self.sim.cancel_event(nodo.evento_end_tx)
+                nodo.evento_end_tx = Event(self.sim.get_time() + 1, Events.END_TX, self,
+                               self, nodo.current_pkt)
+
+            nodo.transmit_packet()
+
+        return self.nodes
