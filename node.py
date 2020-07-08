@@ -90,8 +90,9 @@ class Node(Module):
         Inicialización de eNB. Inicia la operación de las eNB calendarizando los periodos NOMA y NPRACH.
         Initialization. Starts eNB operation by scheduling the first NOMA and NPRACH operations.
         """
-        self.schedule_next_periodoNOMA()
-        self.schedule_next_periodoNPRACH()
+        #TODO ya no se hará esto de periodo noma ni nprach
+        #self.schedule_next_periodoNOMA()
+        #self.schedule_next_periodoNPRACH()
 
 
     def handle_event(self, event):
@@ -213,10 +214,14 @@ class Node(Module):
         self.logger.log_arrival(self, paquete_actual.get_size())
         # Programamos la tx del msg1 para el siguiente periodo NPRACH
         # the tx of the msg1 is scheduled for the next NPRACH period
-        start_tx = Event(self.sim.sig_periodo_NPRACH, Events.START_TX_MSG1, self,
-                       self)
-        self.sim.eventosaux.append([start_tx.event_id, start_tx.event_time, start_tx.source.get_id()])
-        self.sim.schedule_event(start_tx)
+        #start_tx = Event(self.sim.sig_periodo_NPRACH, Events.START_TX_MSG1, self,
+        #               self)
+        #self.sim.eventosaux.append([start_tx.event_id, start_tx.event_time, start_tx.source.get_id()])
+        #self.sim.schedule_event(start_tx)
+        # Todo agregarlo al canal y colocar bien el tamaño del paquete
+        self.transmit_packet(packet_size=500)
+        self.state = Node.TX
+        self.logger.log_state(self, Node.TX)
 
     def handle_start_tx_msg1(self, event):
         """
@@ -377,10 +382,10 @@ class Node(Module):
         # transmit packet
         #self.channel.start_transmission(self, packet)
         # una vez se comienza la transmisión del paquete se toma en cuenta para el proceso NOMA
-        self.sim.universoNOMA.append(self)
+        #self.sim.universoNOMA.append(self)
         # calendarizamos el final de la transmisión hasta antes de que inicie el siguiente periodo NOMA
         # schedule end of transmission
-        end_tx = Event(self.sim.sig_periodo_NOMA  - self.sim.tiempoMinimo, Events.END_TX, self,
+        end_tx = Event(self.sim.get_time() + 1, Events.END_TX, self,
                        self, packet)
         self.sim.eventosaux.append([end_tx.event_id, end_tx.event_time, end_tx.source.get_id()])
         self.sim.schedule_event(end_tx)

@@ -206,7 +206,7 @@ class Sim:
         self.node_eNB = Node(0, 'eNB', self.config, self.channel, 0, 0)
         # avisamos al canal de la existencia del nodo
         # let the channel know about this node
-        self.channel.register_node(self.node_eNB)
+        #self.channel.register_node(self.node_eNB)
         # inicializamos enB y lo agregamos a la lista de nodos
         # eNB is initialized and added to nodes list
         self.node_eNB.initialize_eNB()
