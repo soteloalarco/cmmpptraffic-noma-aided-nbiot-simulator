@@ -53,21 +53,13 @@ class Sim:
     # la cantidad de tiempo mímino detectada por el sistema
     # smallest amount of time the system can detect
     PAR_TIEMPOMINIMO = "tiempo-minimo"
-    # periodicidad de los preámbulos en el canal NPRACH
-    # Ts of the preambles in the NPRACH
-    PAR_TSNPRACH = "TsNPRACH"
-    # periodicidad del algoritmo NOMA
-    # Ts of the algorithm NOMA
-    PAR_TSNOMA = "TsNOMA"
     # .csv con información de los dispositivos
     # .csv file with information of the UE
     PAR_UE = "dispositivos"
     # .cvs con información de los eventos generados con el algoritmo CMMPP
     # .csv file with CMMPP events
     PAR_EVENTOS = "eventos"
-    # .cvs con información de los max throughput en NORA
-    # .csv file with max NORA throughput
-    PAR_THROUGHPUT = "RAmaxthroughput"
+
 
     def __init__(self):
         """
@@ -87,9 +79,6 @@ class Sim:
         # lista de eventos que importaremos del archivo .csv
         # list of eventos imported from .csv
         self.eventos = []
-        # lista de throughput máximo de preámbulos en NORA importado desde .csv
-        # list of max throughput of preambles in NORA imported from .csv
-        self.RAmaxthroughput = []
         # esta lista registra todos los eventos y no solo los que se agregan al log
         # this list registers all events and not only the ones in the logs
         self.eventosaux=[]
@@ -152,22 +141,10 @@ class Sim:
         self.tiempoMinimo = self.config.get_param(self.PAR_TIEMPOMINIMO)
         # duración de un time-slot
         # duration of a time slot
-        self.time_slot=0.0005 # 0.5 ms
-        # obtenemos el valor del periodo de preámbulo en el canal NPRACH
-        # get periodo NPRACH
-        self.TsNPRACH = self.config.get_param(self.PAR_TSNPRACH)
-        # variable que registra en qué momento ocurrirá el siguiente evento NPRACH
-        # var that registers when the next NPRACH preambles can be sent
-        self.sig_periodo_NPRACH=0
+        self.time_slot=0.002 # 2 ms
         # duración del preámbulo (MSG1) en el canal NPRACH
         # duration of the MSG1 in the RA
         self.duracion_preambulo = 0.0056  # 5.6 ms
-        # obtenemos la periodicidad en la que evaluaremos el algoritmo NOMA
-        # get Ts NOMA
-        self.TsNOMA = self.config.get_param(self.PAR_TSNOMA)
-        # variable que registra en qué momento ocurrirá el siguiente evento NOMA
-        # var that registers when the next NOMA compute will happen
-        self.sig_periodo_NOMA = 0
         # se instancia el canal
         # instantiate the channel
         # TODO hacer dos canales? uno NPRACH y uno NPUSCH
@@ -181,15 +158,6 @@ class Sim:
         # .csv file is saved into eventos list
         eventos_rec = pd.read_csv(self.eventosArchivo, index_col=0)
         self.eventos = eventos_rec.values.tolist()
-        # nombre del archivo que contiene los max throughput
-        # name of the files with the max throughput
-        self.RAthroughputArchivo = self.config.get_param(self.PAR_THROUGHPUT)
-        # Formato | Format
-        # [30,15] => [preambles,maxthrouhput]
-        # se lee el archivo .csv y se guardan en la lista de RAmaxthroughput
-        # .csv file is saved into RAmaxthroughput list
-        throughput_rec = pd.read_csv(self.RAthroughputArchivo, index_col=0)
-        self.RAmaxthroughput = throughput_rec.values.tolist()
         # nombre del archivo que contiene los dispositivos
         # name of the file conteining the UE's
         self.dispositivos = self.config.get_param(self.PAR_UE)
@@ -374,31 +342,31 @@ class Sim:
         """
         return self.config.get_params(run_number)
 
-    def algoritmo_RA(self):
-        """
-        Algoritmo para computar el resultado del RA.
-        Returns the result of the Random Access.
-        """
-        # TODO lógica para NPRACH, tengo que agregar un pop del evento, entonces en lugar de guardar paquete debo guardar evento
-        preambulos=len(self.universoNPRACH)
-        #throughput = int(np.random.uniform(0, preambulos, 1))
-        if preambulos==0:
-            throughput=0
-        else:
-            throughput = self.RAmaxthroughput[preambulos-1][1]
-
-        # calculamos aleatoriamente qué dispositivos del universo no completaron su RA
-        # we compute the preambles that didn't pass the RA
-        random.shuffle(self.universoNPRACH)
-        universoNPRACHaux= self.universoNPRACH[:(preambulos-throughput)]
-
-        for evento in universoNPRACHaux:
-            self.cancel_event(evento)
-            evento.get_source().current_pkt=None
-            evento.get_source().state=Node.IDLE
-            # schedule next arrival
-            evento.get_source().schedule_next_arrival()
-
-        assert (len(universoNPRACHaux)+throughput==preambulos)
-        self.universoNPRACH = []
-        return throughput
+    # def algoritmo_RA(self):
+    #     """
+    #     Algoritmo para computar el resultado del RA.
+    #     Returns the result of the Random Access.
+    #     """
+    #     # TODO lógica para NPRACH, tengo que agregar un pop del evento, entonces en lugar de guardar paquete debo guardar evento
+    #     preambulos=len(self.universoNPRACH)
+    #     #throughput = int(np.random.uniform(0, preambulos, 1))
+    #     if preambulos==0:
+    #         throughput=0
+    #     else:
+    #         throughput = self.RAmaxthroughput[preambulos-1][1]
+    #
+    #     # calculamos aleatoriamente qué dispositivos del universo no completaron su RA
+    #     # we compute the preambles that didn't pass the RA
+    #     random.shuffle(self.universoNPRACH)
+    #     universoNPRACHaux= self.universoNPRACH[:(preambulos-throughput)]
+    #
+    #     for evento in universoNPRACHaux:
+    #         self.cancel_event(evento)
+    #         evento.get_source().current_pkt=None
+    #         evento.get_source().state=Node.IDLE
+    #         # schedule next arrival
+    #         evento.get_source().schedule_next_arrival()
+    #
+    #     assert (len(universoNPRACHaux)+throughput==preambulos)
+    #     self.universoNPRACH = []
+    #     return throughput
