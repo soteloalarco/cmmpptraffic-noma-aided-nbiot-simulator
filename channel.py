@@ -84,6 +84,7 @@ class Channel(Module):
         :param source_node: node that starts the transmission
         :param packet: packet being transmitted
         """
+        #TODO agregar a lista de nodos en el canal para hacer noma posteriormente
         #nosotros no avisamos a vecinos por eso está comentado, pero aqui tal vez deba ir la base
 
         # for neighbor in self.neighbors[source_node.get_id()]:

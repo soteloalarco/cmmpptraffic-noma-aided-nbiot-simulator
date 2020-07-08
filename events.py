@@ -42,9 +42,9 @@ class Events:
     # finalia el procesamiento despues de la recepción de un paquete. puede comenzar a operar nuevamente
     # end of processing after reception or transmission. can start operations again
     END_PROC = 5
-    # finalia el procesamiento despues de la recepción del msg1. puede comenzar a operar nuevamente
-    # end of processing after reception or MSG1. can start operations again
-    END_PROC_MSG1 = 5
+    # finalia el procesamiento despues de la recepción  NOMA. puede comenzar a operar nuevamente
+    # end of processing after reception NOMA. can start operations again
+    END_PROC_NOMA = 5
     # expiración para el tiempo de recepción, evitando esperar por siempre
     # timeout for RX state avoiding getting stuck into RX indefinitely
     RX_TIMEOUT = 6

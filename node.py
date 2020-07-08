@@ -36,10 +36,10 @@ class Node(Module):
     TX = 1
     RX = 2
     PROC = 3
-    NPRACH = 4
+    NOMA = 4
     TX_MSG1 = 5
-    PROC_RA = 6
-    estados=["IDLE","TX-PKG","RX","PROC","NPRACH","TX-MSG1","PROC-RA"]
+    PREAMBULO = 6
+    estados=["IDLE","TX-PKG","RX","PROC","NOMA","TX-MSG1","PREAMBULO"]
 
     def __init__(self,id,tipo, config, channel, x, y):
         """
@@ -101,6 +101,8 @@ class Node(Module):
 
         if event.get_type() == Events.PACKET_ARRIVAL:
             self.handle_arrival(event)
+        elif event.get_type() ==  Events.END_PROC_NOMA:
+            self.handle_end_proc_noma(event)
         elif event.get_type() == Events.END_TX:
             self.handle_end_tx(event)
         elif event.get_type() == Events.END_PROC:
@@ -172,9 +174,9 @@ class Node(Module):
         #               self)
         #self.sim.eventosaux.append([start_tx.event_id, start_tx.event_time, start_tx.source.get_id()])
         #self.sim.schedule_event(start_tx)
-        self.transmit_packet(packet_size=500)
-        self.state = Node.TX
-        self.logger.log_state(self, Node.TX)
+        self.transmit_preamble(packet_size=500)
+        self.state = Node.PREAMBULO
+        self.logger.log_state(self, Node.PREAMBULO)
 
 
     def handle_end_tx(self, event):
@@ -215,6 +217,15 @@ class Node(Module):
         # schedule next arrival
         self.schedule_next_arrival()
 
+    def handle_end_proc_noma(self, event):
+        #assert (self.state == Node.PREAMBULO)
+        #TODO Lógica NOMA y ajustar su tasa o no transmitir si no alcanzó cluster
+        self.state = Node.NOMA
+        self.logger.log_state(self, Node.NOMA)
+        event.get_source().transmit_packet(packet_size=500)
+        event.get_source().state = Node.TX
+        event.get_source().logger.log_state(self, Node.TX)
+        self.state = Node.IDLE
 
 ##########
 
@@ -238,6 +249,26 @@ class Node(Module):
                        self, packet)
         self.sim.eventosaux.append([end_tx.event_id, end_tx.event_time, end_tx.source.get_id()])
         self.sim.schedule_event(end_tx)
+        self.current_pkt = packet
+
+    def transmit_preamble(self,packet_size):
+        """
+        Genera, envia y calendariza el final de la transmisión del paquete
+        Generates, sends, and schedules end of transmission of a new packet
+        :param packet_size: size of the packet to send in bytes
+        """
+
+        packet = Packet(packet_size)
+        # TODO podemos transmitir el paquete por el canal
+
+        # transmitimos el preambulo
+        self.channel.start_transmission(self, packet)
+        # calendarizamos el final de la transmisión hasta antes de que inicie el siguiente periodo NOMA
+        # schedule end of transmission
+        proc_noma = Event(self.sim.get_time(), Events.END_PROC_NOMA, self.sim.node_eNB,
+                       self, packet)
+        self.sim.eventosaux.append([proc_noma.event_id, proc_noma.event_time, proc_noma.source.get_id()])
+        self.sim.schedule_event(proc_noma)
         self.current_pkt = packet
 
     def switch_to_proc(self):
