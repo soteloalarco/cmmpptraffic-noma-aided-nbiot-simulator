@@ -44,7 +44,7 @@ class Events:
     END_PROC = 5
     # finalia el procesamiento despues de la recepción  NOMA. puede comenzar a operar nuevamente
     # end of processing after reception NOMA. can start operations again
-    END_PROC_NOMA = 5
+    END_PROC_NOMA = 6
     # expiración para el tiempo de recepción, evitando esperar por siempre
     # timeout for RX state avoiding getting stuck into RX indefinitely
     RX_TIMEOUT = 6

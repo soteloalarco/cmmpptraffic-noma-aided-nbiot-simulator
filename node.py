@@ -254,7 +254,7 @@ class Node(Module):
         Generates, sends, and schedules end of transmission of a new packet
         :param packet_size: size of the packet to send in bytes
         """
-
+        #TODO cambiar por el paquete real
         packet = Packet(packet_size)
         # TODO podemos transmitir el paquete por el canal
 
