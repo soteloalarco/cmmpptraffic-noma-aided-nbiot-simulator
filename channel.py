@@ -86,7 +86,9 @@ class Channel(Module):
         """
         #TODO agregar a lista de nodos en el canal para hacer noma posteriormente
         #nosotros no avisamos a vecinos por eso está comentado, pero aqui tal vez deba ir la base
-
+        # avisamos al canal de la existencia del nodo
+        # let the channel know about this node
+        self.register_node(source_node)
         # for neighbor in self.neighbors[source_node.get_id()]:
         #     # compute propagation delay: distance / speed of light
         #     propagation_delay = self.distance(source_node, neighbor) /\

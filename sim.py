@@ -180,9 +180,6 @@ class Sim:
             x = d[2]
             y = d[3]
             node = Node(id,tipo,self.config, self.channel, x, y)
-            # avisamos al canal de la existencia del nodo
-            # let the channel know about this node
-            self.channel.register_node(node)
             # inicializamos el nodo y lo agregamos a la lista de nodos
             # node is initialized and added to nodes list
             node.initialize()

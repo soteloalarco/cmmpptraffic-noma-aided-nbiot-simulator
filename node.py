@@ -73,6 +73,9 @@ class Node(Module):
         # cuenta el número de frames siendo recibidas
         # count the number of frames currently under reception
         self.receiving_count = 0
+        self.tasa_tx=0 # bits/s
+        self.paquete_restante=0
+        self.evento_end_tx = None
 
 
     def initialize(self):
@@ -262,7 +265,7 @@ class Node(Module):
         self.channel.start_transmission(self, packet)
         # calendarizamos el final de la transmisión hasta antes de que inicie el siguiente periodo NOMA
         # schedule end of transmission
-        proc_noma = Event(self.sim.get_time(), Events.END_PROC_NOMA, self.sim.node_eNB,
+        proc_noma = Event(self.sim.get_time() + self.sim.tiempoMinimo, Events.END_PROC_NOMA, self.sim.node_eNB,
                        self, packet)
         self.sim.eventosaux.append([proc_noma.event_id, proc_noma.event_time, proc_noma.source.get_id()])
         self.sim.schedule_event(proc_noma)
