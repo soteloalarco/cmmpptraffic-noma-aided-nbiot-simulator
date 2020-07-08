@@ -154,6 +154,20 @@ class Log:
                                 (self.sim.get_time(), node.get_id(),node.get_tipo(),
                                  node.get_id(),node.get_tipo(), Log.LOG_NODE_STATE,Log.LOG_NODE_STATE_DES, state,node.estados[state]))
 
+    def log_estado(self, evento, state):
+        """
+        Logea el estado de un nodo en particular.
+        Logs the state of a particular node.
+        :param node: nodo | node
+        :param state: estado del nodo | state of the node
+        """
+        if self.log_states:
+            #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
+            self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
+                                (self.sim.get_time(), evento.get_source().get_id(),evento.get_source().get_tipo(),
+                                 evento.get_destination().get_id(),evento.get_destination().get_tipo(), Log.LOG_NODE_STATE,Log.LOG_NODE_STATE_DES, state,evento.get_destination().estados[state]))
+
+
     def log_state_event(self, node,event, state):
         """
         Logea el estado de un evento y nodo en particular
