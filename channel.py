@@ -108,17 +108,22 @@ class Channel(Module):
         #TODO algoritmo noma que resultará en algunos dispositivos que no pudieron ser atendidos y tasas para los demas
         for nodo in self.nodes:
             if(nodo.evento_end_tx is None):
-                nodo.tasa_tx=20
+                nueva_tasa=20
+                nodo.tasa_tx=nueva_tasa
                 nodo.ultimo_proc_noma=self.sim.get_time()
                 nodo.paquete_restante = nodo.current_pkt.get_size()
-                tiempo_end_tx= self.sim.get_time() + (nodo.current_pkt.get_size() )/ nodo.tasa_tx
-                nodo.evento_end_tx = Event(tiempo_end_tx, Events.END_TX, self,
-                               self, nodo.current_pkt)
+                tiempo_end_tx= self.sim.get_time() + (nodo.paquete_restante/ nodo.tasa_tx)
+                nodo.evento_end_tx = Event(tiempo_end_tx, Events.END_TX, nodo,
+                               nodo, nodo.current_pkt)
             else:
                 self.sim.cancel_event(nodo.evento_end_tx)
-                nodo.evento_end_tx = Event(self.sim.get_time() + 1, Events.END_TX, self,
-                               self, nodo.current_pkt)
+                nueva_tasa = 20
+                tiempo_entre_noma = self.sim.get_time() - nodo.ultimo_proc_noma
+                nodo.paquete_restante = nodo.paquete_restante - ( nodo.tasa_tx * tiempo_entre_noma)
+                tiempo_end_tx = self.sim.get_time() + (nodo.paquete_restante / nueva_tasa)
+                nodo.evento_end_tx = Event(tiempo_end_tx, Events.END_TX, nodo,
+                               nodo, nodo.current_pkt)
+                nodo.tasa_tx = nueva_tasa
+                nodo.ultimo_proc_noma = self.sim.get_time()
 
             nodo.transmit_packet()
-
-        return self.nodes

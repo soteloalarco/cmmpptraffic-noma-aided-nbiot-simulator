@@ -188,6 +188,11 @@ class Node(Module):
         assert(self.current_pkt is not None)
         assert(self.current_pkt.get_id() == event.get_obj().get_id())
         self.current_pkt = None
+        self.evento_end_tx = None
+        self.paquete_restante = 0
+        self.ultimo_proc_noma = 0
+        self.tasa_tx = 0
+        self.channel.nodes.remove(self)
         # se pasa a estado de procesamiento antes de volver a esta idle
         # the only thing to do here is to move to the PROC state
         self.switch_to_proc()
@@ -220,9 +225,10 @@ class Node(Module):
         #assert (self.state == Node.PREAMBULO)
         #TODO Lógica NOMA y ajustar su tasa o no transmitir si no alcanzó cluster
 
-        self.sim.channel.algoritmo_NOMA()
         self.logger.log_state(self, Node.NOMA)
         self.state = Node.IDLE
+        self.sim.channel.algoritmo_NOMA()
+
 
 ##########
 
@@ -244,8 +250,9 @@ class Node(Module):
         #self.sim.universoNOMA.append(self)
         # calendarizamos el final de la transmisión hasta antes de que inicie el siguiente periodo NOMA
         # schedule end of transmission
-        end_tx = Event(self.sim.get_time() + 1, Events.END_TX, self,
-                       self, packet)
+        #end_tx = Event(self.sim.get_time() + 1, Events.END_TX, self,
+        #               self, packet)
+        end_tx = self.evento_end_tx
         self.sim.eventosaux.append([end_tx.event_id, end_tx.event_time, end_tx.source.get_id()])
         self.sim.schedule_event(end_tx)
 
@@ -265,10 +272,10 @@ class Node(Module):
 
         # calendarizamos el final de la transmisión hasta antes de que inicie el siguiente periodo NOMA
         # schedule end of transmission
+        proc_noma = Event(self.sim.get_time() + self.sim.tiempoMinimo, Events.END_PROC_NOMA, self.sim.node_eNB,
+                          self, packet)
         if(self.sim.node_eNB.get_state() == Node.IDLE): # sólo se agenda proceso noma una vez si mas paquetes se transmiten al mismo tiempo
             self.sim.node_eNB.state = Node.NOMA
-            proc_noma = Event(self.sim.get_time() + self.sim.tiempoMinimo, Events.END_PROC_NOMA, self.sim.node_eNB,
-                           self, packet)
             self.sim.eventosaux.append([proc_noma.event_id, proc_noma.event_time, proc_noma.source.get_id()])
             self.sim.schedule_event(proc_noma)
 

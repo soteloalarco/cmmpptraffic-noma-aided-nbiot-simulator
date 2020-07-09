@@ -215,7 +215,7 @@ class Sim:
             event = self.next_event()
             dst = event.get_destination()
             src = event.get_source()
-            dst.handle_event(event,src)
+            dst.handle_event(event, src)
             # obtenemos el tiempo actual
             # get current real time
             curr_time = time.time()
