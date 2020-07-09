@@ -53,18 +53,13 @@ class Sim:
     # la cantidad de tiempo mímino detectada por el sistema
     # smallest amount of time the system can detect
     PAR_TIEMPOMINIMO = "tiempo-minimo"
-    # periodicidad de los preámbulos en el canal NPRACH
-    # Ts of the preambles in the NPRACH
-    PAR_TSNPRACH = "TsNPRACH"
-    # periodicidad del algoritmo NOMA
-    # Ts of the algorithm NOMA
-    PAR_TSNOMA = "TsNOMA"
     # .csv con información de los dispositivos
     # .csv file with information of the UE
     PAR_UE = "dispositivos"
     # .cvs con información de los eventos generados con el algoritmo CMMPP
     # .csv file with CMMPP events
     PAR_EVENTOS = "eventos"
+
 
     def __init__(self):
         """
@@ -90,9 +85,6 @@ class Sim:
         # lista de dispositivos a ser evaluados en el siguiente algoritmo NOMA
         # list of UE's to be evaluated in the next NOMA computing
         self.universoNOMA =[]
-        # lista de dispositivos a ser evaluados en el siguiente periodo NPRACH
-        # list of UE's to be evaluated in the next NPRACH computing
-        self.universoNPRACH = []
         # initialize() debe ser llamada antes de correr la simulación
         # initialize() should be called before running the simulation
         self.initialized = False
@@ -146,25 +138,9 @@ class Sim:
         self.tiempoMinimo = self.config.get_param(self.PAR_TIEMPOMINIMO)
         # duración de un time-slot
         # duration of a time slot
-        self.time_slot=0.0005 # 0.5 ms
-        # obtenemos el valor del periodo de preámbulo en el canal NPRACH
-        # get periodo NPRACH
-        self.TsNPRACH = self.config.get_param(self.PAR_TSNPRACH)
-        # variable que registra en qué momento ocurrirá el siguiente evento NPRACH
-        # var that registers when the next NPRACH preambles can be sent
-        self.sig_periodo_NPRACH=0
-        # duración del preámbulo (MSG1) en el canal NPRACH
-        # duration of the MSG1 in the RA
-        self.duracion_preambulo = 0.0056  # 5.6 ms
-        # obtenemos la periodicidad en la que evaluaremos el algoritmo NOMA
-        # get Ts NOMA
-        self.TsNOMA = self.config.get_param(self.PAR_TSNOMA)
-        # variable que registra en qué momento ocurrirá el siguiente evento NOMA
-        # var that registers when the next NOMA compute will happen
-        self.sig_periodo_NOMA = 0
+        self.time_slot=0.002 # 2 ms
         # se instancia el canal
         # instantiate the channel
-        # TODO hacer dos canales? uno NPRACH y uno NPUSCH
         self.channel = Channel(self.config)
         # nombre del archivo que contiene los eventos
         # name of the files with the events
@@ -191,7 +167,7 @@ class Sim:
         self.node_eNB = Node(0, 'eNB', self.config, self.channel, 0, 0)
         # avisamos al canal de la existencia del nodo
         # let the channel know about this node
-        self.channel.register_node(self.node_eNB)
+        #self.channel.register_node(self.node_eNB)
         # inicializamos enB y lo agregamos a la lista de nodos
         # eNB is initialized and added to nodes list
         self.node_eNB.initialize_eNB()
@@ -204,9 +180,6 @@ class Sim:
             x = d[2]
             y = d[3]
             node = Node(id,tipo,self.config, self.channel, x, y)
-            # avisamos al canal de la existencia del nodo
-            # let the channel know about this node
-            self.channel.register_node(node)
             # inicializamos el nodo y lo agregamos a la lista de nodos
             # node is initialized and added to nodes list
             node.initialize()
@@ -241,7 +214,8 @@ class Sim:
             # get next event and call the handle method of the destination
             event = self.next_event()
             dst = event.get_destination()
-            dst.handle_event(event)
+            src = event.get_source()
+            dst.handle_event(event, src)
             # obtenemos el tiempo actual
             # get current real time
             curr_time = time.time()
@@ -359,27 +333,30 @@ class Sim:
         """
         return self.config.get_params(run_number)
 
-    def algoritmo_RA(self):
-        """
-        Algoritmo para computar el resultado del RA.
-        Returns the result of the Random Access.
-        """
-        # TODO lógica para NPRACH, tengo que agregar un pop del evento, entonces en lugar de guardar paquete debo guardar evento
-        preambulos=len(self.universoNPRACH)
-        throughput = int(np.random.uniform(0, preambulos, 1))
-
-        # calculamos aleatoriamente qué dispositivos del universo no completaron su RA
-        # we compute the preambles that didn't pass the RA
-        random.shuffle(self.universoNPRACH)
-        universoNPRACHaux= self.universoNPRACH[:(preambulos-throughput)]
-
-        for evento in universoNPRACHaux:
-            self.cancel_event(evento)
-            evento.get_source().current_pkt=None
-            evento.get_source().state=Node.IDLE
-            # schedule next arrival
-            evento.get_source().schedule_next_arrival()
-
-        assert (len(universoNPRACHaux)+throughput==preambulos)
-        self.universoNPRACH = []
-        return throughput
+    # def algoritmo_RA(self):
+    #     """
+    #     Algoritmo para computar el resultado del RA.
+    #     Returns the result of the Random Access.
+    #     """
+    #     preambulos=len(self.universoNPRACH)
+    #     #throughput = int(np.random.uniform(0, preambulos, 1))
+    #     if preambulos==0:
+    #         throughput=0
+    #     else:
+    #         throughput = self.RAmaxthroughput[preambulos-1][1]
+    #
+    #     # calculamos aleatoriamente qué dispositivos del universo no completaron su RA
+    #     # we compute the preambles that didn't pass the RA
+    #     random.shuffle(self.universoNPRACH)
+    #     universoNPRACHaux= self.universoNPRACH[:(preambulos-throughput)]
+    #
+    #     for evento in universoNPRACHaux:
+    #         self.cancel_event(evento)
+    #         evento.get_source().current_pkt=None
+    #         evento.get_source().state=Node.IDLE
+    #         # schedule next arrival
+    #         evento.get_source().schedule_next_arrival()
+    #
+    #     assert (len(universoNPRACHaux)+throughput==preambulos)
+    #     self.universoNPRACH = []
+    #     return throughput

@@ -52,6 +52,8 @@ class Channel(Module):
         # lista de los  nodos comunicandose
         # list of all communication nodes in the simulation
         self.nodes = []
+        self.universomMTC = []
+        self.universoURLLC = []
 
 
     def register_node(self, node):
@@ -84,8 +86,11 @@ class Channel(Module):
         :param source_node: node that starts the transmission
         :param packet: packet being transmitted
         """
+        #TODO agregar a lista de nodos en el canal para hacer noma posteriormente
         #nosotros no avisamos a vecinos por eso está comentado, pero aqui tal vez deba ir la base
-
+        # avisamos al canal de la existencia del nodo
+        # let the channel know about this node
+        self.register_node(source_node)
         # for neighbor in self.neighbors[source_node.get_id()]:
         #     # compute propagation delay: distance / speed of light
         #     propagation_delay = self.distance(source_node, neighbor) /\
@@ -99,3 +104,42 @@ class Channel(Module):
         #                   Events.START_RX, neighbor, source_node,
         #                   copy.deepcopy(packet))
         #     self.sim.schedule_event(event)
+
+    def algoritmo_NOMA(self,enb):
+
+        self.universomMTC=[]
+        self.universoURLLC=[]
+
+        for nodo in self.nodes:
+
+            if(nodo.get_tipo()=='Dispositivos URLLC'):
+                self.universoURLLC.append(nodo)
+            else:
+                self.universomMTC.append(nodo)
+        enb.logger.log_inicio_NOMA(enb)
+
+        # TODO algoritmo noma que resultará en algunos dispositivos que no pudieron ser atendidos y tasas para los demas
+
+        #actulizamos los dispositivos que transmitiran
+        for nodo in self.nodes:
+
+            if(nodo.evento_end_tx is None):
+                nueva_tasa=20
+                nodo.tasa_tx=nueva_tasa
+                nodo.ultimo_proc_noma=self.sim.get_time()
+                nodo.paquete_restante = nodo.current_pkt.get_size()
+                tiempo_end_tx= self.sim.get_time() + (nodo.paquete_restante/ nodo.tasa_tx)
+                nodo.evento_end_tx = Event(tiempo_end_tx, Events.END_TX, nodo,
+                               nodo, nodo.current_pkt)
+            else:
+                self.sim.cancel_event(nodo.evento_end_tx)
+                nueva_tasa = 20
+                tiempo_entre_noma = self.sim.get_time() - nodo.ultimo_proc_noma
+                nodo.paquete_restante = nodo.paquete_restante - ( nodo.tasa_tx * tiempo_entre_noma)
+                tiempo_end_tx = self.sim.get_time() + (nodo.paquete_restante / nueva_tasa)
+                nodo.evento_end_tx = Event(tiempo_end_tx, Events.END_TX, nodo,
+                               nodo, nodo.current_pkt)
+                nodo.tasa_tx = nueva_tasa
+                nodo.ultimo_proc_noma = self.sim.get_time()
+
+            nodo.transmit_packet()
