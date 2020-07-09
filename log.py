@@ -60,7 +60,7 @@ class Log:
     LOG_NOMA = LOG_NPRACH_FIN + 1
     LOG_NOMA_DES = 'NOMA inicio'
     LOG_NOMA_FIN = LOG_NOMA + 1
-    LOG_NOMA_FIN_DES = 'NOMA fin'
+    LOG_NOMA_FIN_DES = 'Tasas satisfecha'
 
     def __init__(self, output_file, log_packets=True, log_queue_drops=True,
                  log_arrivals=True, log_queue_lengths=True, log_states=True):
@@ -211,7 +211,7 @@ class Log:
                                 (self.sim.get_time(), node.get_id(),node.get_tipo(),
                                  node.get_id(),node.get_tipo(), Log.LOG_NPRACH_FIN,Log.LOG_NPRACH_FIN_DES, throughput,'throughput'))
 
-    def log_periodoNOMA(self,node,dispositivos):
+    def log_inicio_NOMA(self,node):
         """
         Logea el inicio del proceso NOMA.
         Logs beginning of NOMA process.
@@ -221,11 +221,11 @@ class Log:
 
         if self.log_states:
             #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
-            self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
+            self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%s,%s\n" %
                                 (self.sim.get_time(), node.get_id(),node.get_tipo(),
-                                 node.get_id(),node.get_tipo(), Log.LOG_NOMA,Log.LOG_NOMA_DES, dispositivos,'dispositivos'))
+                                 node.get_id(),node.get_tipo(), Log.LOG_NOMA,Log.LOG_NOMA_DES, str(len(node.channel.universoURLLC))+' URLLC', str(len(node.channel.universomMTC)) +' mMTC'))
 
-    def log_periodoNOMA_fin(self, node, throughput):
+    def log_fin_NOMA(self, node):
         """
         Logea el final del proceso NOMA.
         Logs the ending of NOMA process.
@@ -234,7 +234,7 @@ class Log:
         """
         if self.log_states:
             #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
-            self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
+            self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%s,%s\n" %
                                 (self.sim.get_time(), node.get_id(),node.get_tipo(),
-                                 node.get_id(),node.get_tipo(), Log.LOG_NOMA_FIN,Log.LOG_NOMA_FIN_DES, throughput,'throughput'))
+                                 node.get_id(),node.get_tipo(), Log.LOG_NOMA_FIN,Log.LOG_NOMA_FIN_DES, str(len(node.channel.universoURLLC))+' URLLC',str(len(node.channel.universomMTC)) +' mMTC'))
 

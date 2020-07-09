@@ -52,6 +52,8 @@ class Channel(Module):
         # lista de los  nodos comunicandose
         # list of all communication nodes in the simulation
         self.nodes = []
+        self.universomMTC = []
+        self.universoURLLC = []
 
 
     def register_node(self, node):
@@ -103,10 +105,24 @@ class Channel(Module):
         #                   copy.deepcopy(packet))
         #     self.sim.schedule_event(event)
 
-    def algoritmo_NOMA(self):
+    def algoritmo_NOMA(self,enb):
 
-        #TODO algoritmo noma que resultará en algunos dispositivos que no pudieron ser atendidos y tasas para los demas
+        self.universomMTC=[]
+        self.universoURLLC=[]
+
         for nodo in self.nodes:
+
+            if(nodo.get_tipo()=='Dispositivos URLLC'):
+                self.universoURLLC.append(nodo)
+            else:
+                self.universomMTC.append(nodo)
+        enb.logger.log_inicio_NOMA(enb)
+
+        # TODO algoritmo noma que resultará en algunos dispositivos que no pudieron ser atendidos y tasas para los demas
+
+        #actulizamos los dispositivos que transmitiran
+        for nodo in self.nodes:
+
             if(nodo.evento_end_tx is None):
                 nueva_tasa=20
                 nodo.tasa_tx=nueva_tasa
