@@ -13,6 +13,20 @@
 		// unidad más pequeña de tiempo percibida por el sistema
 		"tiempo-minimo" : 0.00001,
 
+		// Exponente de perdida de trayectoria (Path Loss Exponent)
+		"PLE" : 2.9,
+
+		// Ancho de banda de subportadora
+		"BW-subportadoraNBIoT" : 3750,
+
+		// Potencia máxima URLLC
+		"Pmax-URLLC" : 0.2,
+
+		// Potencia máxima mMTC
+		"Pmax-mMTC" : 0.1,
+
+		// kmax , tamaño máximo de cluster
+		"kmax" : 4,
 
 		// nombre del archivo que guardará los logs a la salida
 		"output" : "noma-aided-nbiot-logs.csv"

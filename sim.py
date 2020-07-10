@@ -59,7 +59,21 @@ class Sim:
     # .cvs con información de los eventos generados con el algoritmo CMMPP
     # .csv file with CMMPP events
     PAR_EVENTOS = "eventos"
-
+    # Exponente de perdida de trayectoria
+    # Path Loss Exponent
+    PLExp = "PLE"
+    # ancho de banda de subportadora
+    # subchannel bandwith
+    BW_subportadoraNBIoT = "BW-subportadoraNBIoT"
+    # Potencia máxima de dispositivos URLLC
+    # Pmax for URLLC devices
+    PURLLC = "Pmax-URLLC"
+    # Potencia máxima de dispositivos mMTC
+    # Pmax for mMTC devices
+    PmMTC = "Pmax-mMTC"
+    # tamaño máximo de cluster
+    # cluster max size
+    k_max = "kmax"
 
     def __init__(self):
         """
@@ -136,9 +150,20 @@ class Sim:
         # obtener el tiempo mínimo registrado por el simulador
         # get minimum time registered by the simulator
         self.tiempoMinimo = self.config.get_param(self.PAR_TIEMPOMINIMO)
-        # duración de un time-slot
-        # duration of a time slot
-        self.time_slot=0.002 # 2 ms
+        # exponente de pérdida por trayectoria
+        # path loss exponent
+        self.PLE = self.config.get_param(self.PLExp)
+        # ancho de banda de subportadora
+        # subcarrier bandwidth
+        self.bwSubportNBIoT = self.config.get_param(self.BW_subportadoraNBIoT)
+        # Potencia de ruido térmico
+        self.potenciaRuidoTermico = 5.012e-21
+        # Potencia de dispositivos URLLC
+        self.pmaxURLLC = self.config.get_param(self.PURLLC)
+        # Potencia de dispositivos mMTC
+        self.pmaxmMTC = self.config.get_param(self.PmMTC)
+        # tamaño máximo de cluster
+        self.kmax = self.config.get_param(self.k_max)
         # se instancia el canal
         # instantiate the channel
         self.channel = Channel(self.config)
