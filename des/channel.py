@@ -196,6 +196,10 @@ class Channel(Module):
                     NBIoT.C.append(GrupoNOMA(deviceURLLC, [], 0, 1, [], False))
                     NBIoT.C[deviceURLLC].dispositivos.append(
                         [NBIoT.U[0][deviceURLLC], False, False, False, False, False])
+
+                    # guardamos el numero de cluster en el nodo
+                    NBIoT.U[0][deviceURLLC].nodo.cluster=deviceURLLC
+
                     NBIoT.U[0][deviceURLLC].alphabeta = 1
                     indicePos1Grupo = indicePos1Grupo + 1
                     if (indicePos1Grupo == NBIoT.numC) and (NBIoT.kmax == 1):
@@ -206,6 +210,10 @@ class Channel(Module):
                     # Si el número de dispositivos uRLLC [U] es mayor que el numero de grupos NOMA [C], los dispositivos sobrantes
                     # serán asignados a los siguientes rangos del grupo
                     NBIoT.C[indicePos2Grupo].dispositivos[0][1] = NBIoT.U[0][deviceURLLC]
+
+                    # guardamos el numero de cluster en el nodo
+                    NBIoT.U[0][deviceURLLC].nodo.cluster = indicePos2Grupo
+
                     NBIoT.U[0][deviceURLLC].alphabeta = 1
                     indicePos2Grupo = indicePos2Grupo + 1
 
@@ -251,6 +259,10 @@ class Channel(Module):
 
                 # Asignar los dispositivos mmtc a los rangos mas bajos de los primeros grupos
                 NBIoT.C[indiceAsignacionCluster].dispositivos[0][k_] = NBIoT.M[0][deviceMTC]
+
+                # guardamos el numero de cluster en el nodo
+                NBIoT.M[0][deviceMTC].nodo.cluster = indiceAsignacionCluster
+
                 NBIoT.M[0][deviceMTC].alphabeta = 1
                 indiceAsignacionCluster = indiceAsignacionCluster + 1
 

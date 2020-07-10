@@ -85,6 +85,7 @@ class Node(Module):
         self.paquete_restante=0
         self.ultimo_proc_noma = 0
         self.evento_end_tx = None
+        self.cluster = -1
 
 
     def initialize(self):
@@ -200,6 +201,7 @@ class Node(Module):
         self.paquete_restante = 0
         self.ultimo_proc_noma = 0
         self.tasa_tx = 0
+        self.cluster = -1
         self.channel.nodes.remove(self)
         # se pasa a estado de procesamiento antes de volver a esta idle
         # the only thing to do here is to move to the PROC state
@@ -257,8 +259,12 @@ class Node(Module):
         Generates, sends, and schedules end of transmission of a new packet
         :param packet_size: size of the packet to send in bytes
         """
+        # imprimimos el nuevo cluster
+        self.logger.log_nuevo_cluster(self.sim.node_eNB,self, self.cluster, self.tasa_tx)
+
         self.state = Node.TX
         self.logger.log_state(self, Node.TX)
+
 
         packet = self.current_pkt
         # TODO podemos transmitir el paquete por el canal
