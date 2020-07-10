@@ -7,15 +7,6 @@
 		// archivo .csv que contiene los eventos generados previemente para cada dispositivo
 		"eventos" : "ArchivoEventos0.csv",
 
-		// archivo .csv que contiene los eventos generados previemente para cada dispositivo
-		"RAmaxthroughput" : "RAthroughput.csv",
-
-		// periodo de random access NPRACH
-		"TsNPRACH" : 0.5,
-
-		// periodo en el que se realiza el proceso NOMA en el canal NPUSCH
-		"TsNOMA" : 2,
-
 		// duración de la simulación en segundos
 		"duracion" : 40,
 
