@@ -1,6 +1,6 @@
 class Dispositivo(object):
     #Constructor
-    def __init__(self, id, tipo, alphabeta, d, h_, h, Rx, Rs, Px, Rth):
+    def __init__(self, id, tipo, alphabeta, d, h_, h, Rx, Rs, Px, Rth , node= None):
         self.id = id        #Identificador de dispositivo
         self.tipo = tipo    #Tipo de Dispositivo
         self.alphabeta = alphabeta  #Variable binaria que indica si el dispositivo esta agrupado en un cluster NOMA
@@ -11,3 +11,4 @@ class Dispositivo(object):
         self.Rs = Rs        #Suma acumulada de tasas de tx por subportadora
         self.Px = Px        #Potencia de transmisión
         self.Rth = Rth      #Umbral de tasa para dispositivos
+        self.nodo=node      # variable que puede guardar el UE del prrograma DES

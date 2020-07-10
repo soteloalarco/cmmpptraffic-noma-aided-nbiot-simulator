@@ -2,7 +2,7 @@ import math as mth
 import copy
 from noma.clases.grupoNOMA import GrupoNOMA
 from noma.clases.subportadora import Subportadora
-from noma.clases.nbIoT import NBIoT
+from noma.clases.nbIoT import NB_IoT
 from noma.funciones.funcionDispositivo import creardispositivos
 from noma.clases.simulacion import Simulacion
 
@@ -28,7 +28,7 @@ else:
 
 #Creación de Objetos para la simulación
 DESsim = Simulacion(0, PLE, RadioCelular)
-NBIoT = NBIoT(48, [], [], [], [], Numero_clusters, [], int(NumDispositivosURLLC), [], int(NumDispositivosMTC), [], 0, [], kmax, BW_subportadoraNBIoT, Potencia_ruidoTermico)
+NBIoT = NB_IoT(48, [], [], [], [], Numero_clusters, [], int(NumDispositivosURLLC), [], int(NumDispositivosMTC), [], 0, [], kmax, BW_subportadoraNBIoT, Potencia_ruidoTermico)
 #Creacion de Dispositivos URLLC
 NBIoT.U.append(creardispositivos(NBIoT.numU, 1, DESsim.PLE, DESsim.r_cell, NBIoT.numS, Pmax_URLLC))
 #Creacion de Dispositivos mMTC

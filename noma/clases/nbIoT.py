@@ -1,4 +1,4 @@
-class NBIoT(object):
+class NB_IoT(object):
     def __init__(self, numS, S, Sv, Agrupaciones, Cns, numC, C, numU, U, numM, M, id_c, c_, kmax, BW, No):
         self.numS = numS    #Numero de subportadoras
         self.S = S          #Lista de subportadoras

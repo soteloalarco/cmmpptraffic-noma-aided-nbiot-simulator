@@ -72,6 +72,9 @@ class Sim:
     # tamaño máximo de cluster
     # cluster max size
     k_max = "kmax"
+    # radio de la célula
+    # cell radius
+    CELL_RADIO = "radio"
 
     def __init__(self):
         """
@@ -148,6 +151,9 @@ class Sim:
         # obtener el tiempo mínimo registrado por el simulador
         # get minimum time registered by the simulator
         self.tiempoMinimo = self.config.get_param(self.PAR_TIEMPOMINIMO)
+        # radio de célula
+        # cell radius
+        self.radio_cell = self.config.get_param(self.CELL_RADIO)
         # exponente de pérdida por trayectoria
         # path loss exponent
         self.PLE = self.config.get_param(self.PLExp)
