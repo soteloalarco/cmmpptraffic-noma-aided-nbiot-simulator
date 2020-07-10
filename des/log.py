@@ -17,8 +17,8 @@
 #
 # Copyright (C) 2016 Michele Segata <segata@ccs-labs.org>
 
-import sim
-from packet import Packet
+from des import sim
+from des.packet import Packet
 
 
 class Log:

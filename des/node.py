@@ -18,11 +18,10 @@
 # Copyright (C) 2016 Michele Segata <segata@ccs-labs.org>
 
 import sys
-from module import Module
-from event import Event
-from events import Events
-from packet import Packet
-import numpy as np
+from des.module import Module
+from des.event import Event
+from des.events import Events
+from des.packet import Packet
 
 
 class Node(Module):

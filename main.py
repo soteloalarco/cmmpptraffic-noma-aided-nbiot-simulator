@@ -1,4 +1,4 @@
-import sim
+from des import sim
 
 config_Archivo="config.json" # Nombre del archivo de configuración
 config_Seccion="simulacion" # Nombre de la sección de donde se leerán los parámetros para configurar el simulador

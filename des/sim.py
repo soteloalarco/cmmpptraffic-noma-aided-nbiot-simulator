@@ -23,14 +23,12 @@ import sys
 import heapq
 import time
 import math
-import random
-from singleton import Singleton
-from config import Config
-from channel import Channel
-from node import Node
-from log import Log
+from des.singleton import Singleton
+from des.config import Config
+from des.channel import Channel
+from des.node import Node
+from des.log import Log
 import pandas as pd
-import numpy as np
 
 # comando VT100 para borrar contenido de la terminal actual
 # VT100 command for erasing content of the current prompt line

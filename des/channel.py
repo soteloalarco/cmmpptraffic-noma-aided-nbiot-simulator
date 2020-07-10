@@ -18,10 +18,9 @@
 # Copyright (C) 2016 Michele Segata <segata@ccs-labs.org>
 
 import math
-import copy
-from module import Module
-from event import Event
-from events import Events
+from des.module import Module
+from des.event import Event
+from des.events import Events
 
 # TODO tal vez sea necesario generar los 48 canales
 
