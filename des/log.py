@@ -197,7 +197,7 @@ class Log:
             #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
             self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
                                 (self.sim.get_time(), enb.get_id(),enb.get_tipo(),
-                                 node.get_id(),node.get_tipo(), Log.LOG_NUEVO_CLUSTER,Log.LOG_NUEVO_CLUSTER_DES, cluster +1,str(tasa/8) + ' bytes/s'))
+                                 node.get_id(),node.get_tipo(), Log.LOG_NUEVO_CLUSTER,Log.LOG_NUEVO_CLUSTER_DES, cluster +1,str(tasa) + ' bytes/s'))
 
     def log_periodoNPRACH(self,node,preambulos):
         """

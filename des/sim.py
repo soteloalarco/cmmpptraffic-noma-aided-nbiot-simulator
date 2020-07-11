@@ -295,7 +295,7 @@ class Sim:
             self.time = event.event_time
             return event
         except IndexError:
-            print("No more events in the simulation queue. Terminating.")
+            print("\n No more events in the simulation queue. Terminating.")
             sys.exit(0)
 
     def cancel_event(self, event):

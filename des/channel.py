@@ -131,23 +131,25 @@ class Channel(Module):
         for nodo in self.nodes:
 
             if(nodo.evento_end_tx is None):
-                nueva_tasa= nodo.nueva_tasa_tx
+                nueva_tasa= nodo.nueva_tasa_tx #20
                 nodo.tasa_tx=nueva_tasa
                 nodo.ultimo_proc_noma=self.sim.get_time()
                 nodo.paquete_restante = nodo.current_pkt.get_size()
-                tiempo_end_tx= self.sim.get_time() + (nodo.paquete_restante/ nodo.tasa_tx)
+                tiempo_end_tx= self.sim.get_time() + (nodo.paquete_restante/ (nodo.tasa_tx))
                 nodo.evento_end_tx = Event(tiempo_end_tx, Events.END_TX, nodo,
                                nodo, nodo.current_pkt)
+                nodo.nueva_tasa_tx = 0
             else:
                 self.sim.cancel_event(nodo.evento_end_tx)
-                nueva_tasa = nodo.nueva_tasa_tx
+                nueva_tasa = nodo.nueva_tasa_tx #20
                 tiempo_entre_noma = self.sim.get_time() - nodo.ultimo_proc_noma
-                nodo.paquete_restante = nodo.paquete_restante - ( nodo.tasa_tx * tiempo_entre_noma)
-                tiempo_end_tx = self.sim.get_time() + (nodo.paquete_restante / nueva_tasa)
+                nodo.paquete_restante = nodo.paquete_restante - ( (nodo.tasa_tx)  * tiempo_entre_noma)
+                tiempo_end_tx = self.sim.get_time() + (nodo.paquete_restante / (nueva_tasa))
                 nodo.evento_end_tx = Event(tiempo_end_tx, Events.END_TX, nodo,
                                nodo, nodo.current_pkt)
                 nodo.tasa_tx = nueva_tasa
                 nodo.ultimo_proc_noma = self.sim.get_time()
+                nodo.nueva_tasa_tx = 0
 
             nodo.transmit_packet()
 
@@ -551,7 +553,7 @@ class Channel(Module):
                                                                             device].Rs + \
                                                                         ListaClusters[cluster].dispositivos[0][
                                                                             device].Rx
-                    sim.nodes[ListaClusters[cluster].dispositivos[0][device].id].nueva_tasa_tx = ListaClusters[cluster].dispositivos[0][device].Rs
+                    sim.nodes[ListaClusters[cluster].dispositivos[0][device].id].nueva_tasa_tx = 20#(ListaClusters[cluster].dispositivos[0][device].Rs /8000)
             return ListaClusters
 
         # Función que actualiza las potencias de los dispositivos de un determinado cluster de acuerdo con Sac
