@@ -96,7 +96,7 @@ def creardispositivosDES(universoUEs, tipo, PLE, radio_celula, numeroSubportador
             Rth = np.random.uniform(100, 2e3)
 
         #Se crea el dispositivo de acuerdo con las caracteristicas establecidas
-        dispositivos.append(Dispositivo(universoUEs[disp].get_id, tipo, 0, d, h_, h, 0, 0, Px, Rth, node=universoUEs[disp]))
+        dispositivos.append(Dispositivo(universoUEs[disp].get_id(), tipo, 0, d, h_, h, 0, 0, Px, Rth))
 
     # Ordenamiento de dispositivos con base en sus ganancia promedio de canal (descendentemente)
     dispositivosorted = sorted(dispositivos, key=operator.attrgetter('h_'), reverse=True)

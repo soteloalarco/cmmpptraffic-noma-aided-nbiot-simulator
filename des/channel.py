@@ -181,7 +181,7 @@ class Channel(Module):
         # Creacion de Dispositivos mMTC
         NBIoT.M.append(creardispositivosDES(self.universomMTC, 2, DESsim.PLE, DESsim.r_cell, NBIoT.numS, Pmax_MTC))
 
-        def AlgoritmoAgrupacionNOMA():
+        def AlgoritmoAgrupacionNOMA(sim):
             # Se empiezan a agrupar usuarios con una alta ganancia de canal promedio,
             # en la recepción tipo SIC se decodifican primero los usuarios con una alta ganancia de canal promedio antes que los de baja ganancia  de canal promedio
             # Los rangos de los dispositivos uRLLC deben ser menores que los MTC para que sea eficiente la decodificación SIC
@@ -201,7 +201,7 @@ class Channel(Module):
                         [NBIoT.U[0][deviceURLLC], False, False, False, False, False])
 
                     # guardamos el numero de cluster en el nodo
-                    NBIoT.U[0][deviceURLLC].nodo.cluster=deviceURLLC
+                    sim.nodes[NBIoT.U[0][deviceURLLC].id].cluster=deviceURLLC
 
                     NBIoT.U[0][deviceURLLC].alphabeta = 1
                     indicePos1Grupo = indicePos1Grupo + 1
@@ -215,7 +215,7 @@ class Channel(Module):
                     NBIoT.C[indicePos2Grupo].dispositivos[0][1] = NBIoT.U[0][deviceURLLC]
 
                     # guardamos el numero de cluster en el nodo
-                    NBIoT.U[0][deviceURLLC].nodo.cluster = indicePos2Grupo
+                    sim.nodes[NBIoT.U[0][deviceURLLC].id].cluster = indicePos2Grupo
 
                     NBIoT.U[0][deviceURLLC].alphabeta = 1
                     indicePos2Grupo = indicePos2Grupo + 1
@@ -264,7 +264,7 @@ class Channel(Module):
                 NBIoT.C[indiceAsignacionCluster].dispositivos[0][k_] = NBIoT.M[0][deviceMTC]
 
                 # guardamos el numero de cluster en el nodo
-                NBIoT.M[0][deviceMTC].nodo.cluster = indiceAsignacionCluster
+                sim.nodes[NBIoT.M[0][deviceMTC].id].cluster = indiceAsignacionCluster
 
                 NBIoT.M[0][deviceMTC].alphabeta = 1
                 indiceAsignacionCluster = indiceAsignacionCluster + 1
@@ -599,6 +599,6 @@ class Channel(Module):
             print("Usuarios con tasas satisfechas: ", contadorUsuarios, " URLLC: ", contadorU, " MTC: ", contadorM,
                   " Sum Rate: ", sumRate)
 
-        AlgoritmoAgrupacionNOMA()
-        AlgoritmoAsignacionRecursos()
+        AlgoritmoAgrupacionNOMA(self.sim)
+        #AlgoritmoAsignacionRecursos()
 
