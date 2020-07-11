@@ -235,7 +235,7 @@ class Node(Module):
         # schedule end of transmission
         proc_noma = Event(self.sim.get_time() + self.sim.tiempoMinimo, Events.END_PROC_NOMA, self.sim.node_eNB,
                           self, None)
-        if (self.sim.node_eNB.get_state() == Node.IDLE):  # sólo se agenda proceso noma una vez si mas paquetes se transmiten al mismo tiempo
+        if (self.sim.node_eNB.get_state() == Node.IDLE and len(self.sim.channel.nodes)>0):  # sólo se agenda proceso noma una vez si mas paquetes se transmiten al mismo tiempo
             self.sim.node_eNB.state = Node.NOMA
             self.sim.eventosaux.append([proc_noma.event_id, proc_noma.event_time, proc_noma.source.get_id()])
             self.sim.schedule_event(proc_noma)

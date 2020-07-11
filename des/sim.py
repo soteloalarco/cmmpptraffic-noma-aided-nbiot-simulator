@@ -260,8 +260,8 @@ class Sim:
         # compute how much time the simulation took
         end_time = time.time()
         total_time = round(end_time - start_time)
-        print("\nMaximum simulation time reached. Terminating.")
-        print("Total simulation time: %d hours, %d minutes, %d seconds" %
+        print("\nTiempo máximo de simulación alcanzado. Terminando.")
+        print("Tiempo total de la simulación: %d horas, %d minutos, %d segundos" %
               (total_time // 3600, total_time % 3600 // 60,
                total_time % 3600 % 60))
         self.logger.log_file.close()
@@ -321,7 +321,7 @@ class Sim:
         perc = min(100, int(math.floor(self.time / self.duration * 100)))
         # se imprime la barra de progreso
         # print progress bar, percentage, and current element
-        sys.stdout.write("[%-20s] %d%% (time = %f, total time = %f)" %
+        sys.stdout.write("[%-20s] %d%% (tiempo = %f, tiempo total = %f)" %
                          ('=' * (perc // 5), perc, self.time, self.duration))
         sys.stdout.flush()
 

@@ -395,7 +395,7 @@ class Channel(Module):
                         sub += 1
 
                 usuariosSatisfechos(NBIoT.Agrupaciones)
-                print("Subportadoras restantes:", len(NBIoT.S))
+                #print("Subportadoras restantes:", len(NBIoT.S))
                 # ---------------------------------------------------SEGUNDA PARTE DEL ALGORITMO----------------------------------------------------
 
                 # Asignación de las subportadoras restantes
@@ -596,9 +596,9 @@ class Channel(Module):
                                 else:
                                     contadorM = contadorM + 1
 
-            print("Usuarios con tasas satisfechas: ", contadorUsuarios, " URLLC: ", contadorU, " MTC: ", contadorM,
-                  " Sum Rate: ", sumRate)
+            #print("Usuarios con tasas satisfechas: ", contadorUsuarios, " URLLC: ", contadorU, " MTC: ", contadorM,
+            #      " Sum Rate: ", sumRate)
 
         AlgoritmoAgrupacionNOMA(self.sim)
-        #AlgoritmoAsignacionRecursos()
+        AlgoritmoAsignacionRecursos()
 
