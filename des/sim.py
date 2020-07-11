@@ -23,14 +23,12 @@ import sys
 import heapq
 import time
 import math
-import random
-from singleton import Singleton
-from config import Config
-from channel import Channel
-from node import Node
-from log import Log
+from des.singleton import Singleton
+from des.config import Config
+from des.channel import Channel
+from des.node import Node
+from des.log import Log
 import pandas as pd
-import numpy as np
 
 # comando VT100 para borrar contenido de la terminal actual
 # VT100 command for erasing content of the current prompt line
@@ -59,7 +57,24 @@ class Sim:
     # .cvs con información de los eventos generados con el algoritmo CMMPP
     # .csv file with CMMPP events
     PAR_EVENTOS = "eventos"
-
+    # Exponente de perdida de trayectoria
+    # Path Loss Exponent
+    PLExp = "PLE"
+    # ancho de banda de subportadora
+    # subchannel bandwith
+    BW_subportadoraNBIoT = "BW-subportadoraNBIoT"
+    # Potencia máxima de dispositivos URLLC
+    # Pmax for URLLC devices
+    PURLLC = "Pmax-URLLC"
+    # Potencia máxima de dispositivos mMTC
+    # Pmax for mMTC devices
+    PmMTC = "Pmax-mMTC"
+    # tamaño máximo de cluster
+    # cluster max size
+    k_max = "kmax"
+    # radio de la célula
+    # cell radius
+    CELL_RADIO = "radio"
 
     def __init__(self):
         """
@@ -136,9 +151,23 @@ class Sim:
         # obtener el tiempo mínimo registrado por el simulador
         # get minimum time registered by the simulator
         self.tiempoMinimo = self.config.get_param(self.PAR_TIEMPOMINIMO)
-        # duración de un time-slot
-        # duration of a time slot
-        self.time_slot=0.002 # 2 ms
+        # radio de célula
+        # cell radius
+        self.radio_cell = self.config.get_param(self.CELL_RADIO)
+        # exponente de pérdida por trayectoria
+        # path loss exponent
+        self.PLE = self.config.get_param(self.PLExp)
+        # ancho de banda de subportadora
+        # subcarrier bandwidth
+        self.bwSubportNBIoT = self.config.get_param(self.BW_subportadoraNBIoT)
+        # Potencia de ruido térmico
+        self.potenciaRuidoTermico = 5.012e-21
+        # Potencia de dispositivos URLLC
+        self.pmaxURLLC = self.config.get_param(self.PURLLC)
+        # Potencia de dispositivos mMTC
+        self.pmaxmMTC = self.config.get_param(self.PmMTC)
+        # tamaño máximo de cluster
+        self.kmax = self.config.get_param(self.k_max)
         # se instancia el canal
         # instantiate the channel
         self.channel = Channel(self.config)
@@ -231,8 +260,8 @@ class Sim:
         # compute how much time the simulation took
         end_time = time.time()
         total_time = round(end_time - start_time)
-        print("\nMaximum simulation time reached. Terminating.")
-        print("Total simulation time: %d hours, %d minutes, %d seconds" %
+        print("\nTiempo máximo de simulación alcanzado. Terminando.")
+        print("Tiempo total de la simulación: %d horas, %d minutos, %d segundos" %
               (total_time // 3600, total_time % 3600 // 60,
                total_time % 3600 % 60))
         self.logger.log_file.close()
@@ -266,7 +295,7 @@ class Sim:
             self.time = event.event_time
             return event
         except IndexError:
-            print("No more events in the simulation queue. Terminating.")
+            print("\n No more events in the simulation queue. Terminating.")
             sys.exit(0)
 
     def cancel_event(self, event):
@@ -292,7 +321,7 @@ class Sim:
         perc = min(100, int(math.floor(self.time / self.duration * 100)))
         # se imprime la barra de progreso
         # print progress bar, percentage, and current element
-        sys.stdout.write("[%-20s] %d%% (time = %f, total time = %f)" %
+        sys.stdout.write("[%-20s] %d%% (tiempo = %f, tiempo total = %f)" %
                          ('=' * (perc // 5), perc, self.time, self.duration))
         sys.stdout.flush()
 

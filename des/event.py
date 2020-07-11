@@ -17,7 +17,7 @@
 #
 # Copyright (C) 2016 Michele Segata <segata@ccs-labs.org>
 
-from events import Events
+from des.events import Events
 
 
 class Event:

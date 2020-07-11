@@ -1,5 +1,5 @@
 import sys
-import sim
+from des import sim
 
 
 class Module:

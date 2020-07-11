@@ -18,11 +18,10 @@
 # Copyright (C) 2016 Michele Segata <segata@ccs-labs.org>
 
 import sys
-from module import Module
-from event import Event
-from events import Events
-from packet import Packet
-import numpy as np
+from des.module import Module
+from des.event import Event
+from des.events import Events
+from des.packet import Packet
 
 
 class Node(Module):
@@ -40,6 +39,15 @@ class Node(Module):
     TX_MSG1 = 5
     PREAMBULO = 6
     estados=["IDLE","TX-PKG","RX","PROC","NOMA","TX-MSG1","PREAMBULO"]
+
+    TIPO1 ='Control de iluminacion'
+    TIPO2 = 'Monitoreo de agua y electricidad'
+    TIPO3 = 'Deteccion de terremotos'
+    TIPO4 = 'Semaforos inteligentes'
+    TIPO5 = 'Contaminacion del aire'
+    TIPO6 = 'Otros dispositivos mMTC'
+    TIPO7 = 'Dispositivos URLLC'
+
 
     def __init__(self,id,tipo, config, channel, x, y):
         """
@@ -74,9 +82,11 @@ class Node(Module):
         # count the number of frames currently under reception
         self.receiving_count = 0
         self.tasa_tx=0 # bits/s
+        self.nueva_tasa_tx = 0  # bits/s
         self.paquete_restante=0
         self.ultimo_proc_noma = 0
         self.evento_end_tx = None
+        self.cluster = -1
 
 
     def initialize(self):
@@ -192,6 +202,8 @@ class Node(Module):
         self.paquete_restante = 0
         self.ultimo_proc_noma = 0
         self.tasa_tx = 0
+        self.nueva_tasa_tx = 0
+        self.cluster = -1
         self.channel.nodes.remove(self)
         # se pasa a estado de procesamiento antes de volver a esta idle
         # the only thing to do here is to move to the PROC state
@@ -225,7 +237,7 @@ class Node(Module):
         # schedule end of transmission
         proc_noma = Event(self.sim.get_time() + self.sim.tiempoMinimo, Events.END_PROC_NOMA, self.sim.node_eNB,
                           self, None)
-        if (self.sim.node_eNB.get_state() == Node.IDLE):  # sólo se agenda proceso noma una vez si mas paquetes se transmiten al mismo tiempo
+        if (self.sim.node_eNB.get_state() == Node.IDLE and len(self.sim.channel.nodes)>0):  # sólo se agenda proceso noma una vez si mas paquetes se transmiten al mismo tiempo
             self.sim.node_eNB.state = Node.NOMA
             self.sim.eventosaux.append([proc_noma.event_id, proc_noma.event_time, proc_noma.source.get_id()])
             self.sim.schedule_event(proc_noma)
@@ -249,8 +261,12 @@ class Node(Module):
         Generates, sends, and schedules end of transmission of a new packet
         :param packet_size: size of the packet to send in bytes
         """
+        # imprimimos el nuevo cluster
+        self.logger.log_nuevo_cluster(self.sim.node_eNB,self, self.cluster, self.tasa_tx)
+
         self.state = Node.TX
         self.logger.log_state(self, Node.TX)
+
 
         packet = self.current_pkt
         # TODO podemos transmitir el paquete por el canal
