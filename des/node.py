@@ -82,6 +82,7 @@ class Node(Module):
         # count the number of frames currently under reception
         self.receiving_count = 0
         self.tasa_tx=0 # bits/s
+        self.nueva_tasa_tx = 0  # bits/s
         self.paquete_restante=0
         self.ultimo_proc_noma = 0
         self.evento_end_tx = None
@@ -201,6 +202,7 @@ class Node(Module):
         self.paquete_restante = 0
         self.ultimo_proc_noma = 0
         self.tasa_tx = 0
+        self.nueva_tasa_tx = 0
         self.cluster = -1
         self.channel.nodes.remove(self)
         # se pasa a estado de procesamiento antes de volver a esta idle

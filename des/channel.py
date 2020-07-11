@@ -131,7 +131,7 @@ class Channel(Module):
         for nodo in self.nodes:
 
             if(nodo.evento_end_tx is None):
-                nueva_tasa=20
+                nueva_tasa= nodo.nueva_tasa_tx
                 nodo.tasa_tx=nueva_tasa
                 nodo.ultimo_proc_noma=self.sim.get_time()
                 nodo.paquete_restante = nodo.current_pkt.get_size()
@@ -140,7 +140,7 @@ class Channel(Module):
                                nodo, nodo.current_pkt)
             else:
                 self.sim.cancel_event(nodo.evento_end_tx)
-                nueva_tasa = 20
+                nueva_tasa = nodo.nueva_tasa_tx
                 tiempo_entre_noma = self.sim.get_time() - nodo.ultimo_proc_noma
                 nodo.paquete_restante = nodo.paquete_restante - ( nodo.tasa_tx * tiempo_entre_noma)
                 tiempo_end_tx = self.sim.get_time() + (nodo.paquete_restante / nueva_tasa)
@@ -279,7 +279,7 @@ class Channel(Module):
             # Eliminar ceros que se agregaron a lista
             del NBIoT.M[0][0:cerosEliminar]
 
-        def AlgoritmoAsignacionRecursos():
+        def AlgoritmoAsignacionRecursos(sim):
             # Conjunto de clusters de dispositivos con tasas insatisfechas
             NBIoT.Cns = copy.deepcopy(NBIoT.C)
 
@@ -336,7 +336,7 @@ class Channel(Module):
                     # Actualización de Tasas del mejor grupo NOMA
                     # Inicializar Rs
                     if (Sac == 1):
-                        NBIoT.Cns = actualizacionTasasc_(NBIoT.Cns, ID_cluster_c)
+                        NBIoT.Cns = actualizacionTasascDES_(NBIoT.Cns, ID_cluster_c, sim)
 
                     else:
                         for device in range(0, NBIoT.kmax):
@@ -356,7 +356,7 @@ class Channel(Module):
                                     R = calculoTasaTx(Interferencias, NBIoT.Cns, NBIoT.Cns[ID_cluster_c].Sac[carrier],
                                                       ID_cluster_c, device)
                                     NBIoT.Cns[ID_cluster_c].dispositivos[0][device].Rx = R
-                            NBIoT.Cns = actualizacionTasasc_(NBIoT.Cns, ID_cluster_c)
+                            NBIoT.Cns = actualizacionTasascDES_(NBIoT.Cns, ID_cluster_c, sim)
 
                     for carrier in range(0, Sac):
                         # Actualización de Potencias del mejor grupo NOMA
@@ -423,6 +423,8 @@ class Channel(Module):
                                                           device)
                                         # Se asigna la tasa lograda a dispositivo
                                         NBIoT.Agrupaciones[cluster].dispositivos[0][device].Rx = R
+
+
                                         NBIoT.Agrupaciones[cluster].RTotal = NBIoT.Agrupaciones[cluster].RTotal + R
 
                         # Grupo NOMA que maximiza la tasa
@@ -442,7 +444,7 @@ class Channel(Module):
                         # Actualización de Tasas del mejor grupo NOMA
                         # Inicializar Rs
                         if (Sac == 1):
-                            NBIoT.Agrupaciones = actualizacionTasasc_(NBIoT.Agrupaciones, ID_cluster_c)
+                            NBIoT.Agrupaciones = actualizacionTasascDES_(NBIoT.Agrupaciones, ID_cluster_c, sim)
 
                         else:
                             for device in range(0, NBIoT.kmax):
@@ -463,7 +465,7 @@ class Channel(Module):
                                                           NBIoT.Agrupaciones[ID_cluster_c].Sac[carrier], ID_cluster_c,
                                                           device)
                                         NBIoT.Agrupaciones[ID_cluster_c].dispositivos[0][device].Rx = R
-                                NBIoT.Agrupaciones = actualizacionTasasc_(NBIoT.Agrupaciones, ID_cluster_c)
+                                NBIoT.Agrupaciones = actualizacionTasascDES_(NBIoT.Agrupaciones, ID_cluster_c, sim)
 
                         for carrier in range(0, Sac):
                             # Actualización de Potencias del mejor grupo NOMA
@@ -540,7 +542,7 @@ class Channel(Module):
             return subportadora
 
         # Se actualizan las tasas de los dispositivos de acuerdo
-        def actualizacionTasasc_(ListaClusters, cluster):
+        def actualizacionTasascDES_(ListaClusters, cluster, sim):
             for device in range(0, NBIoT.kmax):
                 # Validación de que algun rango del cluster está vacio o desocupado
                 if ListaClusters[cluster].dispositivos[0][device] != False:
@@ -549,6 +551,7 @@ class Channel(Module):
                                                                             device].Rs + \
                                                                         ListaClusters[cluster].dispositivos[0][
                                                                             device].Rx
+                    sim.nodes[ListaClusters[cluster].dispositivos[0][device].id].nueva_tasa_tx = ListaClusters[cluster].dispositivos[0][device].Rs
             return ListaClusters
 
         # Función que actualiza las potencias de los dispositivos de un determinado cluster de acuerdo con Sac
@@ -600,5 +603,5 @@ class Channel(Module):
             #      " Sum Rate: ", sumRate)
 
         AlgoritmoAgrupacionNOMA(self.sim)
-        AlgoritmoAsignacionRecursos()
+        AlgoritmoAsignacionRecursos(self.sim)
 
