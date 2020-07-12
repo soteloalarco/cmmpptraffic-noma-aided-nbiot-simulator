@@ -69,7 +69,7 @@ class Node(Module):
         self.state = Node.IDLE
         # se crea un log que indica la creación del dispositivo
         # a log indicating the creation of a device is added
-        self.logger.log_state(self, Node.IDLE)
+        #self.logger.log_state(self, Node.IDLE)
         # se guarda la posición del dispositivo
         # save position
         self.x = x
@@ -130,6 +130,7 @@ class Node(Module):
         self.h = self.calcularganancias(self.sim.channel.numeroSubportadoras)
         self.h_ = self.calculargananciapromedio(self.sim.channel.numeroSubportadoras)
         self.Rth = self.calcularumbralpotencia()
+
         self.schedule_next_arrival()
 
     def initialize_eNB(self):
@@ -282,7 +283,7 @@ class Node(Module):
         #assert (self.state == Node.PREAMBULO)
         #TODO Lógica NOMA y ajustar su tasa o no transmitir si no alcanzó cluster
 
-        self.logger.log_state(self, Node.NOMA)
+        #self.logger.log_state(self, Node.NOMA)
         self.state = Node.IDLE
         self.sim.channel.algoritmo_NOMA(self)
         #TODO cambiar porqeu está hardcoded

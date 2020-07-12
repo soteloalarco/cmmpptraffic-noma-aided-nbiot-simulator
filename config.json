@@ -8,7 +8,7 @@
 		"eventos" : "ArchivoEventos0.csv",
 
 		// duración de la simulación en segundos
-		"duracion" : 120,
+		"duracion" : 20,
 
 		// unidad más pequeña de tiempo percibida por el sistema
 		"tiempo-minimo" : 0.00001,
