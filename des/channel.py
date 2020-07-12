@@ -28,6 +28,7 @@ from noma.clases.nbIoT import NB_IoT
 from noma.funciones.funcionDispositivo import creardispositivosDES
 from noma.clases.grupoNOMA import GrupoNOMA
 from noma.clases.subportadora import  Subportadora
+import numpy as np
 
 # TODO tal vez sea necesario generar los 48 canales
 
@@ -60,6 +61,8 @@ class Channel(Module):
         self.nodes = []
         self.universomMTC = []
         self.universoURLLC = []
+        self.numeroSubportadoras = 48
+        self.subcarriers = np.linspace(2000e6, 2000180000,self.numeroSubportadoras)  # 48 subportadoras en frecuencia de 2Ghz
 
 
     def register_node(self, node):
@@ -124,14 +127,13 @@ class Channel(Module):
                 self.universomMTC.append(nodo)
         enb.logger.log_inicio_NOMA(enb)
 
-        # TODO algoritmo noma que resultará en algunos dispositivos que no pudieron ser atendidos y tasas para los demas
         self.noma()
 
         #actulizamos los dispositivos que transmitiran
         for nodo in self.nodes:
 
             if(nodo.evento_end_tx is None):
-                nueva_tasa= nodo.nueva_tasa_tx #20
+                nueva_tasa= nodo.nueva_tasa_tx
                 nodo.tasa_tx=nueva_tasa
                 nodo.ultimo_proc_noma=self.sim.get_time()
                 nodo.paquete_restante = nodo.current_pkt.get_size()
@@ -141,7 +143,7 @@ class Channel(Module):
                 nodo.nueva_tasa_tx = 0
             else:
                 self.sim.cancel_event(nodo.evento_end_tx)
-                nueva_tasa = nodo.nueva_tasa_tx #20
+                nueva_tasa = nodo.nueva_tasa_tx
                 tiempo_entre_noma = self.sim.get_time() - nodo.ultimo_proc_noma
                 nodo.paquete_restante = nodo.paquete_restante - ( (nodo.tasa_tx)  * tiempo_entre_noma)
                 tiempo_end_tx = self.sim.get_time() + (nodo.paquete_restante / (nueva_tasa))
@@ -169,10 +171,10 @@ class Channel(Module):
 
         # Regla 1
         Num_Total_Dispositivos = NumDispositivosURLLC + NumDispositivosMTC
-        if Num_Total_Dispositivos < 48:
+        if Num_Total_Dispositivos < self.numeroSubportadoras:
             Numero_clusters = Num_Total_Dispositivos
         else:
-            Numero_clusters = 48
+            Numero_clusters = self.numeroSubportadoras
 
         # Creación de Objetos para la simulación
         DESsim = Simulacion(0, PLE, RadioCelular)
@@ -553,7 +555,8 @@ class Channel(Module):
                                                                             device].Rs + \
                                                                         ListaClusters[cluster].dispositivos[0][
                                                                             device].Rx
-                    sim.nodes[ListaClusters[cluster].dispositivos[0][device].id].nueva_tasa_tx = 20#(ListaClusters[cluster].dispositivos[0][device].Rs /8000)
+                    # se guarda la tasa en la simulación
+                    sim.nodes[ListaClusters[cluster].dispositivos[0][device].id].nueva_tasa_tx = (ListaClusters[cluster].dispositivos[0][device].Rs /8)
             return ListaClusters
 
         # Función que actualiza las potencias de los dispositivos de un determinado cluster de acuerdo con Sac

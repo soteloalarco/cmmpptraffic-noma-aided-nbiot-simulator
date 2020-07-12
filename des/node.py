@@ -22,7 +22,9 @@ from des.module import Module
 from des.event import Event
 from des.events import Events
 from des.packet import Packet
-
+import math as mth
+import numpy as np
+import random
 
 class Node(Module):
     """
@@ -87,13 +89,47 @@ class Node(Module):
         self.ultimo_proc_noma = 0
         self.evento_end_tx = None
         self.cluster = -1
+        self.d = 0
+        self.h = []
+        self.h_ = 0
+        self.Rth = 0
 
+    def calcularumbralpotencia(self):
+
+        # Asignación de umbrales de tasa de transmisión dependiendo el tipo de dispositivo
+        if self.get_tipo() == Node.TIPO7: # URLLC
+            return  np.random.uniform(100, 20e3)  # Esto es en bits, el de nosotros es 200 bytes ~ 1600bits
+        else:
+            return np.random.uniform(100, 2e3)
+
+    def calcularganancias(self, numsub):
+        h=[]
+        for gain in range(0, numsub):
+
+            #Implementacion Modelo de Canal Rappaport
+
+            h1 = 32.4 + 10 * self.sim.PLE * mth.log10(self.d / self.sim.d0) + 20 * mth.log10(self.sim.d0) + 20 * mth.log10(self.sim.channel.subcarriers[gain]/1e9) + 10 * mth.log10(random.expovariate(1))
+            h.append(10**(h1/10))
+
+        return h
+
+    def calculargananciapromedio(self,numsub):
+        h2 = sum(self.h)
+
+        # Ganancia Promedio
+        h_ = h2 / numsub
+
+        return h_
 
     def initialize(self):
         """
         Inicialización. Inicia la operación de un nodo UE calendarizando el primer paquete.
         Initialization. Starts node operation by scheduling the first packet.
         """
+        self.d = mth.sqrt(self.x ** 2 + self.y ** 2)
+        self.h = self.calcularganancias(self.sim.channel.numeroSubportadoras)
+        self.h_ = self.calculargananciapromedio(self.sim.channel.numeroSubportadoras)
+        self.Rth = self.calcularumbralpotencia()
         self.schedule_next_arrival()
 
     def initialize_eNB(self):
@@ -582,3 +618,31 @@ class Node(Module):
         :returns: y position in meters
         """
         return self.state
+
+    def get_distancia(self):
+        """
+        Returns y position
+        :returns: y position in meters
+        """
+        return self.d
+
+    def get_h(self):
+        """
+        Returns y position
+        :returns: y position in meters
+        """
+        return self.h
+
+    def get_h_(self):
+        """
+        Returns y position
+        :returns: y position in meters
+        """
+        return self.h_
+
+    def get_Rth(self):
+        """
+        Returns y position
+        :returns: y position in meters
+        """
+        return self.Rth

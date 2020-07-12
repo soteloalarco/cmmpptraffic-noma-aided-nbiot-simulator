@@ -30,6 +30,7 @@ from des.node import Node
 from des.log import Log
 import pandas as pd
 
+
 # comando VT100 para borrar contenido de la terminal actual
 # VT100 command for erasing content of the current prompt line
 ERASE_LINE = '\x1b[2K'
@@ -168,6 +169,8 @@ class Sim:
         self.pmaxmMTC = self.config.get_param(self.PmMTC)
         # tamaño máximo de cluster
         self.kmax = self.config.get_param(self.k_max)
+        # d0 para algoritmo noma
+        self.d0 = 1
         # se instancia el canal
         # instantiate the channel
         self.channel = Channel(self.config)
