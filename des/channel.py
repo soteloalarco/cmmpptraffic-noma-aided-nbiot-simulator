@@ -189,6 +189,7 @@ class Channel(Module):
 
         # Regla 1
         Num_Total_Dispositivos = NumDispositivosURLLC + NumDispositivosMTC
+        assert(Num_Total_Dispositivos >0)
         if Num_Total_Dispositivos < self.numeroSubportadoras:
             Numero_clusters = Num_Total_Dispositivos
         else:
@@ -577,7 +578,7 @@ class Channel(Module):
                                                                         ListaClusters[cluster].dispositivos[0][
                                                                             device].Rx
                     # se guarda la tasa en la simulación
-                    sim.nodes[ListaClusters[cluster].dispositivos[0][device].id].nueva_tasa_tx = 20 #(ListaClusters[cluster].dispositivos[0][device].Rs /8)
+                    sim.nodes[ListaClusters[cluster].dispositivos[0][device].id].nueva_tasa_tx = (ListaClusters[cluster].dispositivos[0][device].Rs /8)
             return ListaClusters
 
         # Función que actualiza las potencias de los dispositivos de un determinado cluster de acuerdo con Sac

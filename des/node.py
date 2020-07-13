@@ -287,9 +287,11 @@ class Node(Module):
 
         #self.logger.log_state(self, Node.NOMA)
         self.state = Node.IDLE
-        self.sim.channel.algoritmo_NOMA(self)
-        #TODO cambiar porqeu está hardcoded
-        self.logger.log_fin_NOMA(self)
+        # si aún hay dispossitivos para los que hacer el algoritmo noma
+        if(len(self.sim.channel.nodes) > 0):
+            self.sim.channel.algoritmo_NOMA(self)
+            #TODO cambiar porqeu está hardcoded
+            self.logger.log_fin_NOMA(self)
 
 
 ##########
