@@ -61,7 +61,7 @@ class Node(Module):
         :param y: y position
         """
         Module.__init__(self,id,tipo)
-        # cola de paquetes a sser enviados
+        # cola de paquetes a ser enviados
         # queue of packets to be sent
         self.queue = []
         # estado actual del nodo
@@ -258,6 +258,10 @@ class Node(Module):
             # resuming operations but nothing to transmit. back to IDLE
             self.state = Node.IDLE
             self.logger.log_state(self, Node.IDLE)
+
+            # se calendariza el siguiente arribo
+            # schedule next arrival
+            self.schedule_next_arrival()
         else:
             # si hay un paquete listo, se transmite
             # there is a packet ready, trasmit it
@@ -266,9 +270,7 @@ class Node(Module):
             self.state = Node.TX
             self.logger.log_state(self, Node.TX)
             self.logger.log_queue_length(self, len(self.queue))
-        # se calendariza el siguiente arribo
-        # schedule next arrival
-        self.schedule_next_arrival()
+
 
         # calendarizamos un proceso NOMA
         # schedule end of transmission
@@ -291,6 +293,39 @@ class Node(Module):
 
 
 ##########
+
+    def end_transmit_packet(self):
+
+        self.current_pkt = None
+        self.evento_end_tx = None
+        self.paquete_restante = 0
+        self.ultimo_proc_noma = 0
+        self.tasa_tx = 0
+        self.nueva_tasa_tx = 0
+        self.cluster = -1
+        self.channel.nodes.remove(self)
+
+        # imprimimos el nuevo cluster
+        self.logger.log_bloqueo_cluster(self.sim.node_eNB, self, self.cluster, self.tasa_tx)
+
+        if len(self.queue) == 0:
+            # si se reanuda la operación pero no hay nada que transmitir se cambia a estado IDLE
+            # resuming operations but nothing to transmit. back to IDLE
+            self.state = Node.IDLE
+            self.logger.log_state(self, Node.IDLE)
+            # se calendariza el siguiente arribo
+            # schedule next arrival
+            self.schedule_next_arrival()
+        else:
+            # si hay un paquete listo, se transmite
+            # there is a packet ready, trasmit it
+            packet_size = self.queue.pop(0)
+            self.transmit_packet(packet_size)
+            self.state = Node.TX
+            self.logger.log_state(self, Node.TX)
+            self.logger.log_queue_length(self, len(self.queue))
+
+
 
     def transmit_packet(self):
         """

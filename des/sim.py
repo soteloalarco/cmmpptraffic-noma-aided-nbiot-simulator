@@ -101,6 +101,8 @@ class Sim:
         # lista de dispositivos a ser evaluados en el siguiente algoritmo NOMA
         # list of UE's to be evaluated in the next NOMA computing
         self.universoNOMA =[]
+        #lista de bloqueos por negación de servicio , sin cluster
+        self.bloqueoSinCluster = []
         # initialize() debe ser llamada antes de correr la simulación
         # initialize() should be called before running the simulation
         self.initialized = False

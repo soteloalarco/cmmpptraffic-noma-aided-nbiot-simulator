@@ -65,6 +65,9 @@ class Log:
     LOG_NUEVO_CLUSTER = LOG_NOMA_FIN + 1
     LOG_NUEVO_CLUSTER_DES = 'Nuevo cluster'
 
+    LOG_BLOQUEO_CLUSTER = LOG_NUEVO_CLUSTER + 1
+    LOG_BLOQUEO_CLUSTER_DES = 'Bloqueo cluster'
+
     def __init__(self, output_file, log_packets=True, log_queue_drops=True,
                  log_arrivals=True, log_queue_lengths=True, log_states=True):
         """
@@ -184,6 +187,21 @@ class Log:
             self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
                                 (self.sim.get_time(), event.source.get_id(),event.source.get_id(),
                                  node.get_id(),node.get_tipo(), Log.LOG_NODE_STATE,Log.LOG_NODE_STATE_DES, state,node.estados[state]))
+
+    def log_bloqueo_cluster(self, enb,node, cluster, tasa):
+        """
+        Logea el estado de un evento y nodo en particular
+        Logs the state of a particular node y evento
+        :param node: nodo | node
+        :param event: evento que activo el log | event that started the log
+        :param state: estado de un nodo | state of the node
+        """
+        if self.log_states:
+            #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
+            self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%d,%s\n" %
+                                (self.sim.get_time(), enb.get_id(),enb.get_tipo(),
+                                 node.get_id(),node.get_tipo(), Log.LOG_BLOQUEO_CLUSTER,Log.LOG_BLOQUEO_CLUSTER_DES, cluster +1,str(int(tasa)) + ' bytes/s'))
+
 
     def log_nuevo_cluster(self, enb,node, cluster, tasa):
         """
