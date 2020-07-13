@@ -65,6 +65,9 @@ class Channel(Module):
         self.subcarriers = np.linspace(2000e6, 2000180000,self.numeroSubportadoras)  # 48 subportadoras en frecuencia de 2Ghz
         # cola de dispositivos con paquetes
         self.dispConCluster = []
+        # lita de disp con tasas satisfechas a la hora de hacer noma
+        self.mMTC_tasanocubierta = []
+        self.URLLC_tasanocubierta = []
 
 
     def register_node(self, node):

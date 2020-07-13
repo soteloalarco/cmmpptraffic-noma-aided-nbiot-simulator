@@ -270,5 +270,5 @@ class Log:
             #["tiempo,fuente,tipo,destino,tipo,evento,descripcion,tamano/estado,detalles\n"]
             self.log_file.write("%f,%d,%s,%d,%s,%d,%s,%s,%s\n" %
                                 (self.sim.get_time(), node.get_id(),node.get_tipo(),
-                                 node.get_id(),node.get_tipo(), Log.LOG_NOMA_FIN,Log.LOG_NOMA_FIN_DES, str(len(node.channel.universoURLLC))+' URLLC',str(len(node.channel.universomMTC)) +' mMTC'))
+                                 node.get_id(),node.get_tipo(), Log.LOG_NOMA_FIN,Log.LOG_NOMA_FIN_DES, str(len(node.channel.URLLC_tasanocubierta))+' URLLC',str(len(node.channel.mMTC_tasanocubierta)) +' mMTC'))
 
