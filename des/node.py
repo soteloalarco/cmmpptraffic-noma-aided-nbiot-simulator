@@ -87,6 +87,7 @@ class Node(Module):
         self.nueva_tasa_tx = 0  # bits/s
         self.paquete_restante=0
         self.ultimo_proc_noma = 0
+        self.inicio_ultimo_paquete = 0
         self.evento_end_tx = None
         self.cluster = -1
         self.d = 0
@@ -210,6 +211,7 @@ class Node(Module):
         """
 
         self.sim.cantidadPaquetes = self.sim.cantidadPaquetes + 1
+        self.inicio_ultimo_paquete = event.get_time()
 
         # se asigna al dispositivo el paquete como paquete actual
         # we asigne the packet from the event as the current pkg
@@ -234,10 +236,16 @@ class Node(Module):
         assert(self.state == Node.TX)
         assert(self.current_pkt is not None)
         assert(self.current_pkt.get_id() == event.get_obj().get_id())
+
+        tasaefectiva = (self.current_pkt.get_size())/ (event.get_time() - self.inicio_ultimo_paquete)
+        if (tasaefectiva >= self.Rth/8):
+            self.sim.arribos_tasa_efectiva = self.sim.arribos_tasa_efectiva + 1
+
         self.current_pkt = None
         self.evento_end_tx = None
         self.paquete_restante = 0
         self.ultimo_proc_noma = 0
+        self.inicio_ultimo_paquete = 0
         self.tasa_tx = 0
         self.nueva_tasa_tx = 0
         self.cluster = -1

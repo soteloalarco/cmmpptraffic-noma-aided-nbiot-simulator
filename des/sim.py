@@ -188,6 +188,7 @@ class Sim:
         self.cantidadPaquetes = 0
         self.totalsatisfechosnoma = 0
         self.totalnosatisfechosnoma = 0
+        self.arribos_tasa_efectiva = 0
         # nombre del archivo que contiene los dispositivos
         # name of the file conteining the UE's
         self.dispositivos = self.config.get_param(self.PAR_UE)
@@ -275,7 +276,10 @@ class Sim:
         print("\nProbabilidad de bloqueo sin cluster: %f porciento, %d arribos, %d bloqueos" %
               ((len(self.bloqueoSinCluster)/self.cantidadPaquetes) * 100,self.cantidadPaquetes,len(self.bloqueoSinCluster)))
         print("\nTasas no cubiertas (en procesos NOMA): %f porciento, %d cubiertas, %d no cubiertas" %
-              ((self.totalnosatisfechosnoma / self.totalnosatisfechosnoma + self.totalsatisfechosnoma)* 100, self.totalsatisfechosnoma, self.totalnosatisfechosnoma))
+              ((self.totalnosatisfechosnoma / (self.totalnosatisfechosnoma + self.totalsatisfechosnoma))* 100, self.totalsatisfechosnoma, self.totalnosatisfechosnoma))
+        print("\nTasas no cubiertas (por arribo): %f porciento, %d cubiertas, %d no cubiertas" %
+              (((self.cantidadPaquetes - len(self.bloqueoSinCluster) - self.arribos_tasa_efectiva) / (self.cantidadPaquetes - len(self.bloqueoSinCluster))) * 100,
+               self.arribos_tasa_efectiva, (self.cantidadPaquetes - len(self.bloqueoSinCluster) - self.arribos_tasa_efectiva)))
         self.logger.log_file.close()
         df_bloqueos = pd.DataFrame(self.bloqueoSinCluster)
         # Guardado de datos en archivo con extensión .csv
