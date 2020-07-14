@@ -9,6 +9,7 @@ from trafico.funciones.funcionesdispositivos import creardispositivos
 from trafico.funciones.funcionesdispositivos import calcularPnk
 from trafico.funciones.miscelaneo import distanciaList
 from trafico.clases.DeviceMTC import DeviceMTC
+from trafico.clases.TiposDispositivos import TiposDispositivos
 
 
 class Application(tk.Frame):
@@ -2431,6 +2432,7 @@ class Application(tk.Frame):
             self.generadoresAlarmas = []  # una lista para guardar los genradores de eventos de alarmas, uno para cada tipo de dispositivo
             self.nuevaAlarma = [False] * tiposDisp
             DeviceMTC.tiempoLitime=self.tiempoLimite
+            GeneradorAlarmas.tiempoLitime = self.tiempoLimite
             self.DispositivosTodos=[]
 
 
@@ -2439,7 +2441,7 @@ class Application(tk.Frame):
             # tipo 1
             if (self.dipositivos_Tipo1 > 0):
                 self.dispositivos.append(
-                    creardispositivos(self.modeloTrafico_Tipo1, self.cantidad_Tipo1, self.posiciones_Tipo1, self.tasaPaquete_Tipo1, 'Control de iluminacion', self.tiempo,
+                    creardispositivos(self.modeloTrafico_Tipo1, self.cantidad_Tipo1, self.posiciones_Tipo1, self.tasaPaquete_Tipo1, TiposDispositivos.TIPO1, self.tiempo,
                                       self.color_Tipo1, self.marcador_Tipo1,self.DispositivosTodos))
                 self.generadoresAlarmas.append(
                     GeneradorAlarmas(1,self.modeloTrafico_Tipo1, self.lambdaAlarma_Tipo1, self.velPropagacionAlarma_Tipo1, self.tiempo, self.modeloEspacial_Tipo1,
@@ -2447,7 +2449,7 @@ class Application(tk.Frame):
             # tipo 2
             if (self.dipositivos_Tipo2 > 0):
                 self.dispositivos.append(
-                    creardispositivos(self.modeloTrafico_Tipo2, self.cantidad_Tipo2, self.posiciones_Tipo2, self.tasaPaquete_Tipo2, 'Monitoreo de agua y electricidad',
+                    creardispositivos(self.modeloTrafico_Tipo2, self.cantidad_Tipo2, self.posiciones_Tipo2, self.tasaPaquete_Tipo2, TiposDispositivos.TIPO2,
                                       self.tiempo, self.color_Tipo2, self.marcador_Tipo2, self.DispositivosTodos))
                 self.generadoresAlarmas.append(
                     GeneradorAlarmas(2,self.modeloTrafico_Tipo2, self.lambdaAlarma_Tipo2, self.velPropagacionAlarma_Tipo2, self.tiempo, self.modeloEspacial_Tipo2,
@@ -2455,7 +2457,7 @@ class Application(tk.Frame):
             # tipo 3
             if (self.dipositivos_Tipo3 > 0):
                 self.dispositivos.append(
-                    creardispositivos(self.modeloTrafico_Tipo3, self.cantidad_Tipo3, self.posiciones_Tipo3, self.tasaPaquete_Tipo3, 'Deteccion de terremotos', self.tiempo,
+                    creardispositivos(self.modeloTrafico_Tipo3, self.cantidad_Tipo3, self.posiciones_Tipo3, self.tasaPaquete_Tipo3, TiposDispositivos.TIPO3, self.tiempo,
                                       self.color_Tipo3, self.marcador_Tipo3, self.DispositivosTodos))
                 self.generadoresAlarmas.append(
                     GeneradorAlarmas(3,self.modeloTrafico_Tipo3, self.lambdaAlarma_Tipo3, self.velPropagacionAlarma_Tipo3, self.tiempo, self.modeloEspacial_Tipo3,
@@ -2464,7 +2466,7 @@ class Application(tk.Frame):
             if (self.dipositivos_Tipo4 > 0):
                 self.dispositivos.append(
                     creardispositivos(self.modeloTrafico_Tipo4, self.cantidad_Tipo4, self.posiciones_Tipo4,
-                                      self.tasaPaquete_Tipo4, 'Semaforos inteligentes', self.tiempo,
+                                      self.tasaPaquete_Tipo4, TiposDispositivos.TIPO4, self.tiempo,
                                       self.color_Tipo4, self.marcador_Tipo4, self.DispositivosTodos))
                 self.generadoresAlarmas.append(
                     GeneradorAlarmas(4,self.modeloTrafico_Tipo4, self.lambdaAlarma_Tipo4, self.velPropagacionAlarma_Tipo4,
@@ -2475,7 +2477,7 @@ class Application(tk.Frame):
             if (self.dipositivos_Tipo5 > 0):
                 self.dispositivos.append(
                     creardispositivos(self.modeloTrafico_Tipo5, self.cantidad_Tipo5, self.posiciones_Tipo5,
-                                      self.tasaPaquete_Tipo5, 'Contaminacion del aire', self.tiempo,
+                                      self.tasaPaquete_Tipo5, TiposDispositivos.TIPO5, self.tiempo,
                                       self.color_Tipo5, self.marcador_Tipo5, self.DispositivosTodos))
                 self.generadoresAlarmas.append(
                     GeneradorAlarmas(5,self.modeloTrafico_Tipo5, self.lambdaAlarma_Tipo5, self.velPropagacionAlarma_Tipo5,
@@ -2486,7 +2488,7 @@ class Application(tk.Frame):
             if (self.dipositivos_Tipo6 > 0):
                 self.dispositivos.append(
                     creardispositivos(self.modeloTrafico_Tipo6, self.cantidad_Tipo6, self.posiciones_Tipo6,
-                                      self.tasaPaquete_Tipo6, 'Otros dispositivos mMTC', self.tiempo,
+                                      self.tasaPaquete_Tipo6, TiposDispositivos.TIPO6, self.tiempo,
                                       self.color_Tipo6, self.marcador_Tipo6, self.DispositivosTodos))
                 self.generadoresAlarmas.append(
                     GeneradorAlarmas(6,self.modeloTrafico_Tipo6, self.lambdaAlarma_Tipo6, self.velPropagacionAlarma_Tipo6,
@@ -2497,7 +2499,7 @@ class Application(tk.Frame):
             if (self.dipositivos_Tipo7 > 0):
                 self.dispositivos.append(
                     creardispositivos(self.modeloTrafico_Tipo7, self.cantidad_Tipo7, self.posiciones_Tipo7,
-                                      self.tasaPaquete_Tipo7, 'Dispositivos URLLC', self.tiempo,
+                                      self.tasaPaquete_Tipo7, TiposDispositivos.TIPO7, self.tiempo,
                                       self.color_Tipo7, self.marcador_Tipo7, self.DispositivosTodos))
                 self.generadoresAlarmas.append(
                     GeneradorAlarmas(7,self.modeloTrafico_Tipo7, self.lambdaAlarma_Tipo7, self.velPropagacionAlarma_Tipo7,
