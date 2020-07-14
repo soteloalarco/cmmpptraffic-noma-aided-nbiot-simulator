@@ -17,7 +17,7 @@ class Application(tk.Frame):
     tiempoLimite = 1  # segundos, tiempo de paro del algoritmo
     deltaTiempo = 0.1  # segundos , diferencial de tiempo entre iteración
     numerosDecimalesDeltaTiempo = 1  # Si se modifica deltaTiempo modificar también esta variable
-    tiposDispositivos = 7  # Cantidad total de dispositivos a caracterizar a continuación
+    tiposDispositivos = 0  # Cantidad total de dispositivos a caracterizar a continuación
     radiocelula=50 # radio de la célula en metros
     modelodispositivos=0 # 0 para PPP y 1 para uniforme
     repeticiones=1 # repeticiones de la rutina CCMMPP
@@ -1010,10 +1010,11 @@ class Application(tk.Frame):
             self.modelodispositivos = 1
         self.repeticiones=int(self.repeticiones00.get())
 
-        self.tiposDispositivos = 7  # Cantidad total de dispositivos a caracterizar a continuación
-
         ### Control de iluminación
-        self.dipositivos_Tipo1 = float(self.numero01.get())  # número de dispositivos de tipo 1,
+        if (self.numero01.get() == ''):
+            self.dipositivos_Tipo1 = 0
+        else:
+            self.dipositivos_Tipo1 = float(self.numero01.get())  # número de dispositivos de tipo 1,
         if (self.modelotra01.get() == 'CMMPP'):
             self.modeloTrafico_Tipo1 = 0  # modelo de trafico 0 CMMPP 1 Periódico
         else:
@@ -1044,7 +1045,10 @@ class Application(tk.Frame):
         self.marcador_Tipo1 = 'd'
 
         ### Monitoreo de consumo del agua y electricidad
-        self.dipositivos_Tipo2 = float(self.numero02.get())  # número de dispositivos de tipo 2
+        if (self.numero02.get() == ''):
+            self.dipositivos_Tipo2 = 0
+        else:
+            self.dipositivos_Tipo2 = float(self.numero02.get())  # número de dispositivos de tipo 2
         if (self.modelotra02.get() == 'CMMPP'):
             self.modeloTrafico_Tipo2 = 0  # modelo de trafico 0 CMMPP 1 Periódico
         else:
@@ -1078,7 +1082,10 @@ class Application(tk.Frame):
         self.marcador_Tipo2 = '*'
 
         ### Detección de terremotos
-        self.dipositivos_Tipo3 = float(self.numero03.get())  # número de dispositivos de tipo 3
+        if (self.numero03.get() == ''):
+            self.dipositivos_Tipo3 = 0
+        else:
+            self.dipositivos_Tipo3 = float(self.numero03.get())  # número de dispositivos de tipo 3
         if (self.modelotra03.get() == 'CMMPP'):
             self.modeloTrafico_Tipo3 = 0  # modelo de trafico 0 CMMPP 1 Periódico
         else:
@@ -1095,9 +1102,6 @@ class Application(tk.Frame):
             self.velPropagacionAlarma_Tipo3 = 0
         else:
             self.velPropagacionAlarma_Tipo3 = float(self.veloalarma03.get())  # m/s Velocidad de propagación de alarma
-
-        #self.lambdaAlarma_Tipo3 = float(self.tasaalarma03.get())   # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 350 seg)
-        #self.velPropagacionAlarma_Tipo3 = float(self.veloalarma03.get())  # m/s Velocidad de propagación de alarma
         if (self.modeloesp03.get() == 'Decaying Exponential'):
             self.modeloEspacial_Tipo3 = 0  # Propagación espacial de alarma, 0 Decaying exponential 1 raised-cosine Window
         else:
@@ -1114,7 +1118,10 @@ class Application(tk.Frame):
 
 
         ### Contaminación del aire
-        self.dipositivos_Tipo4 = float(self.numero10.get())  # número de dispositivos de tipo 4
+        if (self.numero10.get() == ''):
+            self.dipositivos_Tipo4 = 0
+        else:
+            self.dipositivos_Tipo4 = float(self.numero10.get())  # número de dispositivos de tipo 4
         if (self.modelotra10.get() == 'CMMPP'):
             self.modeloTrafico_Tipo4 = 0  # modelo de trafico 0 CMMPP 1 Periódico
         else:
@@ -1146,7 +1153,10 @@ class Application(tk.Frame):
         self.marcador_Tipo4 = '^'
 
         ### Control de semáforos
-        self.dipositivos_Tipo5 = float(self.numero11.get())  # número de dispositivos de tipo 5
+        if (self.numero11.get() == ''):
+            self.dipositivos_Tipo5 = 0
+        else:
+            self.dipositivos_Tipo5 = float(self.numero11.get())  # número de dispositivos de tipo 5
         if (self.modelotra11.get() == 'CMMPP'):
             self.modeloTrafico_Tipo5 = 0  # modelo de trafico 0 CMMPP 1 Periódico
         else:
@@ -1177,7 +1187,10 @@ class Application(tk.Frame):
         self.marcador_Tipo5 = '^'
 
         ### Otros dispositivos mMTC
-        self.dipositivos_Tipo6 = float(self.numero12.get())  # número de dispositivos de tipo 5
+        if (self.numero12.get() == ''):
+            self.dipositivos_Tipo6 = 0
+        else:
+            self.dipositivos_Tipo6 = float(self.numero12.get())  # número de dispositivos de tipo 6
         if (self.modelotra12.get() == 'CMMPP'):
             self.modeloTrafico_Tipo6 = 0  # modelo de trafico 0 CMMPP 1 Periódico
         else:
@@ -1211,7 +1224,10 @@ class Application(tk.Frame):
         self.marcador_Tipo6 = '^'
 
         ### Dispositivos URLLC
-        self.dipositivos_Tipo7 = float(self.numero13.get())  # número de dispositivos de tipo 5
+        if (self.numero13.get() == ''):
+            self.dipositivos_Tipo7 = 0
+        else:
+            self.dipositivos_Tipo7 = float(self.numero13.get())  # número de dispositivos de tipo 7
         if (self.modelotra13.get() == 'CMMPP'):
             self.modeloTrafico_Tipo7 = 0  # modelo de trafico 0 CMMPP 1 Periódico
         else:
@@ -2294,111 +2310,126 @@ class Application(tk.Frame):
         self.leerentradas()
         ######################################################
         for self.rep in range(self.repeticiones):
-            print(str(self.rep))
+            tiposDisp = 0
+
             self.areaCelula = np.pi * self.radiocelula ** 2  # area de la célula
             # Iniciamos la creación de dispositivos según la distribución seleccionada
             # Dispositivos tipo 1
-            if (self.modelodispositivos == 0):
-                self.cantidad_Tipo1 = np.random.poisson(self.dipositivos_Tipo1 * self.areaCelula)  # Poisson número de dispoitivos de tipo1
-            else:
-                self.cantidad_Tipo1 = int(self.dipositivos_Tipo1)  # si no se trata de un PPP se generarán los dispositivos especifiados
-            self.theta_Tipo1 = 2 * np.pi * np.random.uniform(0, 1, self.cantidad_Tipo1)
-            self.rho_Tipo1 = self.radiocelula * np.sqrt(np.random.uniform(0, 1, self.cantidad_Tipo1))
-            # Convertimos las coordenadas polares a cartesianas
-            self.xx_Tipo1 = self.rho_Tipo1 * np.cos(self.theta_Tipo1)
-            self.yy_Tipo1 = self.rho_Tipo1 * np.sin(self.theta_Tipo1)
-            self.posiciones_Tipo1 = [self.xx_Tipo1,
-                                self.yy_Tipo1]  # Esta lista se usará para asignar posiciones a los dispositivos que se crearán
+            if (self.dipositivos_Tipo1 > 0):  # si la cantidad de dispositivos es mayor a cero
+                tiposDisp = tiposDisp + 1
+                if (self.modelodispositivos == 0):
+                    self.cantidad_Tipo1 = np.random.poisson(self.dipositivos_Tipo1 * self.areaCelula)  # Poisson número de dispoitivos de tipo1
+                else:
+                    self.cantidad_Tipo1 = int(self.dipositivos_Tipo1)  # si no se trata de un PPP se generarán los dispositivos especifiados
+                self.theta_Tipo1 = 2 * np.pi * np.random.uniform(0, 1, self.cantidad_Tipo1)
+                self.rho_Tipo1 = self.radiocelula * np.sqrt(np.random.uniform(0, 1, self.cantidad_Tipo1))
+                # Convertimos las coordenadas polares a cartesianas
+                self.xx_Tipo1 = self.rho_Tipo1 * np.cos(self.theta_Tipo1)
+                self.yy_Tipo1 = self.rho_Tipo1 * np.sin(self.theta_Tipo1)
+                self.posiciones_Tipo1 = [self.xx_Tipo1,
+                                    self.yy_Tipo1]  # Esta lista se usará para asignar posiciones a los dispositivos que se crearán
             # Dispositivos tipo 2
-            if (self.modelodispositivos == 0):
-                self.cantidad_Tipo2 = np.random.poisson(self.dipositivos_Tipo2 * self.areaCelula)  # Poisson número de dispoitivos de tipo1
-            else:
-                self.cantidad_Tipo2 = int(self.dipositivos_Tipo2)  # si no se trata de un PPP se generarán los dispositivos especifiados
-            self.theta_Tipo2 = 2 * np.pi * np.random.uniform(0, 1, self.cantidad_Tipo2)
-            self.rho_Tipo2 = self.radiocelula * np.sqrt(np.random.uniform(0, 1, self.cantidad_Tipo2))
-            # Convertimos las coordenadas polares a cartesianas
-            self.xx_Tipo2 = self.rho_Tipo2 * np.cos(self.theta_Tipo2)
-            self.yy_Tipo2 = self.rho_Tipo2 * np.sin(self.theta_Tipo2)
-            self.posiciones_Tipo2 = [self.xx_Tipo2,
-                                self.yy_Tipo2]  # Esta lista se usará para asignar posiciones a los dispositivos que se crearán
+            if (self.dipositivos_Tipo2 > 0):  # si la cantidad de dispositivos es mayor a cero
+                tiposDisp = tiposDisp + 1
+                if (self.modelodispositivos == 0):
+                    self.cantidad_Tipo2 = np.random.poisson(self.dipositivos_Tipo2 * self.areaCelula)  # Poisson número de dispoitivos de tipo1
+                else:
+                    self.cantidad_Tipo2 = int(self.dipositivos_Tipo2)  # si no se trata de un PPP se generarán los dispositivos especifiados
+                self.theta_Tipo2 = 2 * np.pi * np.random.uniform(0, 1, self.cantidad_Tipo2)
+                self.rho_Tipo2 = self.radiocelula * np.sqrt(np.random.uniform(0, 1, self.cantidad_Tipo2))
+                # Convertimos las coordenadas polares a cartesianas
+                self.xx_Tipo2 = self.rho_Tipo2 * np.cos(self.theta_Tipo2)
+                self.yy_Tipo2 = self.rho_Tipo2 * np.sin(self.theta_Tipo2)
+                self.posiciones_Tipo2 = [self.xx_Tipo2,
+                                    self.yy_Tipo2]  # Esta lista se usará para asignar posiciones a los dispositivos que se crearán
             # Dispositivos tipo 3
-            if (self.modelodispositivos == 0):
-                self.cantidad_Tipo3 = np.random.poisson(self.dipositivos_Tipo3 * self.areaCelula)  # Poisson número de dispoitivos de tipo1
-            else:
-                self.cantidad_Tipo3 = int(self.dipositivos_Tipo3)  # si no se trata de un PPP se generarán los dispositivos especifiados
-            self.theta_Tipo3 = 2 * np.pi * np.random.uniform(0, 1, self.cantidad_Tipo3)
-            self.rho_Tipo3 = self.radiocelula * np.sqrt(np.random.uniform(0, 1, self.cantidad_Tipo3))
-            # Convertimos las coordenadas polares a cartesianas
-            self.xx_Tipo3 = self.rho_Tipo3 * np.cos(self.theta_Tipo3)
-            self.yy_Tipo3 = self.rho_Tipo3 * np.sin(self.theta_Tipo3)
-            self.posiciones_Tipo3 = [self.xx_Tipo3,
-                                self.yy_Tipo3]  # Esta lista se usará para asignar posiciones a los dispositivos que se crearán
+            if (self.dipositivos_Tipo3 > 0):  # si la cantidad de dispositivos es mayor a cero
+                tiposDisp = tiposDisp + 1
+                if (self.modelodispositivos == 0):
+                    self.cantidad_Tipo3 = np.random.poisson(self.dipositivos_Tipo3 * self.areaCelula)  # Poisson número de dispoitivos de tipo1
+                else:
+                    self.cantidad_Tipo3 = int(self.dipositivos_Tipo3)  # si no se trata de un PPP se generarán los dispositivos especifiados
+                self.theta_Tipo3 = 2 * np.pi * np.random.uniform(0, 1, self.cantidad_Tipo3)
+                self.rho_Tipo3 = self.radiocelula * np.sqrt(np.random.uniform(0, 1, self.cantidad_Tipo3))
+                # Convertimos las coordenadas polares a cartesianas
+                self.xx_Tipo3 = self.rho_Tipo3 * np.cos(self.theta_Tipo3)
+                self.yy_Tipo3 = self.rho_Tipo3 * np.sin(self.theta_Tipo3)
+                self.posiciones_Tipo3 = [self.xx_Tipo3,
+                                    self.yy_Tipo3]  # Esta lista se usará para asignar posiciones a los dispositivos que se crearán
 
             # Dispositivos tipo 4
-            if (self.modelodispositivos == 0):
-                self.cantidad_Tipo4 = np.random.poisson(
-                    self.dipositivos_Tipo4 * self.areaCelula)  # Poisson número de dispoitivos de tipo1
-            else:
-                self.cantidad_Tipo4 = int(
-                    self.dipositivos_Tipo4)  # si no se trata de un PPP se generarán los dispositivos especifiados
-            self.theta_Tipo4 = 2 * np.pi * np.random.uniform(0, 1, self.cantidad_Tipo4)
-            self.rho_Tipo4 = self.radiocelula * np.sqrt(np.random.uniform(0, 1, self.cantidad_Tipo4))
-            # Convertimos las coordenadas polares a cartesianas
-            self.xx_Tipo4 = self.rho_Tipo4 * np.cos(self.theta_Tipo4)
-            self.yy_Tipo4 = self.rho_Tipo4 * np.sin(self.theta_Tipo4)
-            self.posiciones_Tipo4 = [self.xx_Tipo4,
-                                     self.yy_Tipo4]  # Esta lista se usará para asignar posiciones a los dispositivos que se crearán
+            if (self.dipositivos_Tipo4 > 0):  # si la cantidad de dispositivos es mayor a cero
+                tiposDisp = tiposDisp + 1
+                if (self.modelodispositivos == 0):
+                    self.cantidad_Tipo4 = np.random.poisson(
+                        self.dipositivos_Tipo4 * self.areaCelula)  # Poisson número de dispoitivos de tipo1
+                else:
+                    self.cantidad_Tipo4 = int(
+                        self.dipositivos_Tipo4)  # si no se trata de un PPP se generarán los dispositivos especifiados
+                self.theta_Tipo4 = 2 * np.pi * np.random.uniform(0, 1, self.cantidad_Tipo4)
+                self.rho_Tipo4 = self.radiocelula * np.sqrt(np.random.uniform(0, 1, self.cantidad_Tipo4))
+                # Convertimos las coordenadas polares a cartesianas
+                self.xx_Tipo4 = self.rho_Tipo4 * np.cos(self.theta_Tipo4)
+                self.yy_Tipo4 = self.rho_Tipo4 * np.sin(self.theta_Tipo4)
+                self.posiciones_Tipo4 = [self.xx_Tipo4,
+                                         self.yy_Tipo4]  # Esta lista se usará para asignar posiciones a los dispositivos que se crearán
 
             # Dispositivos tipo 5
-            if (self.modelodispositivos == 0):
-                self.cantidad_Tipo5 = np.random.poisson(
-                    self.dipositivos_Tipo5 * self.areaCelula)  # Poisson número de dispoitivos de tipo1
-            else:
-                self.cantidad_Tipo5 = int(
-                    self.dipositivos_Tipo5)  # si no se trata de un PPP se generarán los dispositivos especifiados
-            self.theta_Tipo5 = 2 * np.pi * np.random.uniform(0, 1, self.cantidad_Tipo5)
-            self.rho_Tipo5 = self.radiocelula * np.sqrt(np.random.uniform(0, 1, self.cantidad_Tipo5))
-            # Convertimos las coordenadas polares a cartesianas
-            self.xx_Tipo5 = self.rho_Tipo5 * np.cos(self.theta_Tipo5)
-            self.yy_Tipo5 = self.rho_Tipo5 * np.sin(self.theta_Tipo5)
-            self.posiciones_Tipo5 = [self.xx_Tipo5,
-                                     self.yy_Tipo5]  # Esta lista se usará para asignar posiciones a los dispositivos que se crearán
+            if (self.dipositivos_Tipo5 > 0):  # si la cantidad de dispositivos es mayor a cero
+                tiposDisp = tiposDisp + 1
+                if (self.modelodispositivos == 0):
+                    self.cantidad_Tipo5 = np.random.poisson(
+                        self.dipositivos_Tipo5 * self.areaCelula)  # Poisson número de dispoitivos de tipo1
+                else:
+                    self.cantidad_Tipo5 = int(
+                        self.dipositivos_Tipo5)  # si no se trata de un PPP se generarán los dispositivos especifiados
+                self.theta_Tipo5 = 2 * np.pi * np.random.uniform(0, 1, self.cantidad_Tipo5)
+                self.rho_Tipo5 = self.radiocelula * np.sqrt(np.random.uniform(0, 1, self.cantidad_Tipo5))
+                # Convertimos las coordenadas polares a cartesianas
+                self.xx_Tipo5 = self.rho_Tipo5 * np.cos(self.theta_Tipo5)
+                self.yy_Tipo5 = self.rho_Tipo5 * np.sin(self.theta_Tipo5)
+                self.posiciones_Tipo5 = [self.xx_Tipo5,
+                                         self.yy_Tipo5]  # Esta lista se usará para asignar posiciones a los dispositivos que se crearán
 
             # Dispositivos tipo 6
-            if (self.modelodispositivos == 0):
-                self.cantidad_Tipo6 = np.random.poisson(
-                    self.dipositivos_Tipo6 * self.areaCelula)  # Poisson número de dispoitivos de tipo1
-            else:
-                self.cantidad_Tipo6 = int(
-                    self.dipositivos_Tipo6)  # si no se trata de un PPP se generarán los dispositivos especifiados
-            self.theta_Tipo6 = 2 * np.pi * np.random.uniform(0, 1, self.cantidad_Tipo6)
-            self.rho_Tipo6 = self.radiocelula * np.sqrt(np.random.uniform(0, 1, self.cantidad_Tipo6))
-            # Convertimos las coordenadas polares a cartesianas
-            self.xx_Tipo6 = self.rho_Tipo6 * np.cos(self.theta_Tipo6)
-            self.yy_Tipo6 = self.rho_Tipo6 * np.sin(self.theta_Tipo6)
-            self.posiciones_Tipo6 = [self.xx_Tipo6,
-                                     self.yy_Tipo6]  # Esta lista se usará para asignar posiciones a los dispositivos que se crearán
+            if (self.dipositivos_Tipo6 > 0):  # si la cantidad de dispositivos es mayor a cero
+                tiposDisp = tiposDisp + 1
+                if (self.modelodispositivos == 0):
+                    self.cantidad_Tipo6 = np.random.poisson(
+                        self.dipositivos_Tipo6 * self.areaCelula)  # Poisson número de dispoitivos de tipo1
+                else:
+                    self.cantidad_Tipo6 = int(
+                        self.dipositivos_Tipo6)  # si no se trata de un PPP se generarán los dispositivos especifiados
+                self.theta_Tipo6 = 2 * np.pi * np.random.uniform(0, 1, self.cantidad_Tipo6)
+                self.rho_Tipo6 = self.radiocelula * np.sqrt(np.random.uniform(0, 1, self.cantidad_Tipo6))
+                # Convertimos las coordenadas polares a cartesianas
+                self.xx_Tipo6 = self.rho_Tipo6 * np.cos(self.theta_Tipo6)
+                self.yy_Tipo6 = self.rho_Tipo6 * np.sin(self.theta_Tipo6)
+                self.posiciones_Tipo6 = [self.xx_Tipo6,
+                                         self.yy_Tipo6]  # Esta lista se usará para asignar posiciones a los dispositivos que se crearán
 
             # Dispositivos tipo 7 | URLLC
-            if (self.modelodispositivos == 0):
-                self.cantidad_Tipo7 = np.random.poisson(
-                    self.dipositivos_Tipo7 * self.areaCelula)  # Poisson número de dispoitivos de tipo1
-            else:
-                self.cantidad_Tipo7 = int(
-                    self.dipositivos_Tipo7)  # si no se trata de un PPP se generarán los dispositivos especifiados
-            self.theta_Tipo7 = 2 * np.pi * np.random.uniform(0, 1, self.cantidad_Tipo7)
-            self.rho_Tipo7 = self.radiocelula * np.sqrt(np.random.uniform(0, 1, self.cantidad_Tipo7))
-            # Convertimos las coordenadas polares a cartesianas
-            self.xx_Tipo7 = self.rho_Tipo7 * np.cos(self.theta_Tipo7)
-            self.yy_Tipo7 = self.rho_Tipo7 * np.sin(self.theta_Tipo7)
-            self.posiciones_Tipo7 = [self.xx_Tipo7,
-                                     self.yy_Tipo7]  # Esta lista se usará para asignar posiciones a los dispositivos que se crearán
+            if (self.dipositivos_Tipo7 > 0):  # si la cantidad de dispositivos es mayor a cero
+                tiposDisp = tiposDisp + 1
+                if (self.modelodispositivos == 0):
+                    self.cantidad_Tipo7 = np.random.poisson(
+                        self.dipositivos_Tipo7 * self.areaCelula)  # Poisson número de dispoitivos de tipo1
+                else:
+                    self.cantidad_Tipo7 = int(
+                        self.dipositivos_Tipo7)  # si no se trata de un PPP se generarán los dispositivos especifiados
+                self.theta_Tipo7 = 2 * np.pi * np.random.uniform(0, 1, self.cantidad_Tipo7)
+                self.rho_Tipo7 = self.radiocelula * np.sqrt(np.random.uniform(0, 1, self.cantidad_Tipo7))
+                # Convertimos las coordenadas polares a cartesianas
+                self.xx_Tipo7 = self.rho_Tipo7 * np.cos(self.theta_Tipo7)
+                self.yy_Tipo7 = self.rho_Tipo7 * np.sin(self.theta_Tipo7)
+                self.posiciones_Tipo7 = [self.xx_Tipo7,
+                                         self.yy_Tipo7]  # Esta lista se usará para asignar posiciones a los dispositivos que se crearán
 
             self.tiempo = 0  # tiempo inicial
             self.iteraciones = self.tiempoLimite / self.deltaTiempo  # las iteraciones  que se producirán recorriendo el tiempo k
             self.dispositivos = []  # una lista para guardar las instancias de dipoitivos de distintos tipos
             self.generadoresAlarmas = []  # una lista para guardar los genradores de eventos de alarmas, uno para cada tipo de dispositivo
-            self.nuevaAlarma = [False] * self.tiposDispositivos
+            self.nuevaAlarma = [False] * tiposDisp
             DeviceMTC.tiempoLitime=self.tiempoLimite
             self.DispositivosTodos=[]
 
@@ -2406,65 +2437,72 @@ class Application(tk.Frame):
 
             # Se generan las instancias de cada tipo de dipositivos y sus generadores de alarmas
             # tipo 1
-            self.dispositivos.append(
-                creardispositivos(self.modeloTrafico_Tipo1, self.cantidad_Tipo1, self.posiciones_Tipo1, self.tasaPaquete_Tipo1, 'Control de iluminacion', self.tiempo,
-                                  self.color_Tipo1, self.marcador_Tipo1,self.DispositivosTodos))
-            self.generadoresAlarmas.append(
-                GeneradorAlarmas(self.modeloTrafico_Tipo1, self.lambdaAlarma_Tipo1, self.velPropagacionAlarma_Tipo1, self.tiempo, self.modeloEspacial_Tipo1,
-                                 self.constanteEspacial1_Tipo1, self.constanteEspacial2_Tipo1, [0, 0]))
+            if (self.dipositivos_Tipo1 > 0):
+                self.dispositivos.append(
+                    creardispositivos(self.modeloTrafico_Tipo1, self.cantidad_Tipo1, self.posiciones_Tipo1, self.tasaPaquete_Tipo1, 'Control de iluminacion', self.tiempo,
+                                      self.color_Tipo1, self.marcador_Tipo1,self.DispositivosTodos))
+                self.generadoresAlarmas.append(
+                    GeneradorAlarmas(1,self.modeloTrafico_Tipo1, self.lambdaAlarma_Tipo1, self.velPropagacionAlarma_Tipo1, self.tiempo, self.modeloEspacial_Tipo1,
+                                     self.constanteEspacial1_Tipo1, self.constanteEspacial2_Tipo1, [0, 0]))
             # tipo 2
-            self.dispositivos.append(
-                creardispositivos(self.modeloTrafico_Tipo2, self.cantidad_Tipo2, self.posiciones_Tipo2, self.tasaPaquete_Tipo2, 'Monitoreo de agua y electricidad',
-                                  self.tiempo, self.color_Tipo2, self.marcador_Tipo2, self.DispositivosTodos))
-            self.generadoresAlarmas.append(
-                GeneradorAlarmas(self.modeloTrafico_Tipo2, self.lambdaAlarma_Tipo2, self.velPropagacionAlarma_Tipo2, self.tiempo, self.modeloEspacial_Tipo2,
-                                 self.constanteEspacial1_Tipo2, self.constanteEspacial2_Tipo2, [0, 0]))
+            if (self.dipositivos_Tipo2 > 0):
+                self.dispositivos.append(
+                    creardispositivos(self.modeloTrafico_Tipo2, self.cantidad_Tipo2, self.posiciones_Tipo2, self.tasaPaquete_Tipo2, 'Monitoreo de agua y electricidad',
+                                      self.tiempo, self.color_Tipo2, self.marcador_Tipo2, self.DispositivosTodos))
+                self.generadoresAlarmas.append(
+                    GeneradorAlarmas(2,self.modeloTrafico_Tipo2, self.lambdaAlarma_Tipo2, self.velPropagacionAlarma_Tipo2, self.tiempo, self.modeloEspacial_Tipo2,
+                                     self.constanteEspacial1_Tipo2, self.constanteEspacial2_Tipo2, [0, 0]))
             # tipo 3
-            self.dispositivos.append(
-                creardispositivos(self.modeloTrafico_Tipo3, self.cantidad_Tipo3, self.posiciones_Tipo3, self.tasaPaquete_Tipo3, 'Deteccion de terremotos', self.tiempo,
-                                  self.color_Tipo3, self.marcador_Tipo3, self.DispositivosTodos))
-            self.generadoresAlarmas.append(
-                GeneradorAlarmas(self.modeloTrafico_Tipo3, self.lambdaAlarma_Tipo3, self.velPropagacionAlarma_Tipo3, self.tiempo, self.modeloEspacial_Tipo3,
-                                 self.constanteEspacial1_Tipo3, self.constanteEspacial2_Tipo3, [0, 0]))
+            if (self.dipositivos_Tipo3 > 0):
+                self.dispositivos.append(
+                    creardispositivos(self.modeloTrafico_Tipo3, self.cantidad_Tipo3, self.posiciones_Tipo3, self.tasaPaquete_Tipo3, 'Deteccion de terremotos', self.tiempo,
+                                      self.color_Tipo3, self.marcador_Tipo3, self.DispositivosTodos))
+                self.generadoresAlarmas.append(
+                    GeneradorAlarmas(3,self.modeloTrafico_Tipo3, self.lambdaAlarma_Tipo3, self.velPropagacionAlarma_Tipo3, self.tiempo, self.modeloEspacial_Tipo3,
+                                     self.constanteEspacial1_Tipo3, self.constanteEspacial2_Tipo3, [0, 0]))
             # tipo 4
-            self.dispositivos.append(
-                creardispositivos(self.modeloTrafico_Tipo4, self.cantidad_Tipo4, self.posiciones_Tipo4,
-                                  self.tasaPaquete_Tipo4, 'Semaforos inteligentes', self.tiempo,
-                                  self.color_Tipo4, self.marcador_Tipo4, self.DispositivosTodos))
-            self.generadoresAlarmas.append(
-                GeneradorAlarmas(self.modeloTrafico_Tipo4, self.lambdaAlarma_Tipo4, self.velPropagacionAlarma_Tipo4,
-                                 self.tiempo, self.modeloEspacial_Tipo4,
-                                 self.constanteEspacial1_Tipo4, self.constanteEspacial2_Tipo4, [0, 0]))
+            if (self.dipositivos_Tipo4 > 0):
+                self.dispositivos.append(
+                    creardispositivos(self.modeloTrafico_Tipo4, self.cantidad_Tipo4, self.posiciones_Tipo4,
+                                      self.tasaPaquete_Tipo4, 'Semaforos inteligentes', self.tiempo,
+                                      self.color_Tipo4, self.marcador_Tipo4, self.DispositivosTodos))
+                self.generadoresAlarmas.append(
+                    GeneradorAlarmas(4,self.modeloTrafico_Tipo4, self.lambdaAlarma_Tipo4, self.velPropagacionAlarma_Tipo4,
+                                     self.tiempo, self.modeloEspacial_Tipo4,
+                                     self.constanteEspacial1_Tipo4, self.constanteEspacial2_Tipo4, [0, 0]))
 
             # tipo 5
-            self.dispositivos.append(
-                creardispositivos(self.modeloTrafico_Tipo5, self.cantidad_Tipo5, self.posiciones_Tipo5,
-                                  self.tasaPaquete_Tipo5, 'Contaminacion del aire', self.tiempo,
-                                  self.color_Tipo5, self.marcador_Tipo5, self.DispositivosTodos))
-            self.generadoresAlarmas.append(
-                GeneradorAlarmas(self.modeloTrafico_Tipo5, self.lambdaAlarma_Tipo5, self.velPropagacionAlarma_Tipo5,
-                                 self.tiempo, self.modeloEspacial_Tipo5,
-                                 self.constanteEspacial1_Tipo5, self.constanteEspacial2_Tipo5, [0, 0]))
+            if (self.dipositivos_Tipo5 > 0):
+                self.dispositivos.append(
+                    creardispositivos(self.modeloTrafico_Tipo5, self.cantidad_Tipo5, self.posiciones_Tipo5,
+                                      self.tasaPaquete_Tipo5, 'Contaminacion del aire', self.tiempo,
+                                      self.color_Tipo5, self.marcador_Tipo5, self.DispositivosTodos))
+                self.generadoresAlarmas.append(
+                    GeneradorAlarmas(5,self.modeloTrafico_Tipo5, self.lambdaAlarma_Tipo5, self.velPropagacionAlarma_Tipo5,
+                                     self.tiempo, self.modeloEspacial_Tipo5,
+                                     self.constanteEspacial1_Tipo5, self.constanteEspacial2_Tipo5, [0, 0]))
 
             # tipo 6
-            self.dispositivos.append(
-                creardispositivos(self.modeloTrafico_Tipo6, self.cantidad_Tipo6, self.posiciones_Tipo6,
-                                  self.tasaPaquete_Tipo6, 'Otros dispositivos mMTC', self.tiempo,
-                                  self.color_Tipo6, self.marcador_Tipo6, self.DispositivosTodos))
-            self.generadoresAlarmas.append(
-                GeneradorAlarmas(self.modeloTrafico_Tipo6, self.lambdaAlarma_Tipo6, self.velPropagacionAlarma_Tipo6,
-                                 self.tiempo, self.modeloEspacial_Tipo6,
-                                 self.constanteEspacial1_Tipo6, self.constanteEspacial2_Tipo6, [0, 0]))
+            if (self.dipositivos_Tipo6 > 0):
+                self.dispositivos.append(
+                    creardispositivos(self.modeloTrafico_Tipo6, self.cantidad_Tipo6, self.posiciones_Tipo6,
+                                      self.tasaPaquete_Tipo6, 'Otros dispositivos mMTC', self.tiempo,
+                                      self.color_Tipo6, self.marcador_Tipo6, self.DispositivosTodos))
+                self.generadoresAlarmas.append(
+                    GeneradorAlarmas(6,self.modeloTrafico_Tipo6, self.lambdaAlarma_Tipo6, self.velPropagacionAlarma_Tipo6,
+                                     self.tiempo, self.modeloEspacial_Tipo6,
+                                     self.constanteEspacial1_Tipo6, self.constanteEspacial2_Tipo6, [0, 0]))
 
             # tipo 7
-            self.dispositivos.append(
-                creardispositivos(self.modeloTrafico_Tipo7, self.cantidad_Tipo7, self.posiciones_Tipo7,
-                                  self.tasaPaquete_Tipo7, 'Dispositivos URLLC', self.tiempo,
-                                  self.color_Tipo7, self.marcador_Tipo7, self.DispositivosTodos))
-            self.generadoresAlarmas.append(
-                GeneradorAlarmas(self.modeloTrafico_Tipo7, self.lambdaAlarma_Tipo7, self.velPropagacionAlarma_Tipo7,
-                                 self.tiempo, self.modeloEspacial_Tipo7,
-                                 self.constanteEspacial1_Tipo7, self.constanteEspacial2_Tipo7, [0, 0]))
+            if (self.dipositivos_Tipo7 > 0):
+                self.dispositivos.append(
+                    creardispositivos(self.modeloTrafico_Tipo7, self.cantidad_Tipo7, self.posiciones_Tipo7,
+                                      self.tasaPaquete_Tipo7, 'Dispositivos URLLC', self.tiempo,
+                                      self.color_Tipo7, self.marcador_Tipo7, self.DispositivosTodos))
+                self.generadoresAlarmas.append(
+                    GeneradorAlarmas(7,self.modeloTrafico_Tipo7, self.lambdaAlarma_Tipo7, self.velPropagacionAlarma_Tipo7,
+                                     self.tiempo, self.modeloEspacial_Tipo7,
+                                     self.constanteEspacial1_Tipo7, self.constanteEspacial2_Tipo7, [0, 0]))
 
             ##########  Algoritmo CMMPP  #################
 
@@ -2527,12 +2565,41 @@ class Application(tk.Frame):
             nombreArchivoDisp = "ArchivoDispositivos" + str(self.rep) + ".csv"
             self.df_eventos.to_csv(nombreArchivo)
             self.df_dispositivos.to_csv(nombreArchivoDisp)
+
+            ## se crea archivo de salida con información de la configuración
+            self.configSalida.append([0,self.radiocelula,self.tiempo,self.k,0.0,0.0,0.0])
+            if (self.dipositivos_Tipo1 > 0):
+                self.configSalida.append([1, self.modeloTrafico_Tipo1,self.tasaPaquete_Tipo1, self.lambdaAlarma_Tipo1, self.modeloEspacial_Tipo1,self.constanteEspacial1_Tipo1,self.constanteEspacial2_Tipo1])
+            if (self.dipositivos_Tipo2 > 0):
+                self.configSalida.append([2, self.modeloTrafico_Tipo2, self.tasaPaquete_Tipo2, self.lambdaAlarma_Tipo2, self.modeloEspacial_Tipo2,self.constanteEspacial1_Tipo2,self.constanteEspacial2_Tipo2])
+            if (self.dipositivos_Tipo3 > 0):
+                self.configSalida.append([3,self.modeloTrafico_Tipo3, self.tasaPaquete_Tipo3, self.lambdaAlarma_Tipo3, self.modeloEspacial_Tipo3,self.constanteEspacial1_Tipo3,self.constanteEspacial2_Tipo3])
+            if (self.dipositivos_Tipo4 > 0):
+                self.configSalida.append([4,self.modeloTrafico_Tipo4, self.tasaPaquete_Tipo4, self.lambdaAlarma_Tipo4, self.modeloEspacial_Tipo4,self.constanteEspacial1_Tipo4,self.constanteEspacial2_Tipo4])
+            if (self.dipositivos_Tipo5 > 0):
+                self.configSalida.append([5, self.modeloTrafico_Tipo5,self.tasaPaquete_Tipo5, self.lambdaAlarma_Tipo5, self.modeloEspacial_Tipo5,self.constanteEspacial1_Tipo5,self.constanteEspacial2_Tipo5])
+            if (self.dipositivos_Tipo6 > 0):
+                self.configSalida.append([6, self.modeloTrafico_Tipo6,self.tasaPaquete_Tipo6, self.lambdaAlarma_Tipo6, self.modeloEspacial_Tipo6,self.constanteEspacial1_Tipo6,self.constanteEspacial2_Tipo6])
+            if (self.dipositivos_Tipo7 > 0):
+                self.configSalida.append([7,self.modeloTrafico_Tipo7, self.tasaPaquete_Tipo7, self.lambdaAlarma_Tipo7, self.modeloEspacial_Tipo7,self.constanteEspacial1_Tipo7,self.constanteEspacial2_Tipo7])
+            self.df_configSalida = pd.DataFrame(self.configSalida)
+            nombreconfigSalida = "ArchivoConfigSalida" + str(self.rep) + ".csv"
+            self.df_configSalida.to_csv(nombreconfigSalida)
+
+            ## se crea archivo de salida con todas las alarmas
+            self.df_ArchivoAlarmas = pd.DataFrame(GeneradorAlarmas.TodasAlarmas)
+            nombreArchivoAlarmas = "ArchivoAlarmas" + str(self.rep) + ".csv"
+            self.df_ArchivoAlarmas.to_csv(nombreArchivoAlarmas)
+
             DeviceMTC.registroCompletoArribos=[]
             DeviceMTC.cuentaAlarmas = 0
             DeviceMTC.totalAlarmas = []
             DeviceMTC.totalDispositivos=1
-            #TODO tal vez resetear l acuenta de dispositivos
+            GeneradorAlarmas.TodasAlarmas = []
+            self.configSalida = []
+
             print('Fin de Rutina ')
+
 
 
 

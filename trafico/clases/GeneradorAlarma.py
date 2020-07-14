@@ -4,7 +4,7 @@ import numpy as np  # NumPy package for arrays, random number generation, etc
 class GeneradorAlarmas(object):
 
     # Definición de constructor
-    def __init__(self, modelotrafico,lambdaEvento,velocidad,tiempoInicial, modeloEspacial,constanteEspacial1,constanteEspacial2,posicion):
+    def __init__(self, idGenerador, modelotrafico,lambdaEvento,velocidad,tiempoInicial, modeloEspacial,constanteEspacial1,constanteEspacial2,posicion):
         self.lambdaEvento=lambdaEvento # tasa de generacion de eventos de alarma
         self.velocidad=velocidad #velocidad de propagación de los eventos de alarma
         self.siguienteArribo=tiempoInicial #debe ser inicializado al tiempo inicial de la simulación
@@ -15,6 +15,10 @@ class GeneradorAlarmas(object):
         self.idAlarma=0
         self.totalAlarmas=[]
         self.modeloTrafico=modelotrafico
+        self.idGenerador = idGenerador
+
+    TodasAlarmas = []
+    tiempoLitime = 0
 
 
     def calcularSiguienteAlarma(self,radio): #Calcular en qué momento sucederá la siguiente alarma
@@ -27,8 +31,10 @@ class GeneradorAlarmas(object):
         xx = rho * np.cos(theta);
         yy = rho * np.sin(theta);
         self.posicion=[xx, yy] # se asigna la posición del evento dentro de la célula
-        self.totalAlarmas.append([self.idAlarma,self.siguienteArribo,self.posicion])
+        self.totalAlarmas.append([self.idGenerador, self.idAlarma, self.siguienteArribo, self.posicion])
         self.idAlarma=self.idAlarma+1
+        if (self.siguienteArribo[0] <= self.tiempoLitime):
+            self.TodasAlarmas.append([self.idGenerador, self.idAlarma, self.siguienteArribo[0], self.posicion[0][0], self.posicion[1][0]])
 
     def generarAlarma(self,tiempoActual,radio): # Función que verifica si ya sucedio la última alarma
 
