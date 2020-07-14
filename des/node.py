@@ -208,7 +208,8 @@ class Node(Module):
         Se encarga de iniciar la transmisión de un paquete
         Handles a packet transmission
         """
-        #TODO leer el tamaño del paquete y agregarlo al evento
+
+        self.sim.cantidadPaquetes = self.sim.cantidadPaquetes + 1
 
         # se asigna al dispositivo el paquete como paquete actual
         # we asigne the packet from the event as the current pkg

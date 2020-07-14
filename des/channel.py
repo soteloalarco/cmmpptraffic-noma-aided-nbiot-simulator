@@ -68,6 +68,7 @@ class Channel(Module):
         # lita de disp con tasas satisfechas a la hora de hacer noma
         self.mMTC_tasanocubierta = []
         self.URLLC_tasanocubierta = []
+        self.UEs_tasacubierta = []
 
 
     def register_node(self, node):
@@ -123,17 +124,25 @@ class Channel(Module):
 
         self.universomMTC=[]
         self.universoURLLC=[]
+        self.URLLC_tasanocubierta = []
+        self.mMTC_tasanocubierta = []
         self.dispConCluster=[]
+        self.UEs_tasacubierta = []
 
         for nodo in self.nodes:
 
             if(nodo.get_tipo()=='Dispositivos URLLC'):
                 self.universoURLLC.append(nodo)
+                self.URLLC_tasanocubierta.append(nodo)
             else:
                 self.universomMTC.append(nodo)
+                self.mMTC_tasanocubierta.append(nodo)
         enb.logger.log_inicio_NOMA(enb)
 
         self.noma()
+
+        self.sim.totalnosatisfechosnoma = self.sim.totalnosatisfechosnoma + len(self.mMTC_tasanocubierta) + len(self.URLLC_tasanocubierta)
+        self.sim.totalsatisfechosnoma = self.sim.totalsatisfechosnoma + len(self.UEs_tasacubierta)
 
         #actulizamos los dispositivos que transmitiran
         for nodo in self.nodes:
@@ -390,7 +399,7 @@ class Channel(Module):
                                                              NBIoT.Cns[ID_cluster_c].Sac[carrier], Sac)
 
                     # Validación del cumplimiento de tasas del mejor grupo NOMA c_ (c*)
-                    condicion = validacionTasas(NBIoT.Cns, ID_cluster_c)
+                    condicion = validacionTasas(NBIoT.Cns, ID_cluster_c,sim)
                     if condicion == True:
                         NBIoT.Cns[ID_cluster_c].tasasSatisfechas = True
 
@@ -500,7 +509,7 @@ class Channel(Module):
                                                                           Sac)
 
                         # Validación del cumplimiento de tasas del mejor grupo NOMA c_ (c*)
-                        condicion = validacionTasas(NBIoT.Agrupaciones, ID_cluster_c)
+                        condicion = validacionTasas(NBIoT.Agrupaciones, ID_cluster_c,sim)
                         if condicion == True:
                             NBIoT.Agrupaciones[ID_cluster_c].tasasSatisfechas = True
 
@@ -597,13 +606,20 @@ class Channel(Module):
             return ListaClusters
 
         # Función que checa que las tasas de los dispositivos sean satisfacidas
-        def validacionTasas(ListaClusters, cluster):
+        def validacionTasas(ListaClusters, cluster,sim):
             for device in range(0, NBIoT.kmax):
                 # Validación de que algun rango del cluster está vacio o desocupado
                 if ListaClusters[cluster].dispositivos[0][device] != False:
                     if (ListaClusters[cluster].dispositivos[0][device].Rs) < (
                     ListaClusters[cluster].dispositivos[0][device].Rth):
                         return False
+                    else:
+                        if(sim.nodes[ListaClusters[cluster].dispositivos[0][device].id] in sim.channel.mMTC_tasanocubierta): # si esta en mMTC
+                            sim.channel.mMTC_tasanocubierta.remove(sim.nodes[ListaClusters[cluster].dispositivos[0][device].id])
+                            sim.channel.UEs_tasacubierta.append(sim.nodes[ListaClusters[cluster].dispositivos[0][device].id])
+                        elif(sim.nodes[ListaClusters[cluster].dispositivos[0][device].id] in sim.channel.URLLC_tasanocubierta):
+                            sim.channel.URLLC_tasanocubierta.remove(sim.nodes[ListaClusters[cluster].dispositivos[0][device].id])
+                            sim.channel.UEs_tasacubierta.append(sim.nodes[ListaClusters[cluster].dispositivos[0][device].id])
             return True
 
         # Funcion que calcula cuantos usuarios alcanzaron su tasa

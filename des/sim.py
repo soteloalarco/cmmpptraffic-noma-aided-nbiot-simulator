@@ -185,6 +185,9 @@ class Sim:
         # .csv file is saved into eventos list
         eventos_rec = pd.read_csv(self.eventosArchivo, index_col=0)
         self.eventos = eventos_rec.values.tolist()
+        self.cantidadPaquetes = 0
+        self.totalsatisfechosnoma = 0
+        self.totalnosatisfechosnoma = 0
         # nombre del archivo que contiene los dispositivos
         # name of the file conteining the UE's
         self.dispositivos = self.config.get_param(self.PAR_UE)
@@ -269,7 +272,14 @@ class Sim:
         print("Tiempo total de la simulación: %d horas, %d minutos, %d segundos" %
               (total_time // 3600, total_time % 3600 // 60,
                total_time % 3600 % 60))
+        print("\nProbabilidad de bloqueo sin cluster: %f porciento, %d arribos, %d bloqueos" %
+              ((len(self.bloqueoSinCluster)/self.cantidadPaquetes) * 100,self.cantidadPaquetes,len(self.bloqueoSinCluster)))
+        print("\nTasas no cubiertas (en procesos NOMA): %f porciento, %d cubiertas, %d no cubiertas" %
+              ((self.totalnosatisfechosnoma / self.totalnosatisfechosnoma + self.totalsatisfechosnoma)* 100, self.totalsatisfechosnoma, self.totalnosatisfechosnoma))
         self.logger.log_file.close()
+        df_bloqueos = pd.DataFrame(self.bloqueoSinCluster)
+        # Guardado de datos en archivo con extensión .csv
+        df_bloqueos.to_csv("boqueos-sin-cluster.csv")
 
 
 #########################
@@ -301,6 +311,10 @@ class Sim:
             return event
         except IndexError:
             print("\n Sin más eventos en la pila. Terminando.")
+            df_bloqueos = pd.DataFrame(self.bloqueoSinCluster)
+            # Guardado de datos en archivo con extensión .csv
+            df_bloqueos.to_csv("boqueos-sin-cluster.csv")
+
             sys.exit(0)
 
     def cancel_event(self, event):
