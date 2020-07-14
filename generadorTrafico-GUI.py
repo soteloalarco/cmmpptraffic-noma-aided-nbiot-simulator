@@ -22,6 +22,7 @@ class Application(tk.Frame):
     modelodispositivos=0 # 0 para PPP y 1 para uniforme
     repeticiones=1 # repeticiones de la rutina CCMMPP
 
+
     ### Control de iluminación
     dipositivos_Tipo1 = 0.05  # intensidad de dispositivos/m^2, o cantidad total si el modelo de distribución  (modelodispositivos) es uniforme
     modeloTrafico_Tipo1 = 0  # Modelo de generación de tráfico, 0 CMMPP 1 Periódico
@@ -112,6 +113,9 @@ class Application(tk.Frame):
     # animacion
     color_Tipo7 = 'k'
     marcador_Tipo7 = '^'
+
+    tasasEventosAlarmas = []
+    configSalida = []
 
     def resetTodo(self): #Cargamos al GUI los valores de la clase Application, los que erán poteriormente leidos para realizar la rutina
         #TODO leer de un archido
@@ -1019,6 +1023,7 @@ class Application(tk.Frame):
             self.lambdaAlarma_Tipo1=0
         else:
             self.lambdaAlarma_Tipo1 = float(self.tasaalarma01.get())  # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 500 seg)
+        self.tasasEventosAlarmas.append([self.tasaPaquete_Tipo1, self.lambdaAlarma_Tipo1])
         if(self.veloalarma01.get()==''):
             self.velPropagacionAlarma_Tipo1 =0
         else:
@@ -1051,6 +1056,7 @@ class Application(tk.Frame):
         else:
             self.lambdaAlarma_Tipo2 = float(
                 self.tasaalarma02.get())  # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 500 seg)
+        self.tasasEventosAlarmas.append([self.tasaPaquete_Tipo2, self.lambdaAlarma_Tipo2])
         if (self.veloalarma02.get() == ''):
             self.velPropagacionAlarma_Tipo2 = 0
         else:
@@ -1084,6 +1090,7 @@ class Application(tk.Frame):
         else:
             self.lambdaAlarma_Tipo3 = float(
                 self.tasaalarma03.get())  # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 500 seg)
+        self.tasasEventosAlarmas.append([self.tasaPaquete_Tipo3, self.lambdaAlarma_Tipo3])
         if (self.veloalarma03.get() == ''):
             self.velPropagacionAlarma_Tipo3 = 0
         else:
@@ -1118,6 +1125,7 @@ class Application(tk.Frame):
         else:
             self.lambdaAlarma_Tipo4 = float(
                 self.tasaalarma10.get())
+        self.tasasEventosAlarmas.append([self.tasaPaquete_Tipo4, self.lambdaAlarma_Tipo4])
         if (self.veloalarma10.get() == ''):
             self.velPropagacionAlarma_Tipo4 = 0
         else:
@@ -1149,6 +1157,7 @@ class Application(tk.Frame):
         else:
             self.lambdaAlarma_Tipo5 = float(
                 self.tasaalarma11.get())
+        self.tasasEventosAlarmas.append([self.tasaPaquete_Tipo5, self.lambdaAlarma_Tipo5])
         if (self.veloalarma11.get() == ''):
             self.velPropagacionAlarma_Tipo5 = 0
         else:
@@ -1180,6 +1189,7 @@ class Application(tk.Frame):
         else:
             self.lambdaAlarma_Tipo6 = float(
                 self.tasaalarma12.get())
+        self.tasasEventosAlarmas.append([self.tasaPaquete_Tipo6, self.lambdaAlarma_Tipo6])
         if (self.veloalarma12.get() == ''):
             self.velPropagacionAlarma_Tipo6 = 0
         else:
@@ -1200,7 +1210,7 @@ class Application(tk.Frame):
         self.color_Tipo6 = 'k'
         self.marcador_Tipo6 = '^'
 
-        ### Otros dispositivos mMTC
+        ### Dispositivos URLLC
         self.dipositivos_Tipo7 = float(self.numero13.get())  # número de dispositivos de tipo 5
         if (self.modelotra13.get() == 'CMMPP'):
             self.modeloTrafico_Tipo7 = 0  # modelo de trafico 0 CMMPP 1 Periódico
@@ -1213,6 +1223,7 @@ class Application(tk.Frame):
         else:
             self.lambdaAlarma_Tipo7 = float(
                 self.tasaalarma13.get())
+        self.tasasEventosAlarmas.append([self.tasaPaquete_Tipo7, self.lambdaAlarma_Tipo7])
         if (self.veloalarma13.get() == ''):
             self.velPropagacionAlarma_Tipo7 = 0
         else:
