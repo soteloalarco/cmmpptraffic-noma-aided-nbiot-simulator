@@ -8,7 +8,7 @@
 		"eventos" : "ArchivoEventos0.csv",
 
 		// duración de la simulación en segundos
-		"duracion" : 40,
+		"duracion" : 10,
 
 		// unidad más pequeña de tiempo percibida por el sistema
 		"tiempo-minimo" : 0.00001,
@@ -29,7 +29,7 @@
 		"Pmax-mMTC" : 0.1,
 
 		// kmax , tamaño máximo de cluster
-		"kmax" : 4,
+		"kmax" : 1,
 
 		// nombre del archivo que guardará los logs a la salida
 		"output" : "noma-aided-nbiot-logs.csv"

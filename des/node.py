@@ -22,7 +22,9 @@ from des.module import Module
 from des.event import Event
 from des.events import Events
 from des.packet import Packet
-
+import math as mth
+import numpy as np
+import random
 
 class Node(Module):
     """
@@ -59,7 +61,7 @@ class Node(Module):
         :param y: y position
         """
         Module.__init__(self,id,tipo)
-        # cola de paquetes a sser enviados
+        # cola de paquetes a ser enviados
         # queue of packets to be sent
         self.queue = []
         # estado actual del nodo
@@ -67,7 +69,7 @@ class Node(Module):
         self.state = Node.IDLE
         # se crea un log que indica la creación del dispositivo
         # a log indicating the creation of a device is added
-        self.logger.log_state(self, Node.IDLE)
+        #self.logger.log_state(self, Node.IDLE)
         # se guarda la posición del dispositivo
         # save position
         self.x = x
@@ -87,13 +89,48 @@ class Node(Module):
         self.ultimo_proc_noma = 0
         self.evento_end_tx = None
         self.cluster = -1
+        self.d = 0
+        self.h = []
+        self.h_ = 0
+        self.Rth = 0
 
+    def calcularumbralpotencia(self):
+
+        # Asignación de umbrales de tasa de transmisión dependiendo el tipo de dispositivo
+        if self.get_tipo() == Node.TIPO7: # URLLC
+            return  np.random.uniform(100, 20e3)  # Esto es en bits, el de nosotros es 200 bytes ~ 1600bits
+        else:
+            return np.random.uniform(100, 2e3)
+
+    def calcularganancias(self, numsub):
+        h=[]
+        for gain in range(0, numsub):
+
+            #Implementacion Modelo de Canal Rappaport
+
+            h1 = 32.4 + 10 * self.sim.PLE * mth.log10(self.d / self.sim.d0) + 20 * mth.log10(self.sim.d0) + 20 * mth.log10(self.sim.channel.subcarriers[gain]/1e9) + 10 * mth.log10(random.expovariate(1))
+            h.append(10**(h1/10))
+
+        return h
+
+    def calculargananciapromedio(self,numsub):
+        h2 = sum(self.h)
+
+        # Ganancia Promedio
+        h_ = h2 / numsub
+
+        return h_
 
     def initialize(self):
         """
         Inicialización. Inicia la operación de un nodo UE calendarizando el primer paquete.
         Initialization. Starts node operation by scheduling the first packet.
         """
+        self.d = mth.sqrt(self.x ** 2 + self.y ** 2)
+        self.h = self.calcularganancias(self.sim.channel.numeroSubportadoras)
+        self.h_ = self.calculargananciapromedio(self.sim.channel.numeroSubportadoras)
+        self.Rth = self.calcularumbralpotencia()
+
         self.schedule_next_arrival()
 
     def initialize_eNB(self):
@@ -221,6 +258,10 @@ class Node(Module):
             # resuming operations but nothing to transmit. back to IDLE
             self.state = Node.IDLE
             self.logger.log_state(self, Node.IDLE)
+
+            # se calendariza el siguiente arribo
+            # schedule next arrival
+            self.schedule_next_arrival()
         else:
             # si hay un paquete listo, se transmite
             # there is a packet ready, trasmit it
@@ -229,9 +270,7 @@ class Node(Module):
             self.state = Node.TX
             self.logger.log_state(self, Node.TX)
             self.logger.log_queue_length(self, len(self.queue))
-        # se calendariza el siguiente arribo
-        # schedule next arrival
-        self.schedule_next_arrival()
+
 
         # calendarizamos un proceso NOMA
         # schedule end of transmission
@@ -246,14 +285,49 @@ class Node(Module):
         #assert (self.state == Node.PREAMBULO)
         #TODO Lógica NOMA y ajustar su tasa o no transmitir si no alcanzó cluster
 
-        self.logger.log_state(self, Node.NOMA)
+        #self.logger.log_state(self, Node.NOMA)
         self.state = Node.IDLE
-        self.sim.channel.algoritmo_NOMA(self)
-        #TODO cambiar porqeu está hardcoded
-        self.logger.log_fin_NOMA(self)
+        # si aún hay dispossitivos para los que hacer el algoritmo noma
+        if(len(self.sim.channel.nodes) > 0):
+            self.sim.channel.algoritmo_NOMA(self)
+            #TODO cambiar porqeu está hardcoded
+            self.logger.log_fin_NOMA(self)
 
 
 ##########
+
+    def end_transmit_packet(self):
+
+        self.current_pkt = None
+        self.evento_end_tx = None
+        self.paquete_restante = 0
+        self.ultimo_proc_noma = 0
+        self.tasa_tx = 0
+        self.nueva_tasa_tx = 0
+        self.cluster = -1
+        self.channel.nodes.remove(self)
+
+        # imprimimos el nuevo cluster
+        self.logger.log_bloqueo_cluster(self.sim.node_eNB, self, self.cluster, self.tasa_tx)
+
+        if len(self.queue) == 0:
+            # si se reanuda la operación pero no hay nada que transmitir se cambia a estado IDLE
+            # resuming operations but nothing to transmit. back to IDLE
+            self.state = Node.IDLE
+            self.logger.log_state(self, Node.IDLE)
+            # se calendariza el siguiente arribo
+            # schedule next arrival
+            self.schedule_next_arrival()
+        else:
+            # si hay un paquete listo, se transmite
+            # there is a packet ready, trasmit it
+            packet_size = self.queue.pop(0)
+            self.transmit_packet(packet_size)
+            self.state = Node.TX
+            self.logger.log_state(self, Node.TX)
+            self.logger.log_queue_length(self, len(self.queue))
+
+
 
     def transmit_packet(self):
         """
@@ -582,3 +656,31 @@ class Node(Module):
         :returns: y position in meters
         """
         return self.state
+
+    def get_distancia(self):
+        """
+        Returns y position
+        :returns: y position in meters
+        """
+        return self.d
+
+    def get_h(self):
+        """
+        Returns y position
+        :returns: y position in meters
+        """
+        return self.h
+
+    def get_h_(self):
+        """
+        Returns y position
+        :returns: y position in meters
+        """
+        return self.h_
+
+    def get_Rth(self):
+        """
+        Returns y position
+        :returns: y position in meters
+        """
+        return self.Rth
