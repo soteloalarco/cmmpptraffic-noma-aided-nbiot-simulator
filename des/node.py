@@ -105,11 +105,10 @@ class Node(Module):
     def calcularganancias(self, numsub):
         h=[]
         for gain in range(0, numsub):
-
-            #Implementacion Modelo de Canal Rappaport
-
-            h1 = 32.4 + 10 * self.sim.PLE * mth.log10(self.d / self.sim.d0) + 20 * mth.log10(self.sim.d0) + 20 * mth.log10(self.sim.channel.subcarriers[gain]/1e9) + 10 * mth.log10(random.expovariate(1))
-            h.append(10**(h1/10))
+            # Implementacion Modelo de Canal Rappaport
+            rayleighGain = np.random.rayleigh(scale=1.0, size=1)
+            h1 = 32.4 + 10 * self.sim.PLE * mth.log10(self.d / self.sim.d0) + 20 * mth.log10(self.sim.d0) + 20 * mth.log10(self.sim.channel.subcarriers[gain] / 1e9)
+            h.append(10 ** (-h1 / 10) * rayleighGain)
 
         return h
 

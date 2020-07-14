@@ -172,7 +172,7 @@ class Sim:
         # tamaño máximo de cluster
         self.kmax = self.config.get_param(self.k_max)
         # d0 para algoritmo noma
-        self.d0 = 1
+        self.d0 = 1000
         # se instancia el canal
         # instantiate the channel
         self.channel = Channel(self.config)
