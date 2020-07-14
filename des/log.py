@@ -60,7 +60,7 @@ class Log:
     LOG_NOMA = LOG_NPRACH_FIN + 1
     LOG_NOMA_DES = 'NOMA inicio'
     LOG_NOMA_FIN = LOG_NOMA + 1
-    LOG_NOMA_FIN_DES = 'Tasas satisfecha'
+    LOG_NOMA_FIN_DES = 'Tasas insatisfechas'
 
     LOG_NUEVO_CLUSTER = LOG_NOMA_FIN + 1
     LOG_NUEVO_CLUSTER_DES = 'Nuevo cluster'
