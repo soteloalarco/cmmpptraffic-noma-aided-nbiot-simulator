@@ -14,7 +14,7 @@
 		"tiempo-minimo" : 0.00001,
 
 		// radio de la célula en metros, debería coincidir con el algoritmo cmmpp
-		"radio" : 500,
+		"radio" : 300,
 
 		// Exponente de perdida de trayectoria (Path Loss Exponent)
 		"PLE" : 2.9,
