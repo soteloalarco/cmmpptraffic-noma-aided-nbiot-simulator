@@ -11,7 +11,7 @@
 		"duracion" : 10,
 
 		// unidad más pequeña de tiempo percibida por el sistema
-		"tiempo-minimo" : 0.00001,
+		"tiempo-minimo" : 0.0001,
 
 		// radio de la célula en metros, debería coincidir con el algoritmo cmmpp
 		"radio" : 300,
@@ -29,7 +29,7 @@
 		"Pmax-mMTC" : 0.1,
 
 		// kmax , tamaño máximo de cluster
-		"kmax" : 1,
+		"kmax" : 4,
 
 		// nombre del archivo que guardará los logs a la salida
 		"output" : "noma-aided-nbiot-logs.csv"
