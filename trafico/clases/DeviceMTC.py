@@ -52,8 +52,8 @@ class DeviceMTC(object):
             self.generararribonormal(numeroDecimales)  # Generar un paquete en caso de que no exista ya uno
 
     def generararriboalarma(self, tiempo,identificadorEvento,numeroDecimales):
-        self.registroArribos.append([identificadorEvento, round(tiempo,numeroDecimales+3),self.identificador,self.tipo,self.estado,self.tamañopkt])  # se registra el arribo en la lista
-        self.registroCompletoArribos.append([identificadorEvento, round(tiempo,numeroDecimales+3),self.identificador,self.tipo,self.estado,self.tamañopkt,self.modeloTrafico])
+        self.registroArribos.append([identificadorEvento, round(tiempo,4),self.identificador,self.tipo,self.estado,self.tamañopkt])  # se registra el arribo en la lista
+        self.registroCompletoArribos.append([identificadorEvento, round(tiempo,4),self.identificador,self.tipo,self.estado,self.tamañopkt,self.modeloTrafico])
         self.cuentaAlarmas = self.cuentaAlarmas + 1 #¿QUE FUNCION TIENE ESTE CONTADOR?, sólo es para ver si los valores que produce el programa tienen sentido.
         self.totalAlarmas.append([self.identificador,self.tipo,tiempo])
 
@@ -62,17 +62,17 @@ class DeviceMTC(object):
         self.tiempoArribo = self.tiempoArribo + tiempoEspera
         #TODO dar flexibilidad a la cantidad de decimales que se pueden evaluar
         if(self.tiempoArribo<=self.tiempoLitime): # Sólo registrar el evento si ocurriría antes que el tiempo límite de la simulación
-            self.registroArribos.append([0,round(float(self.tiempoArribo),numeroDecimales+3),self.identificador, self.tipo,self.estado,self.tamañopkt])  # se registra el arribo en la lista
-            self.registroCompletoArribos.append([0,round(float(self.tiempoArribo),numeroDecimales+3),self.identificador, self.tipo,self.estado, self.tamañopkt,self.modeloTrafico])
+            self.registroArribos.append([0,round(float(self.tiempoArribo),4),self.identificador, self.tipo,self.estado,self.tamañopkt])  # se registra el arribo en la lista
+            self.registroCompletoArribos.append([0,round(float(self.tiempoArribo),4),self.identificador, self.tipo,self.estado, self.tamañopkt,self.modeloTrafico])
 
     def generararriboperiodico(self,tiempo,numeroDecimales):
         if self.tiempoArribo <= tiempo:
             self.generarpaquetenormal()
             self.registroArribos.append(
-                [0, round(float(self.tiempoArribo), numeroDecimales + 3), self.identificador, self.tipo, self.estado,
+                [0, round(float(self.tiempoArribo), 4), self.identificador, self.tipo, self.estado,
                  self.tamañopkt])  # se registra el arribo en la lista
             self.registroCompletoArribos.append(
-                [0, round(float(self.tiempoArribo), numeroDecimales + 3), self.identificador, self.tipo, self.estado,
+                [0, round(float(self.tiempoArribo), 4), self.identificador, self.tipo, self.estado,
                  self.tamañopkt,self.modeloTrafico])
 
             self.tiempoArribo=self.tiempoArribo+(1/self.lambdareg) # se agrega un arribo en el siguiente periodo

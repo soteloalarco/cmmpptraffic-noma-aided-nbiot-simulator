@@ -4,6 +4,9 @@ import pandas as pd
 import itertools as iter
 from decimal import *
 import numpy as np
+import time
+import sys
+import math
 from trafico.clases.GeneradorAlarma import GeneradorAlarmas
 from trafico.funciones.funcionesdispositivos import creardispositivos
 from trafico.funciones.funcionesdispositivos import calcularPnk
@@ -11,106 +14,110 @@ from trafico.funciones.miscelaneo import distanciaList
 from trafico.clases.DeviceMTC import DeviceMTC
 from trafico.clases.TiposDispositivos import TiposDispositivos
 
+# comando VT100 para borrar contenido de la terminal actual
+# VT100 command for erasing content of the current prompt line
+ERASE_LINE = '\x1b[2K'
 
 class Application(tk.Frame):
 
     # Variables a modificar
-    tiempoLimite = 1  # segundos, tiempo de paro del algoritmo
-    deltaTiempo = 0.1  # segundos , diferencial de tiempo entre iteración
-    numerosDecimalesDeltaTiempo = 1  # Si se modifica deltaTiempo modificar también esta variable
+    tiempoLimite = 3600  # segundos, tiempo de paro del algoritmo
+    tiempo = 0  # tiempo inicial
+    deltaTiempo = 1  # segundos , diferencial de tiempo entre iteración
+    numerosDecimalesDeltaTiempo = 0  # Si se modifica deltaTiempo modificar también esta variable
     tiposDispositivos = 0  # Cantidad total de dispositivos a caracterizar a continuación
-    radiocelula=50 # radio de la célula en metros
-    modelodispositivos=0 # 0 para PPP y 1 para uniforme
+    radiocelula=200 # radio de la célula en metros
+    modelodispositivos=1 # 0 para PPP y 1 para uniforme
     repeticiones=1 # repeticiones de la rutina CCMMPP
 
 
     ### Control de iluminación
-    dipositivos_Tipo1 = 0.05  # intensidad de dispositivos/m^2, o cantidad total si el modelo de distribución  (modelodispositivos) es uniforme
+    dipositivos_Tipo1 = 1000  # intensidad de dispositivos/m^2, o cantidad total si el modelo de distribución  (modelodispositivos) es uniforme
     modeloTrafico_Tipo1 = 0  # Modelo de generación de tráfico, 0 CMMPP 1 Periódico
-    tasaPaquete_Tipo1 = 1 / 40  # si modelotrafico==0 la tasa lambda para el estado regular de los dispositivos de tipo 1, si modelotrafico==1 tasa de Paquete/seg
-    lambdaAlarma_Tipo1 = 1 / 40  # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 500 seg)
+    tasaPaquete_Tipo1 = 0.000556  # si modelotrafico==0 la tasa lambda para el estado regular de los dispositivos de tipo 1, si modelotrafico==1 tasa de Paquete/seg
+    lambdaAlarma_Tipo1 = 0.002778  # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 500 seg)
     velPropagacionAlarma_Tipo1 = 500  # m/s Velocidad de propagación de alarma
-    modeloEspacial_Tipo1 = 0  # Propagación espacial de alarma, 0 Decaying exponential 1 raised-cosine Window
-    constanteEspacial1_Tipo1 = 0.007  # alpha para Decaying exponential, W para raised-cosine Window
-    constanteEspacial2_Tipo1 = 0  # ignorar para Decaying exponential, dth para raised-cosine Window
+    modeloEspacial_Tipo1 = 1  # Propagación espacial de alarma, 0 Decaying exponential 1 raised-cosine Window
+    constanteEspacial1_Tipo1 = 200  # alpha para Decaying exponential, W para raised-cosine Window
+    constanteEspacial2_Tipo1 = 100  # ignorar para Decaying exponential, dth para raised-cosine Window
     # animacion
     color_Tipo1 = 'b'
     marcador_Tipo1 = 'd'
 
     ### Monitoreo de consumo del agua y electricidad
-    dipositivos_Tipo2 = 0.03  # intensidad de dispositivos/m^2, o cantidad total si el modelo de distribución  (modelodispositivos) es uniforme
+    dipositivos_Tipo2 = 500  # intensidad de dispositivos/m^2, o cantidad total si el modelo de distribución  (modelodispositivos) es uniforme
     modeloTrafico_Tipo2 = 1  # Modelo de generación de tráfico, 0 CMMPP 1 Periódico
-    tasaPaquete_Tipo2 = 1 / 15  # si modelotrafico==0 la tasa lambda para el estado regular de los dispositivos de tipo 2, si modelotrafico==1 tasa de Paquete/seg
-    lambdaAlarma_Tipo2 = 1 / 1000  # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 200 seg)
-    velPropagacionAlarma_Tipo2 = 500  # m/s Velocidad de propagación de alarma
-    modeloEspacial_Tipo2 = 1  # Propagación espacial de alarma, 0 Decaying exponential 1 raised-cosine Window
-    constanteEspacial1_Tipo2 = 200  # alpha para Decaying exponential, W para raised-cosine Window
-    constanteEspacial2_Tipo2 = 80  # ignorar para Decaying exponential, dth para raised-cosine Window
+    tasaPaquete_Tipo2 = 0.001667  # si modelotrafico==0 la tasa lambda para el estado regular de los dispositivos de tipo 2, si modelotrafico==1 tasa de Paquete/seg
+    lambdaAlarma_Tipo2 = 0  # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 200 seg)
+    velPropagacionAlarma_Tipo2 = 0  # m/s Velocidad de propagación de alarma
+    modeloEspacial_Tipo2 = 0  # Propagación espacial de alarma, 0 Decaying exponential 1 raised-cosine Window
+    constanteEspacial1_Tipo2 = 0  # alpha para Decaying exponential, W para raised-cosine Window
+    constanteEspacial2_Tipo2 = 0 # ignorar para Decaying exponential, dth para raised-cosine Window
     # animacion
     color_Tipo2 = 'r'
     marcador_Tipo2 = '*'
 
     ### Detección de terremotos
-    dipositivos_Tipo3 = 0.08 # intensidad de dispositivos/m^2, o cantidad total si el modelo de distribución  (modelodispositivos) es uniforme
+    dipositivos_Tipo3 = 500 # intensidad de dispositivos/m^2, o cantidad total si el modelo de distribución  (modelodispositivos) es uniforme
     modeloTrafico_Tipo3 = 0  # Modelo de generación de tráfico, 0 CMMPP 1 Periódico
-    tasaPaquete_Tipo3 = 1 / 180  # si modelotrafico==0 la tasa lambda para el estado regular de los dispositivos de tipo 3, si modelotrafico==1 tasa de Paquete/seg
-    lambdaAlarma_Tipo3 = 1 / 100  # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 350 seg)
+    tasaPaquete_Tipo3 = 0.000278  # si modelotrafico==0 la tasa lambda para el estado regular de los dispositivos de tipo 3, si modelotrafico==1 tasa de Paquete/seg
+    lambdaAlarma_Tipo3 = 0.002778  # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 350 seg)
     velPropagacionAlarma_Tipo3 = 3000  # m/s Velocidad de propagación de alarma
     modeloEspacial_Tipo3 = 0  # Propagación espacial de alarma, 0 Decaying exponential 1 raised-cosine Window
-    constanteEspacial1_Tipo3 = 0.007  # alpha para Decaying exponential, W para raised-cosine Window
+    constanteEspacial1_Tipo3 = 0.004  # alpha para Decaying exponential, W para raised-cosine Window
     constanteEspacial2_Tipo3 = 0  # ignorar para Decaying exponential, dth para raised-cosine Window
     # animacion
     color_Tipo3 = 'k'
     marcador_Tipo3 = '^'
 
     ### Contaminación del aire
-    dipositivos_Tipo4 = 0.01  # intensidad de dispositivos/m^2, o cantidad total si el modelo de distribución  (modelodispositivos) es uniforme
-    modeloTrafico_Tipo4 = 0  # Modelo de generación de tráfico, 0 CMMPP 1 Periódico
-    tasaPaquete_Tipo4 = 1 / 190  # si modelotrafico==0 la tasa lambda para el estado regular de los dispositivos de tipo 4, si modelotrafico==1 tasa de Paquete/seg
-    lambdaAlarma_Tipo4 = 1 / 100  # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 350 seg)
-    velPropagacionAlarma_Tipo4 = 1000  # m/s Velocidad de propagación de alarma
+    dipositivos_Tipo4 = 500  # intensidad de dispositivos/m^2, o cantidad total si el modelo de distribución  (modelodispositivos) es uniforme
+    modeloTrafico_Tipo4 = 1  # Modelo de generación de tráfico, 0 CMMPP 1 Periódico
+    tasaPaquete_Tipo4 = 0.001111  # si modelotrafico==0 la tasa lambda para el estado regular de los dispositivos de tipo 4, si modelotrafico==1 tasa de Paquete/seg
+    lambdaAlarma_Tipo4 = 0  # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 350 seg)
+    velPropagacionAlarma_Tipo4 = 0  # m/s Velocidad de propagación de alarma
     modeloEspacial_Tipo4 = 0  # Propagación espacial de alarma, 0 Decaying exponential 1 raised-cosine Window
-    constanteEspacial1_Tipo4 = 0.005  # alpha para Decaying exponential, W para raised-cosine Window
+    constanteEspacial1_Tipo4 = 0  # alpha para Decaying exponential, W para raised-cosine Window
     constanteEspacial2_Tipo4 = 0  # ignorar para Decaying exponential, dth para raised-cosine Window
     # animacion
     color_Tipo4 = 'k'
     marcador_Tipo4 = '^'
 
     ### Control de semáforos
-    dipositivos_Tipo5 = 0.03  # intensidad de dispositivos/m^2, o cantidad total si el modelo de distribución  (modelodispositivos) es uniforme
-    modeloTrafico_Tipo5 = 0  # Modelo de generación de tráfico, 0 CMMPP 1 Periódico
-    tasaPaquete_Tipo5 = 1 / 170  #  si modelotrafico==0 la tasa lambda para el estado regular de los dispositivos de tipo 5, si modelotrafico==1 tasa de Paquete/seg
-    lambdaAlarma_Tipo5 = 1 / 200  # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 350 seg)
-    velPropagacionAlarma_Tipo5 = 2000  # m/s Velocidad de propagación de alarma
-    modeloEspacial_Tipo5 = 1  # Propagación espacial de alarma, 0 Decaying exponential 1 raised-cosine Window
-    constanteEspacial1_Tipo5 = 300  # alpha para Decaying exponential, W para raised-cosine Window
-    constanteEspacial2_Tipo5 = 200  # ignorar para Decaying exponential, dth para raised-cosine Window
+    dipositivos_Tipo5 = 1000  # intensidad de dispositivos/m^2, o cantidad total si el modelo de distribución  (modelodispositivos) es uniforme
+    modeloTrafico_Tipo5 = 1  # Modelo de generación de tráfico, 0 CMMPP 1 Periódico
+    tasaPaquete_Tipo5 = 0.016667  #  si modelotrafico==0 la tasa lambda para el estado regular de los dispositivos de tipo 5, si modelotrafico==1 tasa de Paquete/seg
+    lambdaAlarma_Tipo5 = 0  # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 350 seg)
+    velPropagacionAlarma_Tipo5 = 0  # m/s Velocidad de propagación de alarma
+    modeloEspacial_Tipo5 = 0  # Propagación espacial de alarma, 0 Decaying exponential 1 raised-cosine Window
+    constanteEspacial1_Tipo5 = 0  # alpha para Decaying exponential, W para raised-cosine Window
+    constanteEspacial2_Tipo5 = 0  # ignorar para Decaying exponential, dth para raised-cosine Window
     # animacion
     color_Tipo5 = 'k'
     marcador_Tipo5 = '^'
 
     ### Otros dispositivos nMTC
-    dipositivos_Tipo6 = 0.03  # intensidad de dispositivos/m^2, o cantidad total si el modelo de distribución  (modelodispositivos) es uniforme
+    dipositivos_Tipo6 = 3000  # intensidad de dispositivos/m^2, o cantidad total si el modelo de distribución  (modelodispositivos) es uniforme
     modeloTrafico_Tipo6 = 0  # Modelo de generación de tráfico, 0 CMMPP 1 Periódico
-    tasaPaquete_Tipo6 = 1 / 170  # si modelotrafico==0 la tasa lambda para el estado regular de los dispositivos de tipo 5, si modelotrafico==1 tasa de Paquete/seg
-    lambdaAlarma_Tipo6 = 1 / 200  # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 350 seg)
-    velPropagacionAlarma_Tipo6 = 2000  # m/s Velocidad de propagación de alarma
-    modeloEspacial_Tipo6 = 1  # Propagación espacial de alarma, 0 Decaying exponential 1 raised-cosine Window
-    constanteEspacial1_Tipo6 = 300  # alpha para Decaying exponential, W para raised-cosine Window
-    constanteEspacial2_Tipo6 = 200  # ignorar para Decaying exponential, dth para raised-cosine Window
+    tasaPaquete_Tipo6 = 0.001667  # si modelotrafico==0 la tasa lambda para el estado regular de los dispositivos de tipo 5, si modelotrafico==1 tasa de Paquete/seg
+    lambdaAlarma_Tipo6 = 0.016667  # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 350 seg)
+    velPropagacionAlarma_Tipo6 = 500  # m/s Velocidad de propagación de alarma
+    modeloEspacial_Tipo6 = 0  # Propagación espacial de alarma, 0 Decaying exponential 1 raised-cosine Window
+    constanteEspacial1_Tipo6 = 0.007  # alpha para Decaying exponential, W para raised-cosine Window
+    constanteEspacial2_Tipo6 = 0  # ignorar para Decaying exponential, dth para raised-cosine Window
     # animacion
     color_Tipo6 = 'k'
     marcador_Tipo6 = '^'
 
     ### Dispositivos URLLC
-    dipositivos_Tipo7 = 0.03  # intensidad de dispositivos/m^2, o cantidad total si el modelo de distribución  (modelodispositivos) es uniforme
+    dipositivos_Tipo7 = 1000  # intensidad de dispositivos/m^2, o cantidad total si el modelo de distribución  (modelodispositivos) es uniforme
     modeloTrafico_Tipo7 = 0  # Modelo de generación de tráfico, 0 CMMPP 1 Periódico
-    tasaPaquete_Tipo7 = 1 / 170  # si modelotrafico==0 la tasa lambda para el estado regular de los dispositivos de tipo 5, si modelotrafico==1 tasa de Paquete/seg
-    lambdaAlarma_Tipo7 = 1 / 200  # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 350 seg)
-    velPropagacionAlarma_Tipo7 = 2000  # m/s Velocidad de propagación de alarma
-    modeloEspacial_Tipo7 = 1  # Propagación espacial de alarma, 0 Decaying exponential 1 raised-cosine Window
-    constanteEspacial1_Tipo7 = 300  # alpha para Decaying exponential, W para raised-cosine Window
-    constanteEspacial2_Tipo7 = 200  # ignorar para Decaying exponential, dth para raised-cosine Window
+    tasaPaquete_Tipo7 = 0.001667 # si modelotrafico==0 la tasa lambda para el estado regular de los dispositivos de tipo 5, si modelotrafico==1 tasa de Paquete/seg
+    lambdaAlarma_Tipo7 = 0.016667  # la tasa a la que se producen eventos de alarma para este tipo de dispositivos (1 evento cada 350 seg)
+    velPropagacionAlarma_Tipo7 = 500  # m/s Velocidad de propagación de alarma
+    modeloEspacial_Tipo7 = 0  # Propagación espacial de alarma, 0 Decaying exponential 1 raised-cosine Window
+    constanteEspacial1_Tipo7 = 0.007  # alpha para Decaying exponential, W para raised-cosine Window
+    constanteEspacial2_Tipo7 = 0  # ignorar para Decaying exponential, dth para raised-cosine Window
     # animacion
     color_Tipo7 = 'k'
     marcador_Tipo7 = '^'
@@ -1002,8 +1009,11 @@ class Application(tk.Frame):
         # Variables a modificar
         self.tiempoLimite = float(self.tiemposimulacion.get())  # segundos, tiempo de paro del algoritmo
         self.deltaTiempo = float(self.diftiempo.get())  # segundos , diferencial de tiempo entre iteración
-        decimales=Decimal(self.diftiempo.get())
-        self.numerosDecimalesDeltaTiempo = -1*(int(decimales.as_tuple().exponent))  # Si se modifica deltaTiempo modificar también esta veriable
+        if (self.deltaTiempo < 1):
+            decimales = Decimal(self.diftiempo.get())
+            self.numerosDecimalesDeltaTiempo = -1*(int(decimales.as_tuple().exponent))  # Si se modifica deltaTiempo modificar también esta veriable
+        else:
+            self.numerosDecimalesDeltaTiempo = 0
         self.radiocelula=float(self.radio00.get())
         if (self.modelodisp00.get() == 'PPP'):
             self.modelodispositivos=0
@@ -1272,6 +1282,20 @@ class Application(tk.Frame):
         self.create_widgets()
 
     #--------------funciones para el GUI----------------
+    def print_percentage(self, first):
+        # se regresa al inicio de la línea
+        # go back to the beginning of the line
+        if not first:
+            sys.stdout.write('\r' + ERASE_LINE)
+        # se calcula el porcentaje
+        # compute percentage
+        perc = min(100, int(math.floor(self.tiempo / self.tiempoLimite * 100)))
+        # se imprime la barra de progreso
+        # print progress bar, percentage, and current element
+        sys.stdout.write("[%-20s] %d%% (tiempo = %f, tiempo total = %f)" %
+                         ('=' * (perc // 5), perc, self.tiempo, self.tiempoLimite))
+        sys.stdout.flush()
+
     def cambiomodeloesp1(self, event):
         if(self.modeloesp01.get()=='Decaying Exponential'):
             self.constante11.set('Alpha')
@@ -2309,6 +2333,13 @@ class Application(tk.Frame):
 
     def rutinaCMMPP(self):
         self.leerentradas()
+        # se guarda el momento en el que la simulación inicio
+        # save the time at which the simulation started, for statistical purpose
+        start_time = time.time()
+        # la última vez que se imprimio el porcentaje de la simulación
+        # last time we printed the simulation percentage
+        prev_time = start_time
+        self.print_percentage(True)
         ######################################################
         for self.rep in range(self.repeticiones):
             tiposDisp = 0
@@ -2550,7 +2581,13 @@ class Application(tk.Frame):
                     self.nuevaAlarma[self.tipoDisp] = self.generadorAlarma.generarAlarma(self.tiempo,
                                                                           self.radiocelula)  # se genera una nueva alarma en una posición aleatoria si la actual ya sucedió
 
-                self.tiempo = round(self.tiempo + self.deltaTiempo, self.numerosDecimalesDeltaTiempo)  # Función para redondear decimales
+                self.tiempo = round(self.tiempo + self.deltaTiempo, 4)  # Función para redondear decimales
+                # obtenemos el tiempo actual
+                # get current real time
+                curr_time = time.time()
+                if curr_time - prev_time >= 1:
+                    self.print_percentage(False)
+                    prev_time = curr_time
 
             def takeSecond(elem):
                 return elem[1]
@@ -2593,14 +2630,19 @@ class Application(tk.Frame):
             nombreArchivoAlarmas = "ArchivoAlarmas" + str(self.rep) + ".csv"
             self.df_ArchivoAlarmas.to_csv(nombreArchivoAlarmas)
 
+            self.print_percentage(False)
+
             DeviceMTC.registroCompletoArribos=[]
             DeviceMTC.cuentaAlarmas = 0
+            self.tiempo = 0
             DeviceMTC.totalAlarmas = []
             DeviceMTC.totalDispositivos=1
             GeneradorAlarmas.TodasAlarmas = []
             self.configSalida = []
 
-            print('Fin de Rutina ')
+            # completada la simulación, se imprime el porcentaje por última vez (100%)
+            # simulation completed, print the percentage for the last time (100%)
+            print('\nFin de Rutina ')
 
 
 
