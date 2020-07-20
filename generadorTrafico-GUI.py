@@ -2319,7 +2319,7 @@ class Application(tk.Frame):
         self.tiemposimulacion.grid(row=0, column=1)
 
         # diferencial de tiempo
-        tk.Label(self.bottomFrame, text='Diferencial de tiempo (ms):').grid(row=0, column=3, sticky='w' + 'e')
+        tk.Label(self.bottomFrame, text='Diferencial de tiempo (seg):').grid(row=0, column=3, sticky='w' + 'e')
         self.diftiempo = tk.Entry(self.bottomFrame, width=6)
         self.diftiempo.grid(row=0, column=4)
 

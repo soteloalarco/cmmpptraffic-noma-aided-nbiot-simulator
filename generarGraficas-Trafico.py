@@ -7,6 +7,6 @@ from trafico.funciones.funcionesgraficar import graficareventosportipodispositiv
 # Descomentar la gráfica que se desee generar
 #graficardispositivos('ArchivoDispositivos0.csv','ArchivoConfigSalida0.csv')
 #histogramatodoseventos('ArchivoEventos0.csv','ArchivoConfigSalida0.csv')
-#graficareventosportipodispositivo('ArchivoEventos0.csv','ArchivoConfigSalida0.csv','ArchivoAlarmas0.csv')
-graficaralarmas('ArchivoEventos0.csv','ArchivoAlarmas0.csv','ArchivoDispositivos0.csv','ArchivoConfigSalida0.csv',TiposDispositivos.TIPO5)
+graficareventosportipodispositivo('ArchivoEventos0.csv','ArchivoConfigSalida0.csv','ArchivoAlarmas0.csv',TiposDispositivos.TIPO6)
+#graficaralarmas('ArchivoEventos0.csv','ArchivoAlarmas0.csv','ArchivoDispositivos0.csv','ArchivoConfigSalida0.csv',TiposDispositivos.TIPO6,1)
 
