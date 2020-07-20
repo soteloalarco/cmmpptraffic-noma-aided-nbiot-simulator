@@ -103,6 +103,8 @@ class Sim:
         self.universoNOMA =[]
         #lista de bloqueos por negación de servicio , sin cluster
         self.bloqueoSinCluster = []
+        self.bloqueoSinCluster_URLLC= []
+        self.bloqueoSinCluster_mMTC = []
         # initialize() debe ser llamada antes de correr la simulación
         # initialize() should be called before running the simulation
         self.initialized = False
@@ -186,9 +188,15 @@ class Sim:
         eventos_rec = pd.read_csv(self.eventosArchivo, index_col=0)
         self.eventos = eventos_rec.values.tolist()
         self.cantidadPaquetes = 0
+        self.cantidadPaquetes_URLLC = 0
+        self.cantidadPaquetes_mMTC = 0
         self.totalsatisfechosnoma = 0
         self.totalnosatisfechosnoma = 0
         self.arribos_tasa_efectiva = 0
+        self.arribos_tasa_efectiva_URLLC = 0
+        self.arribos_tasa_efectiva_mMTC = 0
+        self.traficoOfrecido = 0 # bytes
+        self.traficoResuelto = 0 # bytes
         # nombre del archivo que contiene los dispositivos
         # name of the file conteining the UE's
         self.dispositivos = self.config.get_param(self.PAR_UE)
@@ -273,13 +281,29 @@ class Sim:
         print("Tiempo total de la simulación: %d horas, %d minutos, %d segundos" %
               (total_time // 3600, total_time % 3600 // 60,
                total_time % 3600 % 60))
+        print("\nKmax: %d , PmMTC: %f " %
+              (self.kmax , self.pmaxmMTC))
+        print("\nTráfico ofrecido: %f bytes/s" %
+              (self.traficoOfrecido/self.get_time()))
+        print("\nTroughtput: %f bytes/s" %
+              (self.traficoResuelto / self.get_time()))
         print("\nProbabilidad de bloqueo sin cluster: %f porciento, %d arribos, %d bloqueos" %
               ((len(self.bloqueoSinCluster)/self.cantidadPaquetes) * 100,self.cantidadPaquetes,len(self.bloqueoSinCluster)))
         print("\nTasas no cubiertas (en procesos NOMA): %f porciento, %d cubiertas, %d no cubiertas" %
               ((self.totalnosatisfechosnoma / (self.totalnosatisfechosnoma + self.totalsatisfechosnoma))* 100, self.totalsatisfechosnoma, self.totalnosatisfechosnoma))
-        print("\nTasas no cubiertas (por arribo): %f porciento, %d cubiertas, %d no cubiertas" %
+        print("\nTasas no cubiertas (Tasa efectiva): %f porciento, %d cubiertas, %d no cubiertas" %
               (((self.cantidadPaquetes - len(self.bloqueoSinCluster) - self.arribos_tasa_efectiva) / (self.cantidadPaquetes - len(self.bloqueoSinCluster))) * 100,
                self.arribos_tasa_efectiva, (self.cantidadPaquetes - len(self.bloqueoSinCluster) - self.arribos_tasa_efectiva)))
+        print("\nTasas URLLC no cubiertas (Tasa efectiva): %f porciento, %d cubiertas, %d no cubiertas" %
+              (((self.cantidadPaquetes_URLLC - len(self.bloqueoSinCluster_URLLC) - self.arribos_tasa_efectiva_URLLC) / (
+                          self.cantidadPaquetes_URLLC - len(self.bloqueoSinCluster_URLLC))) * 100,
+               self.arribos_tasa_efectiva_URLLC,
+               (self.cantidadPaquetes_URLLC - len(self.bloqueoSinCluster_URLLC) - self.arribos_tasa_efectiva_URLLC)))
+        print("\nTasas nMTC no cubiertas (Tasa efectiva): %f porciento, %d cubiertas, %d no cubiertas" %
+              (((self.cantidadPaquetes_mMTC - len(self.bloqueoSinCluster_mMTC) - self.arribos_tasa_efectiva_mMTC) / (
+                      self.cantidadPaquetes_mMTC - len(self.bloqueoSinCluster_mMTC))) * 100,
+               self.arribos_tasa_efectiva_mMTC,
+               (self.cantidadPaquetes_mMTC - len(self.bloqueoSinCluster_mMTC) - self.arribos_tasa_efectiva_mMTC)))
         self.logger.log_file.close()
         df_bloqueos = pd.DataFrame(self.bloqueoSinCluster)
         # Guardado de datos en archivo con extensión .csv

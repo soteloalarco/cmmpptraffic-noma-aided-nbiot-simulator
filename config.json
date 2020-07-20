@@ -29,7 +29,7 @@
 		"Pmax-mMTC" : 0.1,
 
 		// kmax , tamaño máximo de cluster
-		"kmax" : 4,
+		"kmax" : 1,
 
 		// nombre del archivo que guardará los logs a la salida
 		"output" : "noma-aided-nbiot-logs.csv"

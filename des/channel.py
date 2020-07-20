@@ -22,6 +22,7 @@ import math as mth
 import copy
 from des.module import Module
 from des.event import Event
+from des.node import Node
 from des.events import Events
 from noma.clases.simulacion import Simulacion
 from noma.clases.nbIoT import NB_IoT
@@ -172,6 +173,13 @@ class Channel(Module):
             else: #si el dispossitivo no alcanzo cluster
                 if (nodo.evento_end_tx is None): # si recien comienza a transmitir
                     self.sim.bloqueoSinCluster.append([self.sim.get_time(),nodo.get_id(),nodo.get_tipo(),nodo.current_pkt.get_size(),0])
+                    if(nodo.get_tipo == Node.TIPO7):
+                        self.sim.bloqueoSinCluster_URLLC.append(
+                            [self.sim.get_time(), nodo.get_id(), nodo.get_tipo(), nodo.current_pkt.get_size(), 0])
+                    else:
+                        self.sim.bloqueoSinCluster_mMTC.append(
+                            [self.sim.get_time(), nodo.get_id(), nodo.get_tipo(), nodo.current_pkt.get_size(), 0])
+
                 else: # si ya había transmitido durante algun tiempo
                     self.sim.cancel_event(nodo.evento_end_tx)
 
@@ -179,6 +187,12 @@ class Channel(Module):
                     nodo.paquete_restante = nodo.paquete_restante - ((nodo.tasa_tx) * tiempo_entre_noma)
 
                     self.sim.bloqueoSinCluster.append([self.sim.get_time(),nodo.get_id(),nodo.get_tipo(),nodo.current_pkt.get_size(),nodo.current_pkt.get_size()-nodo.paquete_restante])
+                    if (nodo.get_tipo == Node.TIPO7):
+                        self.sim.bloqueoSinCluster_URLLC.append(
+                            [self.sim.get_time(), nodo.get_id(), nodo.get_tipo(), nodo.current_pkt.get_size(), 0])
+                    else:
+                        self.sim.bloqueoSinCluster_mMTC.append(
+                            [self.sim.get_time(), nodo.get_id(), nodo.get_tipo(), nodo.current_pkt.get_size(), 0])
 
                 nodo.end_transmit_packet()
 

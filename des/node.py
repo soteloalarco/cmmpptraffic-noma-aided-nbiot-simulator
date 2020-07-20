@@ -211,12 +211,19 @@ class Node(Module):
         """
 
         self.sim.cantidadPaquetes = self.sim.cantidadPaquetes + 1
+
+        if (self.get_tipo()==Node.TIPO7):
+            self.sim.cantidadPaquetes_URLLC = self.sim.cantidadPaquetes_URLLC + 1
+        else:
+            self.sim.cantidadPaquetes_mMTC = self.sim.cantidadPaquetes_mMTC + 1
+
         self.inicio_ultimo_paquete = event.get_time()
 
         # se asigna al dispositivo el paquete como paquete actual
         # we asigne the packet from the event as the current pkg
         paquete_actual = event.get_obj()
         self.current_pkt = paquete_actual
+        self.sim.traficoOfrecido = self.sim.traficoOfrecido + paquete_actual.get_size()
 
         # log de arribo
         # log the arrival
@@ -237,9 +244,16 @@ class Node(Module):
         assert(self.current_pkt is not None)
         assert(self.current_pkt.get_id() == event.get_obj().get_id())
 
+        self.sim.traficoResuelto = self.sim.traficoResuelto + self.current_pkt.get_size()
         tasaefectiva = (self.current_pkt.get_size())/ (event.get_time() - self.inicio_ultimo_paquete)
         if (tasaefectiva >= self.Rth/8):
             self.sim.arribos_tasa_efectiva = self.sim.arribos_tasa_efectiva + 1
+        if(self.get_tipo()== Node.TIPO7):
+            if (tasaefectiva >= self.Rth / 8):
+                self.sim.arribos_tasa_efectiva_URLLC = self.sim.arribos_tasa_efectiva_URLLC + 1
+        else:
+            if (tasaefectiva >= self.Rth / 8):
+                self.sim.arribos_tasa_efectiva_mMTC = self.sim.arribos_tasa_efectiva_mMTC + 1
 
         self.current_pkt = None
         self.evento_end_tx = None
