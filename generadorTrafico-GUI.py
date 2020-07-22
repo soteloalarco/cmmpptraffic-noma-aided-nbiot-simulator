@@ -2600,8 +2600,8 @@ class Application(tk.Frame):
             # Creación de un Dataframe apartir de una lista
             self.df_dispositivos = pd.DataFrame(self.DispositivosTodos)
             # Guardado de datos en archivo con extensión .csv
-            nombreArchivo="ArchivoEventos"+str(self.rep)+".csv"
-            nombreArchivoDisp = "ArchivoDispositivos" + str(self.rep) + ".csv"
+            nombreArchivo="trafico\ArchivoEventos"+str(self.rep)+".csv"
+            nombreArchivoDisp = "trafico\ArchivoDispositivos" + str(self.rep) + ".csv"
             self.df_eventos.to_csv(nombreArchivo)
             self.df_dispositivos.to_csv(nombreArchivoDisp)
 
@@ -2622,12 +2622,12 @@ class Application(tk.Frame):
             if (self.dipositivos_Tipo7 > 0):
                 self.configSalida.append([7,self.modeloTrafico_Tipo7, self.tasaPaquete_Tipo7, self.lambdaAlarma_Tipo7, self.modeloEspacial_Tipo7,self.constanteEspacial1_Tipo7,self.constanteEspacial2_Tipo7])
             self.df_configSalida = pd.DataFrame(self.configSalida)
-            nombreconfigSalida = "ArchivoConfigSalida" + str(self.rep) + ".csv"
+            nombreconfigSalida = "trafico\ArchivoConfigSalida" + str(self.rep) + ".csv"
             self.df_configSalida.to_csv(nombreconfigSalida)
 
             ## se crea archivo de salida con todas las alarmas
             self.df_ArchivoAlarmas = pd.DataFrame(GeneradorAlarmas.TodasAlarmas)
-            nombreArchivoAlarmas = "ArchivoAlarmas" + str(self.rep) + ".csv"
+            nombreArchivoAlarmas = "trafico\ArchivoAlarmas" + str(self.rep) + ".csv"
             self.df_ArchivoAlarmas.to_csv(nombreArchivoAlarmas)
 
             self.print_percentage(False)

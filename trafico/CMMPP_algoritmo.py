@@ -167,6 +167,3 @@ df_eventos=pd.DataFrame(ListaEventos)
 # Guardado de datos en archivo con extensión .csv
 df_eventos.to_csv("ArchivoEventos.csv")
 # Recuperación de archivo
-df_eventos_rec = pd.read_csv("ArchivoEventos.csv", index_col=0)
-# Convertir de DataFrame a Lista
-ListaEventosrec = df_eventos_rec.values.tolist()

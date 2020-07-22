@@ -168,7 +168,12 @@ class Node(Module):
         Calendariza el siguiente arribo de un paquete a partir de la lista de eventos
         Schedules a new tiempo_arribo event
         """
-
+        equilibrio=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,40000,40001,40002,40003,40004,40005,40006,40007,40008,40009,40010,40011,40012]
+        if(self.get_id() in equilibrio and self.sim.get_time==0):
+            paquete = Packet(random.uniform(0,20,1))
+            event = Event(0, Events.PACKET_ARRIVAL,self, self, paquete)
+            self.sim.schedule_event(event)
+            return
         # extraemos el siguiente evento correspodiente a este nodo
         # the next event corresponding to self in sim.eventos is added
         # Formato de sim.eventos | Format of sim.eventos

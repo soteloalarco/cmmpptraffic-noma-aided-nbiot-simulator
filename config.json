@@ -2,13 +2,13 @@
 	"simulacion" : {
 
 		// archivo .csv que contiene los dispositivos generados previamente
-		"dispositivos" : "ArchivoDispositivos0.csv",
+		"dispositivos" : "ArchivoDispositivosX.csv",
 
 		// archivo .csv que contiene los eventos generados previemente para cada dispositivo
-		"eventos" : "ArchivoEventos0.csv",
+		"eventos" : "ArchivoEventosX.csv",
 
 		// duración de la simulación en segundos
-		"duracion" : 3,
+		"duracion" : 10,
 
 		// unidad más pequeña de tiempo percibida por el sistema
 		"tiempo-minimo" : 0.0001,
@@ -29,9 +29,9 @@
 		"Pmax-mMTC" : 0.1,
 
 		// kmax , tamaño máximo de cluster
-		"kmax" : 1,
+		"kmax" : 4,
 
 		// nombre del archivo que guardará los logs a la salida
-		"output" : "noma-aided-nbiot-logs.csv"
+		"output" : "noma-aided-nbiot-logs-k4-01.csv"
 	}
 }

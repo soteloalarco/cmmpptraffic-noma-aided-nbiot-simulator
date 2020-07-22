@@ -232,6 +232,8 @@ class Sim:
             self.nodes.append(node)
         # hecho esto, la simulación puede iniciar
         # all done. simulation can start now
+
+
         self.initialized = True
 
     def run(self):
